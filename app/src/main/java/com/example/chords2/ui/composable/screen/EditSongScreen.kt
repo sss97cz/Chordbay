@@ -1,0 +1,128 @@
+package com.example.chords2.ui.composable.screen
+
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.chords2.data.database.SongEntity // Import SongEntity
+import com.example.chords2.ui.composable.component.textfield.SongContentEditor
+import com.example.chords2.ui.composable.component.textfield.SongTextField
+import com.example.chords2.ui.viewmodel.SongViewModel
+import kotlinx.coroutines.flow.first // To get the first value from StateFlow
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun EditSongScreen(
+    modifier: Modifier = Modifier,
+    songId: String,
+    navController: NavController,
+    songViewModel: SongViewModel = koinViewModel()
+){
+    Log.d("EditSongScreen", "Screen started. Received songId (String?): $songId")
+
+    var songName by rememberSaveable { mutableStateOf("") }
+    var songArtist by rememberSaveable { mutableStateOf("") }
+    var songContent by rememberSaveable( stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
+    }
+
+    val currentSongDbId: Int? = remember(songId) { songId.toIntOrNull() }
+    val songIdInt = remember(songId) { songId.toIntOrNull() }
+
+    val songData by produceState<SongEntity?>(initialValue = null, key1 = songIdInt) {
+        if (songIdInt != null) {
+            songViewModel.getSongById(songIdInt).collect { songValue ->
+                value = songValue
+            }
+        } else {
+            value = null
+        }
+    }
+    val song = songData
+    if (song != null) {
+        LaunchedEffect(songId) {
+            songName = song.title
+            songArtist = song.artist
+            songContent = TextFieldValue(song.content)
+            Log.d("EditSongScreen", "States updated from loaded song: name='${songName}'")
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+    ){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Button(
+                onClick = {
+                    if (currentSongDbId != null) {
+                        val updatedSongEntity = SongEntity(
+                            id = currentSongDbId,
+                            title = songName,
+                            artist = songArtist,
+                            content = songContent.text
+                        )
+                        songViewModel.updateSong(updatedSongEntity)
+                        navController.popBackStack()
+                    } else {
+                        Log.e("EditSongScreen", "Cannot save, songId is invalid or not loaded.")
+                    }
+                }
+            ) {
+                Text("Save")
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ){
+            SongTextField(
+                modifier = Modifier.weight(1f),
+                value = songName,
+                onValueChange = { songName = it },
+                singleLine = true,
+                label = "Song Title"
+            )
+            SongTextField(
+                modifier = Modifier.weight(1f),
+                value = songArtist,
+                onValueChange = { songArtist = it },
+                singleLine = true,
+                label = "Artist"
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+        ){
+            SongContentEditor(
+                modifier = Modifier.fillMaxSize().padding(top = 8.dp),
+                value = songContent,
+                onValueChange = { songContent = it },
+            )
+        }
+    }
+}
