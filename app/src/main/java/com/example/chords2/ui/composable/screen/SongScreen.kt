@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,12 +49,13 @@ fun SongScreen(
     songViewModel: SongViewModel = koinViewModel(),
     songId: String,
     navController: NavController,
-   // setTopAppBarConfig: (String, @Composable RowScope.() -> Unit) -> Unit,
+    // setTopAppBarConfig: (String, @Composable RowScope.() -> Unit) -> Unit,
 ) {
     val songIdInt = songId.toIntOrNull()
     var songData by remember { mutableStateOf<SongEntity?>(null) }
     val song = songData
     val canNavigateBack = navController.previousBackStackEntry != null
+    var semitones by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(songIdInt) {
         if (songIdInt != null) {
@@ -64,7 +66,7 @@ fun SongScreen(
     Scaffold(
         topBar = {
             MyTopAppBar(
-                title = "Song",
+                title = "${song?.artist ?: ""} - ${song?.title ?: ""}",
                 navigationIcon = if (canNavigateBack) {
                     Icons.AutoMirrored.Filled.ArrowBack
                 } else null,
@@ -74,10 +76,21 @@ fun SongScreen(
                     }
                 },
                 actions = {
-                   TransposeButton(
-                       initialSemitones = 0,
-                       initialChord = Chords.A.value
-                   )
+                    if (song != null) {
+                        val key = songViewModel.findKey(song.content)
+                        if (key != null) {
+                            TransposeButton(
+                                initialSemitones = 0,
+                                initialChord = key,
+                                onUpClick = {
+                                    semitones += 1
+                                },
+                                onDownClick = {
+                                    semitones -= 1
+                                }
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -104,16 +117,11 @@ fun SongScreen(
                             .verticalScroll(rememberScrollState())
                             .padding(16.dp)
                     ) {
-                        Text(
-                            text = "Song Title: ${song.title}",
-                        )
-                        Text(
-                            text = "Artist: ${song.artist}",
-                        )
                         SongText(
                             modifier = Modifier.fillMaxSize(),
                             text = song.content,
-                            semitones = 12,
+                            semitones = semitones,
+                            chordsColor = MaterialTheme.colorScheme.primary
                         )
                     }
                 }

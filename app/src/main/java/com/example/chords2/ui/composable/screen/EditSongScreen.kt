@@ -114,30 +114,6 @@ fun EditSongScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(
-                    onClick = {
-                        if (currentSongDbId != null) {
-                            val updatedSongEntity = SongEntity(
-                                id = currentSongDbId,
-                                title = songName,
-                                artist = songArtist,
-                                content = songContent.text
-                            )
-                            songViewModel.updateSong(updatedSongEntity)
-                            navController.popBackStack()
-                        } else {
-                            Log.e("EditSongScreen", "Cannot save, songId is invalid or not loaded.")
-                        }
-                    }
-                ) {
-                    Text("Save")
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SongTextField(

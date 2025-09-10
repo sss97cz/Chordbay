@@ -3,6 +3,7 @@ package com.example.chords2.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.SongEntity
+import com.example.chords2.data.model.Chords
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.repository.SongRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -58,7 +59,8 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
             songRepository.insertSong(newSong)
         }
     }
-    suspend fun addNewSongAndGetId(song: Song = Song()): Long{
+
+    suspend fun addNewSongAndGetId(song: Song = Song()): Long {
         return songRepository.insertSong(
             SongEntity(
                 title = song.title,
@@ -67,11 +69,13 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
             )
         )
     }
+
     fun deleteSong(song: SongEntity) {
         viewModelScope.launch {
             songRepository.deleteSong(song)
         }
     }
+
     fun updateSong(song: SongEntity) {
         viewModelScope.launch {
             val songToUpdate = SongEntity(
@@ -83,11 +87,34 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
             songRepository.updateSong(songToUpdate)
         }
     }
-    fun deleteAll(){
+
+    fun deleteAll() {
         viewModelScope.launch {
             songs.value.forEach {
                 songRepository.deleteSong(it)
             }
         }
     }
+
+    fun findKey(song: String): String? {
+        val openBracketIndex = song.indexOf('[')
+        if (openBracketIndex == -1) {
+            return null
+        }
+        val textAfterOpenBracket = song.substring(startIndex = openBracketIndex)
+        val closeBracketIndexInSubstring = textAfterOpenBracket.indexOf(']')
+        if (closeBracketIndexInSubstring == -1) {
+            return null
+        }
+        val firstChord = textAfterOpenBracket.substring(1)
+            .substringBefore(']')
+        if (firstChord.isEmpty()) {
+            return null
+        }
+        val baseChord = Chords.allBaseChords.firstOrNull {
+            firstChord.contains(it.value)
+        }
+        return baseChord?.value
+    }
+
 }

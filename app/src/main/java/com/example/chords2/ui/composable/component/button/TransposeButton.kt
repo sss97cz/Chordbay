@@ -16,7 +16,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,24 +25,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.chords2.data.model.Chords
 import com.example.chords2.data.model.Chords.Companion.transposeChord
-import com.example.chords2.ui.composable.Check_indeterminate_small
+import com.example.chords2.ui.composable.imagevector.Check_indeterminate_small
 
 @Composable
 fun TransposeButton(
     modifier: Modifier = Modifier,
     initialSemitones: Int,
-    initialChord: String
+    initialChord: String,
+    onUpClick: () -> Unit,
+    onDownClick: () -> Unit
 ) {
     var currentChordString by remember { mutableStateOf(initialChord) }
     var currentSemitones by remember { mutableIntStateOf(initialSemitones) }
-    LaunchedEffect(initialChord, initialSemitones) {
-        currentSemitones = initialSemitones
-        currentChordString = initialChord.transposeChord(currentSemitones)
-    }
+//    LaunchedEffect(initialChord, initialSemitones) {
+//        currentSemitones = initialSemitones
+//        currentChordString = initialChord.transposeChord(currentSemitones)
+//    }
     Box(
         modifier = modifier
             .clip(CircleShape)
@@ -55,13 +54,14 @@ fun TransposeButton(
         contentAlignment = Alignment.Center
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(4.dp)
         ) {
             IconButton(
                 onClick = {
                     currentSemitones--
+                    onDownClick()
                     currentChordString = initialChord.transposeChord(currentSemitones)
 
                 },
@@ -74,11 +74,12 @@ fun TransposeButton(
                 )
             }
             Text(
-                text = currentChordString
+                text = currentChordString,
             )
             IconButton(
                 onClick = {
                     currentSemitones++
+                    onUpClick()
                     currentChordString = initialChord.transposeChord(currentSemitones)
                 },
                 modifier = Modifier.size(25.dp)
@@ -87,7 +88,6 @@ fun TransposeButton(
                     Icons.Default.Add,
                     contentDescription = "Transpose Up",
                     modifier = Modifier.fillMaxSize(),
-                    tint = Color.Red
                 )
             }
         }

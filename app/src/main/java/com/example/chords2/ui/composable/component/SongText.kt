@@ -1,6 +1,7 @@
 package com.example.chords2.ui.composable.component
 
 import android.util.Log
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,6 +10,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
@@ -20,15 +22,16 @@ fun SongText(
     modifier: Modifier,
     text: String,
     semitones: Int,
+    chordsColor: Color = Color.Unspecified
 ) {
     Text(
-        text = text.highlightChords(semitones = semitones),
+        text = text.highlightChords(semitones = semitones, chordsColor = chordsColor),
         modifier = modifier,
         fontFamily = FontFamily.Monospace,
     )
 }
 
-private fun String.highlightChords(semitones: Int): AnnotatedString {
+private fun String.highlightChords(semitones: Int, chordsColor: Color = Color.Unspecified): AnnotatedString {
     val allChords = Chords.allChordsToString()
     Log.d("SongText", "highlightChords: $allChords")
 
@@ -48,8 +51,9 @@ private fun String.highlightChords(semitones: Int): AnnotatedString {
                 if (chordContentNoBrackets in allChords) {
                     withStyle(
                         SpanStyle(
-                            color = Color.Red,
+                            color = chordsColor,
                             fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic,
                             fontSize = 25.sp
                         )
                     ) {
