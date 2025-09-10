@@ -58,7 +58,7 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
             songRepository.insertSong(newSong)
         }
     }
-    suspend fun addNewSongAndGetId(song: Song): Long{
+    suspend fun addNewSongAndGetId(song: Song = Song()): Long{
         return songRepository.insertSong(
             SongEntity(
                 title = song.title,

@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 @Composable
 fun MyTopAppBar(
     title: String,
-    onNavigationIconClick: () -> Unit,
+    onNavigationIconClick: (() -> Unit)? = null,
     navigationIcon: ImageVector? = null,
     navigationIconContentDescription: String? = null,
     actions: @Composable RowScope.() -> Unit = {}
@@ -24,11 +24,13 @@ fun MyTopAppBar(
         title = {Text(text = title)},
         navigationIcon = {
             if (navigationIcon != null) {
-                IconButton(onClick = onNavigationIconClick) {
-                    Icon(
-                        imageVector = navigationIcon,
-                        contentDescription = navigationIconContentDescription
-                    )
+                if (onNavigationIconClick != null) {
+                    IconButton(onClick = onNavigationIconClick) {
+                        Icon(
+                            imageVector = navigationIcon,
+                            contentDescription = navigationIconContentDescription
+                        )
+                    }
                 }
             }
         },
