@@ -32,10 +32,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.database.SongEntity
+import com.example.chords2.data.model.Chords
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.parser.SongParser
 import com.example.chords2.ui.composable.component.SongText
 import com.example.chords2.ui.composable.component.button.AddSongButton
+import com.example.chords2.ui.composable.component.button.TransposeButton
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -72,7 +74,10 @@ fun SongScreen(
                     }
                 },
                 actions = {
-                   Button({}){Text("hahahaah")}
+                   TransposeButton(
+                       initialSemitones = 0,
+                       initialChord = Chords.A.value
+                   )
                 }
             )
         }

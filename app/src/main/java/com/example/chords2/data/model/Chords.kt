@@ -1,5 +1,6 @@
 package com.example.chords2.data.model
 
+import android.util.Log
 import com.example.chords2.data.model.Chords.A.add5
 import com.example.chords2.data.model.Chords.A.add7
 import com.example.chords2.data.model.Chords.A.addMoll
@@ -49,8 +50,14 @@ sealed class Chords(
 
         // Extension for chord strings, e.g. "C#m7"
         fun String.transposeChord(semitones: Int): String {
+            if(semitones.mod(12) == 0){
+                Log.d("TransposeChord", "Transposing $this by $semitones semitones and returning")
+                return this
+            }
+            Log.d("TransposeChord", "Transposing $this by $semitones semitones")
             val baseChord = Chords.allBaseChords.firstOrNull { this.startsWith(it.value) }
                 ?: return this // if it doesn't match, return as-is
+            Log.d("TransposeChord", "Transposing $this by $semitones semitones")
             val suffix = this.removePrefix(baseChord.value)
             return baseChord.transpose(semitones).value + suffix
         }
