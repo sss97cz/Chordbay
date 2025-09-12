@@ -1,16 +1,22 @@
 package com.example.chords2.ui.composable.screen
 
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -40,24 +47,35 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.requestFocus
+import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chords2.data.model.SortBy
 import com.example.chords2.ui.composable.component.SongItem
 import com.example.chords2.ui.composable.imagevector.Sort
 import com.example.chords2.ui.composable.navigation.Paths
@@ -82,6 +100,32 @@ fun HomeScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var showOptionsMenu by remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
+
+
+    var searchBarExpanded by remember { mutableStateOf(false) } // YOUR EXISTING STATE TO CONTROL VISIBILITY
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchBarIsActive by rememberSaveable { mutableStateOf(false) } // For SearchBar's own active state (results overlay)
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
+
+    // Update ViewModel from searchQuery
+    LaunchedEffect(searchQuery) {
+        // Debounce if needed
+        songViewModel.setSearchQuery(searchQuery)
+    }
+
+    // Handle back press if SearchBar's results overlay is active
+    BackHandler(enabled = searchBarIsActive) {
+        searchBarIsActive = false
+        keyboardController?.hide()
+    }
+    // Handle back press to collapse the expanded SearchBar itself
+    BackHandler(enabled = searchBarExpanded && !searchBarIsActive) {
+        searchBarExpanded = false
+        searchQuery = "" // Optionally clear query when collapsing
+        keyboardController?.hide()
+    }
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -158,7 +202,9 @@ fun HomeScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* TODO: Search */ }) {
+                        IconButton(onClick = {
+                            searchBarExpanded = !searchBarExpanded
+                        }) {
                             Icon(Icons.Filled.Search, contentDescription = "Search Songs")
                         }
                         IconButton(onClick = {
@@ -208,36 +254,43 @@ fun HomeScreen(
                     }
                     DropdownMenu(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center),
+                            .width(200.dp),
                         expanded = showFabMenu,
-                        onDismissRequest = { showFabMenu = false }
+                        onDismissRequest = { showFabMenu = false },
                     ) {
                         Text(
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally),
+                                .align(Alignment.CenterHorizontally)
+                                .padding(bottom = 4.dp),
                             text = "Sort by:"
                         )
+                        HorizontalDivider()
                         DropdownMenuItem(
                             modifier = Modifier.fillMaxWidth(),
                             text = {
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = "Option 2",
+                                    text = "Artist",
                                     textAlign = TextAlign.Center
                                 )
                             },
-                            onClick = { showFabMenu = false }
+                            onClick = {
+                                songViewModel.setSortOption(SortBy.ARTIST_NAME)
+                                showFabMenu = false
+                            }
                         )
                         DropdownMenuItem(
                             text = {
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = "Option 2",
+                                    text = "Song name",
                                     textAlign = TextAlign.Center,
                                 )
                             },
-                            onClick = { showFabMenu = false }
+                            onClick = {
+                                songViewModel.setSortOption(SortBy.SONG_NAME)
+                                showFabMenu = false
+                            }
                         )
                     }
                 }
@@ -271,6 +324,47 @@ fun HomeScreen(
                         }
                     )
                 }
+                if (searchBarExpanded) {
+                    Box {
+                        SearchBar(
+                            query = searchQuery,
+                            windowInsets = WindowInsets(top = 0),
+                            onQueryChange = { searchQuery = it },
+                            onSearch = {
+                                keyboardController?.hide() // Hide keyboard on search action
+                                // No other action needed here as filtering is live
+                            },
+                            active = false, // Crucial: Keep 'active' state false
+                            onActiveChange = {
+                                // Do nothing here, or only minimal logic if needed.
+                                // We don't want it to change 'active' state to true
+                                // which would trigger the overlay.
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("Search songs or artists...") },
+                            leadingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        searchBarExpanded = false
+                                    }
+                                ) {
+                                    Icon(Icons.Default.Search, contentDescription = "Search Songs")
+                                }
+                            },
+                            trailingIcon = {
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { searchQuery = "" }) {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = "Clear search"
+                                        )
+                                    }
+                                }
+                            },
+                        ) {}
+                    }
+                }
+                //
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -294,7 +388,7 @@ fun HomeScreen(
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     items(songs.value) { songEntity ->
                         SongItem(

@@ -1,13 +1,19 @@
 package com.example.chords2.ui.viewmodel
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.SongEntity
 import com.example.chords2.data.model.Chords
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.SortBy
 import com.example.chords2.data.repository.SongRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -34,9 +40,29 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
 //    fun updateSong(song: Song) = songRepository.updateSong(song)
 //
 
+    private val _sortOption = MutableStateFlow(SortBy.SONG_NAME)
+    fun setSortOption(sortOption: SortBy) {
+        Log.d("SongViewModel", "Setting sort option to: $sortOption")
+        _sortOption.value = sortOption
+    }
+    private val _searchQuery = MutableStateFlow("")
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
 
-    val songs: StateFlow<List<SongEntity>> = songRepository.getAllSongs()
-        .stateIn(
+    val songs: StateFlow<List<SongEntity>> = combine(
+        songRepository.getAllSongs(),
+        _sortOption,
+        _searchQuery
+    ) { songs, sortOption, searchQuery ->
+        when (sortOption) {
+            SortBy.SONG_NAME -> songs.sortedBy { it.title }
+            SortBy.ARTIST_NAME -> songs.sortedBy { it.artist }
+        }.filter {
+            it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.artist.contains(searchQuery, ignoreCase = true)
+        }
+    }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
@@ -116,5 +142,4 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
         }
         return baseChord?.value
     }
-
 }

@@ -62,8 +62,8 @@ fun SongItem(
                     )
                 }
             }
-            Text(text = songTitle)
             Text(text = songArtist)
+            Text(text = songTitle)
         }
     }
 }
