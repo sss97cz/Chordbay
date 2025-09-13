@@ -1,7 +1,6 @@
-package com.example.chords2.ui.composable.component
+package com.example.chords2.ui.composable.component.text
 
 import android.util.Log
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

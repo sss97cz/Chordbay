@@ -1,5 +1,6 @@
 package com.example.chords2.ui.composable.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -68,7 +69,6 @@ fun AppNavigation(
             val songId = backStackEntry.arguments?.getString("songId")
             if (songId != null) {
                 SongScreen(
-                  //  modifier = Modifier.padding(innerPadding),
                     songViewModel = viewModel,
                     navController = navController,
                     songId = songId
@@ -100,6 +100,30 @@ fun AppNavigation(
             } else {
                 navController.popBackStack()
             }
+        }
+        composable(
+            route = Paths.PostPath.route,
+            arguments = listOf(
+                navArgument(
+                    name = "postId"
+                ) {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            val postId = it.arguments?.getString("postId")
+            if (postId != null) {
+                Log.d("AppNavigation", "postId: $postId")
+                SongScreen(
+                    songViewModel = viewModel,
+                    navController = navController,
+                    songId = postId,
+                    isPost = true
+                )
+            } else {
+                navController.popBackStack()
+            }
+
         }
     }
 }

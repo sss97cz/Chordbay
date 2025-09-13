@@ -181,4 +181,15 @@ class SongViewModel(
         }
     }
 
+    fun savePostToDb(post: Post) {
+        viewModelScope.launch {
+            val song = SongEntity(
+                title = post.title,
+                artist = post.userId.toString(),
+                content = post.body
+            )
+            songRepository.insertSong(song)
+        }
+    }
+
 }

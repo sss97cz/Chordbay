@@ -10,4 +10,7 @@ sealed class Paths(
     object EditSongPath: Paths("editSong/{songId}"){
         fun createRoute(songId : String) = "editSong/$songId"
     }
+    object PostPath: Paths("post/{postId}"){
+        fun createRoute(postId : String) = "post/$postId"
+    }
 }

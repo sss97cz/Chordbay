@@ -1,13 +1,10 @@
 package com.example.chords2.ui.composable.screen
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -48,16 +45,13 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,11 +59,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.requestFocus
-import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
@@ -77,7 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.MainTabs
 import com.example.chords2.data.model.SortBy
-import com.example.chords2.ui.composable.component.SongItem
+import com.example.chords2.ui.composable.component.listitem.PostItem
+import com.example.chords2.ui.composable.component.listitem.SongItem
 import com.example.chords2.ui.composable.imagevector.Sort
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
@@ -424,7 +415,26 @@ fun HomeScreen(
                     Text("Remote Songs: TODO")
                     songViewModel.fetchPosts()
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Posts: ${songViewModel.posts.collectAsState().value}")
+                    val posts = songViewModel.posts.collectAsState()
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        items(posts.value) { post ->
+                            PostItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                post = post,
+                                onPostClick = {
+                                    navController.navigate(Paths.PostPath.createRoute(post.id.toString()))
+                                },
+                                onPostSave = {
+                                    scope.launch {
+                                        songViewModel.savePostToDb(post)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
