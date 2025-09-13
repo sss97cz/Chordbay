@@ -6,8 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.SongEntity
 import com.example.chords2.data.model.Chords
+import com.example.chords2.data.model.MainTabs
+import com.example.chords2.data.model.Post
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.SortBy
+import com.example.chords2.data.remote.PostDto
+import com.example.chords2.data.repository.PostRepository
 import com.example.chords2.data.repository.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,28 +21,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
-    //
-//    val count = mutableIntStateOf(
-//        10
-//    )
-//    fun getAllSongs() = songRepository.getAllSongs()
-//    fun insertSong(song: Song) {
-//        viewModelScope.launch {
-//            songRepository.insertSong(song)
-//        }
-//    }
-//
-//    fun deleteDong(song: Song) {
-//        viewModelScope.launch {
-//            songRepository.insertSong(song)
-//        }
-//    }
-//
-//    fun getSongById(id: String) = songRepository.getSongById(id)
-//
-//    fun updateSong(song: Song) = songRepository.updateSong(song)
-//
+class SongViewModel(
+    private val songRepository: SongRepository,
+    private val postRepository: PostRepository,
+) : ViewModel() {
 
     private val _sortOption = MutableStateFlow(SortBy.SONG_NAME)
     fun setSortOption(sortOption: SortBy) {
@@ -48,6 +34,14 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
+    }
+
+    private val _selectedTab = MutableStateFlow(MainTabs.MY_SONGS)
+    val selectedTab: StateFlow<MainTabs> = _selectedTab.asStateFlow() // Expose as immutable StateFlow
+
+    fun selectTab(tab: MainTabs) {
+        _selectedTab.value = tab
+        // You could add other logic here if needed
     }
 
     val songs: StateFlow<List<SongEntity>> = combine(
@@ -142,4 +136,49 @@ class SongViewModel(private val songRepository: SongRepository) : ViewModel() {
         }
         return baseChord?.value
     }
+
+    // jsonplaceholder api
+    private val _posts = MutableStateFlow<List<Post>>(emptyList())
+    val posts: StateFlow<List<Post>> = _posts.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    fun fetchPosts() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            postRepository.getPosts()
+                .onSuccess { fetchedPosts ->
+                    _posts.value = fetchedPosts
+                }
+                .onFailure { exception ->
+                    _error.value = "Failed to fetch posts: ${exception.message}"
+                }
+            _isLoading.value = false
+        }
+    }
+
+    fun submitNewPost(post: Post) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            postRepository.createPost(post = post)
+                .onSuccess { createdPost ->
+                    // Successfully created, you might want to refresh the list
+                    // or add it to the existing list to update UI immediately
+                    fetchPosts() // Simplest way to refresh
+                    // Or: _posts.value = _posts.value + createdPost
+                    _error.value = "Post created: ${createdPost.title}" // User feedback
+                }
+                .onFailure { exception ->
+                    _error.value = "Failed to create post: ${exception.message}"
+                }
+            _isLoading.value = false
+        }
+    }
+
 }

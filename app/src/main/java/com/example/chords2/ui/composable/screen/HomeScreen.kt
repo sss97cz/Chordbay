@@ -75,6 +75,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chords2.data.model.MainTabs
 import com.example.chords2.data.model.SortBy
 import com.example.chords2.ui.composable.component.SongItem
 import com.example.chords2.ui.composable.imagevector.Sort
@@ -97,7 +98,7 @@ fun HomeScreen(
     var enableEditing by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    var selectedTab by remember { mutableIntStateOf(0) }
+    val selectedTab = songViewModel.selectedTab.collectAsState()
     var showOptionsMenu by remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
 
@@ -188,9 +189,8 @@ fun HomeScreen(
         Scaffold(
             topBar = {
                 MyTopAppBar(
-                    title = "My Songs",
-                    // No navigation icon if it's the start destination without a drawer
-                    // Or, if you have a drawer:
+                    title = songViewModel.selectedTab
+                        .collectAsState().value.title,
                     navigationIcon = Icons.Filled.Menu,
                     onNavigationIconClick = {
                         scope.launch {
@@ -303,24 +303,24 @@ fun HomeScreen(
             ) {
                 PrimaryTabRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedTabIndex = selectedTab,
+                    selectedTabIndex = selectedTab.value.index,
                 ) {
                     Tab(
                         onClick = {
-                            selectedTab = 0
+                            songViewModel.selectTab(MainTabs.MY_SONGS)
                         },
-                        selected = selectedTab == 0,
+                        selected = MainTabs.MY_SONGS.index == selectedTab.value.index,
                         text = {
-                            Text("Tab 1")
+                            Text("My Songs")
                         }
                     )
                     Tab(
                         onClick = {
-                            selectedTab = 1
+                            songViewModel.selectTab(MainTabs.REMOTE_SONGS)
                         },
-                        selected = selectedTab == 1,
+                        selected = MainTabs.REMOTE_SONGS.index == selectedTab.value.index,
                         text = {
-                            Text("Tab 2")
+                            Text("Remote Songs")
                         }
                     )
                 }
@@ -364,61 +364,67 @@ fun HomeScreen(
                         ) {}
                     }
                 }
-                //
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(
-                        onClick = {
-                            enableEditing = !enableEditing
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (enableEditing) {
-                                Color.Green
-                            } else {
-                                Color.Red
-                            }
-                        )
+                if (selectedTab.value == MainTabs.MY_SONGS) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Image(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Song"
-                        )
-                    }
-                }
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    items(songs.value) { songEntity ->
-                        SongItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(100.dp),
-                            songTitle = songEntity.title,
-                            songArtist = songEntity.artist,
-                            onSongClick = {
-                                if (!enableEditing) {
-                                    navController.navigate(
-                                        Paths.SongPath.createRoute(
-                                            songEntity.id.toString()
-                                        )
-                                    )
-                                } else {
-                                    navController.navigate(
-                                        Paths.EditSongPath.createRoute(
-                                            songId = songEntity.id.toString()
-                                        )
-                                    )
-                                }
+                        Button(
+                            onClick = {
+                                enableEditing = !enableEditing
                             },
-                            onDeleteClick = {
-                                scope.launch {
-                                    songViewModel.deleteSong(songEntity)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (enableEditing) {
+                                    Color.Green
+                                } else {
+                                    Color.Red
                                 }
-                            }
-                        )
+                            )
+                        ) {
+                            Image(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Song"
+                            )
+                        }
                     }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        items(songs.value) { songEntity ->
+                            SongItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp),
+                                songTitle = songEntity.title,
+                                songArtist = songEntity.artist,
+                                onSongClick = {
+                                    if (!enableEditing) {
+                                        navController.navigate(
+                                            Paths.SongPath.createRoute(
+                                                songEntity.id.toString()
+                                            )
+                                        )
+                                    } else {
+                                        navController.navigate(
+                                            Paths.EditSongPath.createRoute(
+                                                songId = songEntity.id.toString()
+                                            )
+                                        )
+                                    }
+                                },
+                                onDeleteClick = {
+                                    scope.launch {
+                                        songViewModel.deleteSong(songEntity)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                } else if (selectedTab.value == MainTabs.REMOTE_SONGS) {
+                    Text("Remote Songs: TODO")
+                    songViewModel.fetchPosts()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Posts: ${songViewModel.posts.collectAsState().value}")
                 }
             }
         }

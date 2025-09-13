@@ -61,13 +61,20 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.9.3")
     implementation("androidx.room:room-runtime:2.7.2")
-//    annotationProcessor("androidx.room:room-compiler:2.7.2")
-//    implementation("androidx.room:room-ktx:2.7.2")
+
     implementation("io.insert-koin:koin-android:4.1.0")
     implementation("io.insert-koin:koin-androidx-compose:4.1.0")
 
+    // Retrofit for networking
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    // Gson converter for Retrofit (or use Moshi)
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation("com.squareup.retrofit2:converter-moshi:3.0.0") // For Moshi
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // Optional: For logging network requests
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.2") // Check for the latest version
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.2")
     // ... other dependencies
-    val room_version = "2.7.2" // Use the latest stable version
+    val room_version = "2.7.2"
 
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version") // For Java projects or if still using kapt for Room
