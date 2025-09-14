@@ -1,50 +1,26 @@
 package com.example.chords2.ui.composable.screen
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -57,24 +33,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.util.MainTabs
-import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.ui.composable.component.fab.HomeSortFAB
 import com.example.chords2.ui.composable.component.listitem.PostItem
 import com.example.chords2.ui.composable.component.listitem.SongItem
 import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
-import com.example.chords2.ui.theme.imagevector.Sort
+import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.topappbar.HomeTopAppBar
-import com.example.chords2.ui.composable.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -199,123 +171,109 @@ fun HomeScreen(
                     )
                 }
                 if (searchBarExpanded) {
-                    Box {
-                        SearchBar(
-                            query = searchQuery,
-                            windowInsets = WindowInsets(top = 0),
-                            onQueryChange = { searchQuery = it },
-                            onSearch = {
-                                keyboardController?.hide() // Hide keyboard on search action
-                                // No other action needed here as filtering is live
-                            },
-                            active = false, // Crucial: Keep 'active' state false
-                            onActiveChange = {
-                                // Do nothing here, or only minimal logic if needed.
-                                // We don't want it to change 'active' state to true
-                                // which would trigger the overlay.
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("Search songs or artists...") },
-                            leadingIcon = {
-                                IconButton(
-                                    onClick = {
-                                        searchBarExpanded = false
-                                    }
-                                ) {
-                                    Icon(Icons.Default.Search, contentDescription = "Search Songs")
-                                }
-                            },
-                            trailingIcon = {
-                                if (searchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { searchQuery = "" }) {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = "Clear search"
-                                        )
-                                    }
-                                }
-                            },
-                        ) {}
-                    }
+                    HomeSearchbar(
+                        searchBarExpanded = searchBarExpanded,
+                        searchQuery = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearch = {
+                            keyboardController?.hide()
+                            searchQuery = it
+                            searchBarExpanded = false
+                        },
+                        onSearchClick = {
+                            searchBarExpanded = false
+                        },
+                        onClearClick = {
+                            searchQuery = ""
+                        }
+                    )
+                } else if (!searchBarExpanded && searchQuery.isNotEmpty()) {
+                    Text(":\"$searchQuery\"")
                 }
-                if (selectedTab.value == MainTabs.MY_SONGS) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Button(
-                            onClick = {
-                                enableEditing = !enableEditing
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (enableEditing) {
-                                    Color.Green
-                                } else {
-                                    Color.Red
-                                }
-                            )
+                when (selectedTab.value) {
+                    MainTabs.MY_SONGS -> {
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Image(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit Song"
-                            )
-                        }
-                    }
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        items(songs.value) { songEntity ->
-                            SongItem(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(100.dp),
-                                songTitle = songEntity.title,
-                                songArtist = songEntity.artist,
-                                onSongClick = {
-                                    if (!enableEditing) {
-                                        navController.navigate(
-                                            Paths.SongPath.createRoute(
-                                                songEntity.id.toString()
-                                            )
-                                        )
+                            Button(
+                                onClick = {
+                                    enableEditing = !enableEditing
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (enableEditing) {
+                                        Color.Green
                                     } else {
-                                        navController.navigate(
-                                            Paths.EditSongPath.createRoute(
-                                                songId = songEntity.id.toString()
+                                        Color.Red
+                                    }
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit Song"
+                                )
+                            }
+                        }
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            items(songs.value) { songEntity ->
+                                SongItem(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(100.dp),
+                                    songTitle = songEntity.title,
+                                    songArtist = songEntity.artist,
+                                    onSongClick = {
+                                        if (!enableEditing) {
+                                            navController.navigate(
+                                                Paths.SongPath.createRoute(
+                                                    songEntity.id.toString()
+                                                )
                                             )
-                                        )
+                                        } else {
+                                            navController.navigate(
+                                                Paths.EditSongPath.createRoute(
+                                                    songId = songEntity.id.toString()
+                                                )
+                                            )
+                                        }
+                                    },
+                                    onDeleteClick = {
+                                        scope.launch {
+                                            songViewModel.deleteSong(songEntity)
+                                        }
                                     }
-                                },
-                                onDeleteClick = {
-                                    scope.launch {
-                                        songViewModel.deleteSong(songEntity)
-                                    }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
-                } else if (selectedTab.value == MainTabs.REMOTE_SONGS) {
-                    Text("Remote Songs: TODO")
-                    songViewModel.fetchPosts()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    val posts = songViewModel.posts.collectAsState()
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        items(posts.value) { post ->
-                            PostItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                post = post,
-                                onPostClick = {
-                                    navController.navigate(Paths.PostPath.createRoute(post.id.toString()))
-                                },
-                                onPostSave = {
-                                    scope.launch {
-                                        songViewModel.savePostToDb(post)
+
+                    MainTabs.REMOTE_SONGS -> {
+                        Text("Remote Songs: TODO")
+                        LaunchedEffect(Unit) {
+                            songViewModel.fetchPosts()
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        val posts = songViewModel.posts.collectAsState()
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            items(posts.value) { post ->
+                                PostItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    post = post,
+                                    onPostClick = {
+                                        navController.navigate(Paths.PostPath.createRoute(post.id.toString()))
+                                    },
+                                    onPostSave = {
+                                        scope.launch {
+                                            songViewModel.savePostToDb(post)
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -323,3 +281,4 @@ fun HomeScreen(
         }
     }
 }
+
