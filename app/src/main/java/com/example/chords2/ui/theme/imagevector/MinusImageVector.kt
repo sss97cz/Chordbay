@@ -1,4 +1,4 @@
-package com.example.chords2.ui.composable.imagevector
+package com.example.chords2.ui.theme.imagevector
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor

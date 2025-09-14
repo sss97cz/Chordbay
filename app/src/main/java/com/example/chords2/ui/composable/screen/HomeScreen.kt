@@ -65,12 +65,15 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chords2.data.model.MainTabs
-import com.example.chords2.data.model.SortBy
+import com.example.chords2.data.model.util.MainTabs
+import com.example.chords2.data.model.util.SortBy
+import com.example.chords2.ui.composable.component.fab.HomeSortFAB
 import com.example.chords2.ui.composable.component.listitem.PostItem
 import com.example.chords2.ui.composable.component.listitem.SongItem
-import com.example.chords2.ui.composable.imagevector.Sort
+import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
+import com.example.chords2.ui.theme.imagevector.Sort
 import com.example.chords2.ui.composable.navigation.Paths
+import com.example.chords2.ui.composable.topappbar.HomeTopAppBar
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
@@ -92,6 +95,7 @@ fun HomeScreen(
     val selectedTab = songViewModel.selectedTab.collectAsState()
     var showOptionsMenu by remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
+    val sortOption by songViewModel.sortOption.collectAsState()
 
 
     var searchBarExpanded by remember { mutableStateOf(false) } // YOUR EXISTING STATE TO CONTROL VISIBILITY
@@ -121,170 +125,49 @@ fun HomeScreen(
 
     ModalNavigationDrawer(
         drawerContent = {
-            ModalDrawerSheet {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        "Drawer Title",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    HorizontalDivider()
-
-                    Text(
-                        "Section 1",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Item 1") },
-                        selected = false,
-                        onClick = { /* Handle click */ }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Item 2") },
-                        selected = false,
-                        onClick = { /* Handle click */ }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    Text(
-                        "Section 2",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Settings") },
-                        selected = false,
-                        icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                        badge = { Text("hahaah") }, // Placeholder
-                        onClick = { /* Handle click */ }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Help and feedback") },
-                        selected = false,
-                        icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                        onClick = { /* Handle click */ },
-                    )
-                    Spacer(Modifier.height(12.dp))
-                }
-            }
+            MyDrawerContent()
         },
         drawerState = drawerState
     ) {
         Scaffold(
             topBar = {
-                MyTopAppBar(
-                    title = songViewModel.selectedTab
-                        .collectAsState().value.title,
-                    navigationIcon = Icons.Filled.Menu,
+                HomeTopAppBar(
+                    title = selectedTab.value.title,
                     onNavigationIconClick = {
                         scope.launch {
-                            if (drawerState.isClosed) {
-                                drawerState.open()
-                            } else {
-                                drawerState.close()
-                            }
+                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
                     },
-                    actions = {
-                        IconButton(onClick = {
-                            searchBarExpanded = !searchBarExpanded
-                        }) {
-                            Icon(Icons.Filled.Search, contentDescription = "Search Songs")
-                        }
-                        IconButton(onClick = {
-                            scope.launch {
-                                val newSongId = songViewModel.addNewSongAndGetId()
-                                navController.navigate(Paths.EditSongPath.createRoute(newSongId.toString()))
-                            }
-                        }) {
-                            Icon(Icons.Filled.Add, contentDescription = "Add Song")
-                        }
-                        Box {
-                            IconButton(onClick = { showOptionsMenu = !showOptionsMenu }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "More options")
-                            }
-                            DropdownMenu(
-                                expanded = showOptionsMenu,
-                                onDismissRequest = { showOptionsMenu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Option 1") },
-                                    onClick = { /* Do something... */ }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Option 2") },
-                                    onClick = { /* Do something... */ }
-                                )
-                            }
+                    onSearchClick = {
+                        searchBarExpanded = !searchBarExpanded
+                    },
+                    onAddClick = {
+                        scope.launch {
+                            val newSongId = songViewModel.addNewSongAndGetId()
+                            navController.navigate(
+                                route = Paths.EditSongPath.createRoute(songId = newSongId.toString())
+                            )
                         }
                     },
+                    onMenuClick = {
+                        showOptionsMenu = !showOptionsMenu
+                    },
+                    showOptionsMenu = showOptionsMenu,
+                    onMenuToggle = { showOptionsMenu = !showOptionsMenu }
                 )
             },
             floatingActionButton = {
-                Box {
-                    FloatingActionButton(
-                        shape = CircleShape,
-                        onClick = {
-                            showFabMenu = !showFabMenu
-                        },
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.secondary
-                    ) {
-                        Icon(
-                            imageVector = Sort,
-                            contentDescription = "Small floating action button.",
-                            modifier = Modifier.size(24.dp)
-                        )
+                HomeSortFAB(
+                    onFabClick = {
+                        showFabMenu = !showFabMenu
+                    },
+                    isFabMenuExpanded = showFabMenu,
+                    onMenuToggle = { showFabMenu = !showFabMenu },
+                    sortBy = sortOption,
+                    onSortSelected = { selected ->
+                        songViewModel.setSortOption(selected)
                     }
-                    DropdownMenu(
-                        modifier = Modifier
-                            .width(200.dp),
-                        expanded = showFabMenu,
-                        onDismissRequest = { showFabMenu = false },
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(bottom = 4.dp),
-                            text = "Sort by:"
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    text = "Artist",
-                                    textAlign = TextAlign.Center
-                                )
-                            },
-                            onClick = {
-                                songViewModel.setSortOption(SortBy.ARTIST_NAME)
-                                showFabMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    text = "Song name",
-                                    textAlign = TextAlign.Center,
-                                )
-                            },
-                            onClick = {
-                                songViewModel.setSortOption(SortBy.SONG_NAME)
-                                showFabMenu = false
-                            }
-                        )
-                    }
-                }
+                )
             }
         ) { innerPadding ->
             Column(

@@ -1,16 +1,14 @@
 package com.example.chords2.ui.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.SongEntity
-import com.example.chords2.data.model.Chords
-import com.example.chords2.data.model.MainTabs
-import com.example.chords2.data.model.Post
+import com.example.chords2.data.model.util.Chords
+import com.example.chords2.data.model.util.MainTabs
+import com.example.chords2.data.model.post.Post
 import com.example.chords2.data.model.Song
-import com.example.chords2.data.model.SortBy
-import com.example.chords2.data.remote.PostDto
+import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.repository.PostRepository
 import com.example.chords2.data.repository.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +25,7 @@ class SongViewModel(
 ) : ViewModel() {
 
     private val _sortOption = MutableStateFlow(SortBy.SONG_NAME)
+    val sortOption: StateFlow<SortBy> = _sortOption.asStateFlow()
     fun setSortOption(sortOption: SortBy) {
         Log.d("SongViewModel", "Setting sort option to: $sortOption")
         _sortOption.value = sortOption

@@ -1,6 +1,6 @@
 package com.example.chords2.data.repository
 
-import com.example.chords2.data.model.Post
+import com.example.chords2.data.model.post.Post
 import com.example.chords2.data.remote.JsonPlaceholderApiService
 import com.example.chords2.data.remote.toPost
 import com.example.chords2.data.remote.toPostDto

@@ -1,6 +1,6 @@
 package com.example.chords2.data.repository
 
-import com.example.chords2.data.model.Post
+import com.example.chords2.data.model.post.Post
 
 interface PostRepository {
     suspend fun getPosts(): Result<List<Post>>

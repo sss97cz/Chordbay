@@ -1,6 +1,6 @@
 package com.example.chords2.data.remote
 
-import com.example.chords2.data.model.Post
+import com.example.chords2.data.model.post.Post
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

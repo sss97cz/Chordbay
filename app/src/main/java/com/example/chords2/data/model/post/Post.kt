@@ -1,4 +1,4 @@
-package com.example.chords2.data.model
+package com.example.chords2.data.model.post
 
 data class Post(
     val userId: Int,

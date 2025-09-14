@@ -13,8 +13,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-import com.example.chords2.data.model.Chords
-import com.example.chords2.data.model.Chords.Companion.transpose
+import com.example.chords2.data.model.util.Chords
+import com.example.chords2.data.model.util.Chords.Companion.transpose
 
 @Composable
 fun SongText(
@@ -30,7 +30,10 @@ fun SongText(
     )
 }
 
-private fun String.highlightChords(semitones: Int, chordsColor: Color = Color.Unspecified): AnnotatedString {
+private fun String.highlightChords(
+    semitones: Int,
+    chordsColor: Color = Color.Unspecified
+): AnnotatedString {
     val allChords = Chords.allChordsToString()
     Log.d("SongText", "highlightChords: $allChords")
 
@@ -38,41 +41,47 @@ private fun String.highlightChords(semitones: Int, chordsColor: Color = Color.Un
     var chordContent = ""
     return buildAnnotatedString {
         this@highlightChords.forEachIndexed { index, char ->
-            if (char == '[') {
-                isBuildingChord = true
-            }
-            if (!isBuildingChord && chordContent.isEmpty()) {
-                append(char)
-            }
-            if (char == ']') {
-                isBuildingChord = false
-                val chordContentNoBrackets = chordContent.substring(1,chordContent.length)
-                if (chordContentNoBrackets in allChords) {
-                    withStyle(
-                        SpanStyle(
-                            color = chordsColor,
-                            fontWeight = FontWeight.Bold,
-                            fontStyle = FontStyle.Italic,
-                            fontSize = 25.sp
-                        )
-                    ) {
-                        val baseChord = Chords.allBaseChords.firstOrNull{
-                            chordContentNoBrackets.contains(it.value)
+            when (char) {
+                '[' -> {
+                    isBuildingChord = true
+                }
+
+                ']' -> {
+                    if (chordContent.startsWith("[")) {
+                        isBuildingChord = false
+                        val chordContentNoBrackets = chordContent.substring(1, chordContent.length)
+                        val isChord = chordContentNoBrackets in allChords
+                        if (isChord) {
+                            withStyle(
+                                SpanStyle(
+                                    color = chordsColor,
+                                    fontWeight = FontWeight.Bold,
+                                    fontStyle = FontStyle.Italic,
+                                    fontSize = 25.sp
+                                )
+                            ) {
+                                val baseChord = Chords.allBaseChords.firstOrNull {
+                                    chordContentNoBrackets.contains(it.value)
+                                }
+                                val suffix =
+                                    chordContentNoBrackets.substringAfter(baseChord?.value ?: "")
+                                val transposedBaseChord =
+                                    baseChord?.transpose(semitones)?.value ?: "error"
+                                append(transposedBaseChord + suffix)
+                            }
+                            chordContent = ""
+                        } else {
+                            append(chordContent)
+                            chordContent = ""
                         }
-                        val sufix = chordContentNoBrackets.substringAfter(baseChord?.value ?: "")
-                        append((baseChord?.transpose(semitones)?.value ?: "error") + sufix)
                     }
-                    chordContent = ""
-                } else {
-                    chordContent += char
-                    append(chordContent)
-                    chordContent = ""
                 }
             }
             if (isBuildingChord) {
                 chordContent += char
+            } else {
+                append(char)
             }
         }
     }
-
 }

@@ -1,10 +1,10 @@
-package com.example.chords2.data.model
+package com.example.chords2.data.model.util
 
 import android.util.Log
-import com.example.chords2.data.model.Chords.A.add5
-import com.example.chords2.data.model.Chords.A.add7
-import com.example.chords2.data.model.Chords.A.addMoll
-import com.example.chords2.data.model.Chords.A.addMoll7
+import com.example.chords2.data.model.util.Chords.A.add5
+import com.example.chords2.data.model.util.Chords.A.add7
+import com.example.chords2.data.model.util.Chords.A.addMoll
+import com.example.chords2.data.model.util.Chords.A.addMoll7
 
 sealed class Chords(
     val value: String,
@@ -44,7 +44,7 @@ sealed class Chords(
         fun Chords.transpose(semitones: Int): Chords {
             val index = Chords.allBaseChords.indexOf(this)
             require(index >= 0) { "Chord not in allBaseChords: ${this.value}" }
-            val newIndex = (index + semitones).mod(Chords.allBaseChords.size)
+            val newIndex = (index + semitones).mod(allBaseChords.size)
             return Chords.allBaseChords[newIndex]
         }
 
@@ -55,7 +55,7 @@ sealed class Chords(
                 return this
             }
             Log.d("TransposeChord", "Transposing $this by $semitones semitones")
-            val baseChord = Chords.allBaseChords.firstOrNull { this.startsWith(it.value) }
+            val baseChord = allBaseChords.firstOrNull { this.startsWith(it.value) }
                 ?: return this // if it doesn't match, return as-is
             Log.d("TransposeChord", "Transposing $this by $semitones semitones")
             val suffix = this.removePrefix(baseChord.value)

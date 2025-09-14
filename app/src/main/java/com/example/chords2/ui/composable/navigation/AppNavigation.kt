@@ -28,7 +28,6 @@ import com.example.chords2.ui.composable.screen.EditSongScreen
 import com.example.chords2.ui.composable.screen.HomeScreen
 import com.example.chords2.ui.composable.screen.SongScreen
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
-import com.example.chords2.ui.composable.topappbar.TopAppBarConfig
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
