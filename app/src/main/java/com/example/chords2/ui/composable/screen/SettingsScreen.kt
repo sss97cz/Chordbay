@@ -48,11 +48,28 @@ fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             for (setting in Settings.all) {
-                SettingsRow(
-                    Modifier.fillMaxWidth(),
-                    settingName = setting.title,
-                    content = setting.content
-                )
+                when (setting) {
+                    is Settings.SortBySetting -> {
+                        SettingsRow(
+                            Modifier.fillMaxWidth(),
+                            settingName = setting.title,
+                        ){
+                            Button({}) {
+                                Text("theme change")
+                            }
+                        }
+                    }
+                    Settings.ThemeSetting -> {
+                        SettingsRow(
+                            Modifier.fillMaxWidth(),
+                            settingName = setting.title,
+                        ){
+                            Button({}) {
+                                Text("theme change")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
