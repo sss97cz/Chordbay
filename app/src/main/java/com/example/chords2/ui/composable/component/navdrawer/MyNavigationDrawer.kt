@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 @Composable
-fun MyDrawerContent(){
+fun MyDrawerContent(
+    onSettingsClick: () -> Unit
+){
     ModalDrawerSheet {
         Column(
             modifier = Modifier
@@ -62,8 +64,7 @@ fun MyDrawerContent(){
                 label = { Text("Settings") },
                 selected = false,
                 icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                badge = { Text("hahaah") }, // Placeholder
-                onClick = { /* Handle click */ }
+                onClick = onSettingsClick,
             )
             NavigationDrawerItem(
                 label = { Text("Help and feedback") },

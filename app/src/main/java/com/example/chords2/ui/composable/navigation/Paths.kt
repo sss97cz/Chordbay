@@ -13,4 +13,5 @@ sealed class Paths(
     object PostPath: Paths("post/{postId}"){
         fun createRoute(postId : String) = "post/$postId"
     }
+    object SettingsPath: Paths("settings")
 }

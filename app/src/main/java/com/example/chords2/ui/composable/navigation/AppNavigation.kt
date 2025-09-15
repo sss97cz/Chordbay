@@ -26,6 +26,7 @@ import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.button.AddSongButton
 import com.example.chords2.ui.composable.screen.EditSongScreen
 import com.example.chords2.ui.composable.screen.HomeScreen
+import com.example.chords2.ui.composable.screen.SettingsScreen
 import com.example.chords2.ui.composable.screen.SongScreen
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
@@ -122,7 +123,15 @@ fun AppNavigation(
             } else {
                 navController.popBackStack()
             }
+        }
 
+        composable(
+            route = Paths.SettingsPath.route
+        ) {
+            SettingsScreen(
+                songViewModel = viewModel,
+                navController = navController
+            )
         }
     }
 }

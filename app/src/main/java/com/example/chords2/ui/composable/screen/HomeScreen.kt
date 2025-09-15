@@ -38,6 +38,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.ui.composable.component.fab.HomeSortFAB
@@ -97,7 +98,11 @@ fun HomeScreen(
 
     ModalNavigationDrawer(
         drawerContent = {
-            MyDrawerContent()
+            MyDrawerContent(
+                onSettingsClick = {
+                    navController.navigate(Paths.SettingsPath.route)
+                }
+            )
         },
         drawerState = drawerState
     ) {
@@ -187,8 +192,8 @@ fun HomeScreen(
                             searchQuery = ""
                         }
                     )
-                } else if (!searchBarExpanded && searchQuery.isNotEmpty()) {
-                    Text(":\"$searchQuery\"")
+                } else if (searchQuery.isNotEmpty()) {
+                    Text(": \"$searchQuery\"", fontSize = 20.sp)
                 }
                 when (selectedTab.value) {
                     MainTabs.MY_SONGS -> {
