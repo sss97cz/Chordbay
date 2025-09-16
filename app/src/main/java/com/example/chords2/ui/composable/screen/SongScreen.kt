@@ -42,6 +42,7 @@ fun SongScreen(
     val song = songData
     val canNavigateBack = navController.previousBackStackEntry != null
     var semitones by remember { mutableIntStateOf(0) }
+    val fontSize = songViewModel.songTextFontSize.collectAsState()
 
     LaunchedEffect(songIdInt) {
         if (songIdInt != null) {
@@ -124,7 +125,8 @@ fun SongScreen(
                             modifier = Modifier.fillMaxSize(),
                             text = song.content,
                             semitones = semitones,
-                            chordsColor = MaterialTheme.colorScheme.primary
+                            chordsColor = MaterialTheme.colorScheme.primary,
+                            fontSize = fontSize.value
                         )
                     }
                 }

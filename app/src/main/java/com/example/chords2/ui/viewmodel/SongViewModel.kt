@@ -8,7 +8,9 @@ import com.example.chords2.data.model.util.Chords
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.data.model.post.Post
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
+import com.example.chords2.data.model.util.ThemeMode
 import com.example.chords2.data.repository.PostRepository
 import com.example.chords2.data.repository.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,10 +39,20 @@ class SongViewModel(
 
     private val _selectedTab = MutableStateFlow(MainTabs.MY_SONGS)
     val selectedTab: StateFlow<MainTabs> = _selectedTab.asStateFlow() // Expose as immutable StateFlow
-
     fun selectTab(tab: MainTabs) {
         _selectedTab.value = tab
         // You could add other logic here if needed
+    }
+    private val _songTextFontSize = MutableStateFlow(Settings.FontSize.defaultValue)
+    val songTextFontSize: StateFlow<Int> = _songTextFontSize.asStateFlow()
+    fun setSongTextFontSize(fontSize: Int) {
+        _songTextFontSize.value = fontSize
+    }
+
+    private val _themeMode: MutableStateFlow<ThemeMode> = MutableStateFlow(ThemeMode.SYSTEM)
+    val themeMode = _themeMode.asStateFlow()
+    fun setThemeMode(themeMode: ThemeMode){
+        _themeMode.value = themeMode
     }
 
     val songs: StateFlow<List<SongEntity>> = combine(

@@ -20,6 +20,7 @@ import com.example.chords2.data.model.util.Chords.Companion.transpose
 fun SongText(
     modifier: Modifier,
     text: String,
+    fontSize: Int,
     semitones: Int,
     chordsColor: Color = Color.Unspecified
 ) {
@@ -27,6 +28,7 @@ fun SongText(
         text = text.highlightChords(semitones = semitones, chordsColor = chordsColor),
         modifier = modifier,
         fontFamily = FontFamily.Monospace,
+        fontSize = fontSize.sp
     )
 }
 

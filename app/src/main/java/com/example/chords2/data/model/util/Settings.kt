@@ -5,6 +5,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.chords2.ui.composable.screen.SettingsScreen
 
 sealed class Settings<T>(
     val title: String,
@@ -13,35 +14,19 @@ sealed class Settings<T>(
 ) {
     companion object{
         val all = listOf(
-            SortBySetting, ThemeSetting
+            SortBySetting, ThemeSetting, FontSize
         )
     }
     object SortBySetting : Settings<SortBy>(
         title = "Sort by",
         defaultValue = SortBy.SONG_NAME,
-//        content = {
-//            DropdownMenu(
-//                expanded = false,
-//                onDismissRequest = {
-//                }
-//            ) {
-//                DropdownMenu(expanded = false, onDismissRequest = { }) {
-//                    DropdownMenuItem(
-//                        text = { Text("Song Name") },
-//                        onClick = { }
-//                    )
-//                    DropdownMenuItem(
-//                        text = { Text("Artist Name") },
-//                        onClick = { }
-//                    )
-//                }
-//            }
-//        }
     )
-    object ThemeSetting : Settings<Boolean>(
+    object ThemeSetting : Settings<ThemeMode>(
         title = "Theme",
-        defaultValue = true,
-//        content = { Button({}) {Text("theme change")} }
-
+        defaultValue = ThemeMode.SYSTEM,
+    )
+    object FontSize : Settings<Int>(
+        title = "Font size",
+        defaultValue = 16,
     )
 }

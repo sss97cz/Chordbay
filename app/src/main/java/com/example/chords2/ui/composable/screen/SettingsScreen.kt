@@ -2,14 +2,19 @@ package com.example.chords2.ui.composable.screen
 
 import android.inputmethodservice.Keyboard
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -21,10 +26,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
+import com.example.chords2.data.model.util.ThemeMode
+import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
 
@@ -46,16 +56,19 @@ fun SettingsScreen(
     navController: NavController
 ) {
     val canNavigateBack = navController.previousBackStackEntry != null
+    val fontSize = songViewModel.songTextFontSize.collectAsState().value
     var isSortMenuExpanded by remember { mutableStateOf(false) }
     var defoultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
-    var isDarkTheme by remember { mutableStateOf(false) }
+    var isFontSizeMenuExpanded by remember { mutableStateOf(false) }
+    val themeMode = songViewModel.themeMode.collectAsState().value
+
     Scaffold(
         topBar = {
             MyTopAppBar(
                 title = "Settings",
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 onNavigationIconClick = {
-                    navController.popBackStack()
+                    navController.navigate(Paths.HomePath.route)
                 }
             )
         }
@@ -73,13 +86,24 @@ fun SettingsScreen(
                         SettingsRow(
                             Modifier.fillMaxWidth(),
                             settingName = setting.title,
-                        ){
-                            Box(Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer)){
+                        ) {
+                            Box(
+                                Modifier
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                            ) {
                                 Row(
-                                    Modifier,
+                                    Modifier.clickable(
+                                        onClick = {
+                                            isSortMenuExpanded = true
+                                        }),
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically) {
-                                    Text(text = defoultSortOption.displayName, Modifier.padding(start = 2.dp))
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = defoultSortOption.displayName,
+                                        Modifier.padding(start = 8.dp)
+                                    )
                                     IconButton(onClick = { isSortMenuExpanded = true }) {
                                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                                     }
@@ -92,6 +116,7 @@ fun SettingsScreen(
                                                 text = { Text(sortOption.displayName) },
                                                 onClick = {
                                                     defoultSortOption = sortOption
+                                                    isSortMenuExpanded = false
                                                 }
                                             )
                                         }
@@ -100,16 +125,72 @@ fun SettingsScreen(
                             }
                         }
                     }
-                    Settings.ThemeSetting -> {
+
+                    is Settings.ThemeSetting -> {
+                        SettingsRow(settingName = setting.title) {
+                            ThemeMode.entries.forEach { mode ->
+                                RadioButton(
+                                    selected = themeMode == mode,
+                                    onClick = { songViewModel.setThemeMode(mode) }
+                                )
+                                Text(
+                                    text = mode.name.lowercase()
+                                        .replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+                    }
+
+                    is Settings.FontSize -> {
                         SettingsRow(
-                            settingName = setting.title,
-                        ){
-                            Switch(
-                                checked = isDarkTheme,
-                                onCheckedChange = {
-                                    isDarkTheme = it
+                            settingName = setting.title
+                        ) {
+                            Box(contentAlignment = Alignment.BottomEnd) {
+                                Row(
+                                    Modifier
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                                        .clickable { isFontSizeMenuExpanded = true }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = fontSize.toString(),
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    )
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                                 }
-                            )
+
+                                DropdownMenu(
+                                    modifier = Modifier
+                                        .size(40.dp, 300.dp)
+                                        .align(Alignment.BottomEnd),
+                                    expanded = isFontSizeMenuExpanded,
+                                    onDismissRequest = { isFontSizeMenuExpanded = false }
+                                ) {
+                                    HorizontalDivider()
+                                    (10..30 step 2).forEach { sizeOption ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Box(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        sizeOption.toString(),
+                                                    )
+                                                }
+                                            },
+                                            onClick = {
+                                                songViewModel.setSongTextFontSize(sizeOption)
+                                                isFontSizeMenuExpanded = false
+                                            }
+                                        )
+                                        HorizontalDivider()
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -126,7 +207,9 @@ private fun SettingsRow(
 ) {
 
     Column(
-        Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp),
     ) {
         Row(
             Modifier.fillMaxWidth(),
