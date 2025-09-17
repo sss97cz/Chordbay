@@ -1,25 +1,19 @@
 package com.example.chords2.ui.composable.screen
 
-import android.inputmethodservice.Keyboard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -28,8 +22,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.util.Settings
@@ -78,7 +69,6 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-
         ) {
             for (setting in Settings.all) {
                 when (setting) {
@@ -131,7 +121,7 @@ fun SettingsScreen(
                             ThemeMode.entries.forEach { mode ->
                                 RadioButton(
                                     selected = themeMode == mode,
-                                    onClick = { songViewModel.setThemeMode(mode) }
+                                    onClick = { songViewModel.saveThemeMode(mode) }
                                 )
                                 Text(
                                     text = mode.name.lowercase()
@@ -205,7 +195,6 @@ private fun SettingsRow(
     settingName: String,
     content: @Composable () -> Unit
 ) {
-
     Column(
         Modifier
             .fillMaxWidth()
@@ -223,10 +212,3 @@ private fun SettingsRow(
     }
     HorizontalDivider()
 }
-
-
-
-
-
-
-

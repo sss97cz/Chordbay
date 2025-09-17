@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.SongEntity
+import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.model.util.Chords
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.data.model.post.Post
@@ -24,41 +25,64 @@ import kotlinx.coroutines.launch
 class SongViewModel(
     private val songRepository: SongRepository,
     private val postRepository: PostRepository,
+    private val settingsDataStore: SettingsDataStore,
 ) : ViewModel() {
 
-    private val _sortOption = MutableStateFlow(SortBy.SONG_NAME)
-    val sortOption: StateFlow<SortBy> = _sortOption.asStateFlow()
+//-------------------- Settings states - Persistent storage -------------------------------------
+    val sortOption: StateFlow<SortBy> = settingsDataStore.getSetting(Settings.SortBySetting)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = Settings.SortBySetting.defaultValue
+        )
     fun setSortOption(sortOption: SortBy) {
-        Log.d("SongViewModel", "Setting sort option to: $sortOption")
-        _sortOption.value = sortOption
+        viewModelScope.launch {
+            settingsDataStore.setSetting(Settings.SortBySetting, sortOption)
+        }
     }
+
+    val songTextFontSize: StateFlow<Int> = settingsDataStore.getSetting(Settings.FontSize)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = Settings.FontSize.defaultValue
+        )
+    fun setSongTextFontSize(fontSize: Int) {
+        viewModelScope.launch {
+            settingsDataStore.setSetting(Settings.FontSize, fontSize)
+        }
+    }
+
+    val themeMode: StateFlow<ThemeMode> = settingsDataStore.getSetting(Settings.ThemeSetting)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = Settings.ThemeSetting.defaultValue
+        )
+    fun saveThemeMode(themeMode: ThemeMode) {
+        viewModelScope.launch {
+            settingsDataStore.setSetting(Settings.ThemeSetting, themeMode)
+        }
+    }
+
+//---------------- Home Screen states -----------------------------------------------------------
     private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
     }
-
     private val _selectedTab = MutableStateFlow(MainTabs.MY_SONGS)
-    val selectedTab: StateFlow<MainTabs> = _selectedTab.asStateFlow() // Expose as immutable StateFlow
+    val selectedTab: StateFlow<MainTabs> = _selectedTab.asStateFlow()
     fun selectTab(tab: MainTabs) {
         _selectedTab.value = tab
-        // You could add other logic here if needed
-    }
-    private val _songTextFontSize = MutableStateFlow(Settings.FontSize.defaultValue)
-    val songTextFontSize: StateFlow<Int> = _songTextFontSize.asStateFlow()
-    fun setSongTextFontSize(fontSize: Int) {
-        _songTextFontSize.value = fontSize
     }
 
-    private val _themeMode: MutableStateFlow<ThemeMode> = MutableStateFlow(ThemeMode.SYSTEM)
-    val themeMode = _themeMode.asStateFlow()
-    fun setThemeMode(themeMode: ThemeMode){
-        _themeMode.value = themeMode
-    }
 
+    //-------------------local song CRUD operations ------------------------------------------------
     val songs: StateFlow<List<SongEntity>> = combine(
         songRepository.getAllSongs(),
-        _sortOption,
-        _searchQuery
+        sortOption,
+        searchQuery
     ) { songs, sortOption, searchQuery ->
         when (sortOption) {
             SortBy.SONG_NAME -> songs.sortedBy { it.title }

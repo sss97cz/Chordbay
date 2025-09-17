@@ -46,43 +46,41 @@ private fun String.highlightChords(
             when (char) {
                 '[' -> {
                     isBuildingChord = true
+                    chordContent = ""
                 }
 
                 ']' -> {
-                    if (chordContent.startsWith("[")) {
-                        isBuildingChord = false
-                        val chordContentNoBrackets = chordContent.substring(1, chordContent.length)
-                        val isChord = chordContentNoBrackets in allChords
-                        if (isChord) {
-                            withStyle(
-                                SpanStyle(
-                                    color = chordsColor,
-                                    fontWeight = FontWeight.Bold,
-                                    fontStyle = FontStyle.Italic,
-                                    fontSize = 25.sp
-                                )
-                            ) {
-                                val baseChord = Chords.allBaseChords.firstOrNull {
-                                    chordContentNoBrackets.contains(it.value)
-                                }
-                                val suffix =
-                                    chordContentNoBrackets.substringAfter(baseChord?.value ?: "")
-                                val transposedBaseChord =
-                                    baseChord?.transpose(semitones)?.value ?: "error"
-                                append(transposedBaseChord + suffix)
+                    isBuildingChord = false
+                    val isChord = chordContent in allChords
+                    if (isChord) {
+                        withStyle(
+                            SpanStyle(
+                                color = chordsColor,
+                                fontWeight = FontWeight.Bold,
+                                fontStyle = FontStyle.Italic,
+                                fontSize = 25.sp
+                            )
+                        ) {
+                            val baseChord = Chords.allBaseChords.firstOrNull {
+                                chordContent.contains(it.value)
                             }
-                            chordContent = ""
-                        } else {
-                            append(chordContent)
-                            chordContent = ""
+                            val suffix = chordContent.substringAfter(baseChord?.value ?: "")
+                            val transposedBaseChord =
+                                baseChord?.transpose(semitones)?.value ?: "error"
+                            append(transposedBaseChord + suffix)
                         }
+                    } else {
+                        append("[$chordContent]") // if not a chord, keep it literal
                     }
                 }
-            }
-            if (isBuildingChord) {
-                chordContent += char
-            } else {
-                append(char)
+
+                else -> {
+                    if (isBuildingChord) {
+                        chordContent += char
+                    } else {
+                        append(char)
+                    }
+                }
             }
         }
     }

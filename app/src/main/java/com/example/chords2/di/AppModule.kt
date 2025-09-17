@@ -2,6 +2,7 @@ package com.example.chords2.di
 
 import androidx.room.Room
 import com.example.chords2.data.database.AppDatabase
+import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.remote.RetrofitInstance
 import com.example.chords2.data.repository.PostRepository
 import com.example.chords2.data.repository.PostRepositoryImpl
@@ -16,7 +17,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single<SongRepository> { SongRepositoryImpl(get()) }
-    viewModel { SongViewModel(get(), get()) }
+    viewModel { SongViewModel(get(), get(), get()) }
     single<CoroutineScope> { CoroutineScope(Dispatchers.IO) }
     single {
         AppDatabase.getDatabase(androidContext(), get())
@@ -32,4 +33,5 @@ val appModule = module {
     single<PostRepository> {
         PostRepositoryImpl(get())
     }
+    single { SettingsDataStore(androidContext()) }
 }

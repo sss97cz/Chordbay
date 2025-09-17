@@ -1,16 +1,14 @@
 package com.example.chords2.data.model.util
 
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import com.example.chords2.ui.composable.screen.SettingsScreen
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 
 sealed class Settings<T>(
     val title: String,
     val defaultValue: T,
-//    val content: @Composable () -> Unit
+    val preferencesKey: Preferences.Key<String>
 ) {
     companion object{
         val all = listOf(
@@ -20,13 +18,16 @@ sealed class Settings<T>(
     object SortBySetting : Settings<SortBy>(
         title = "Sort by",
         defaultValue = SortBy.SONG_NAME,
+        preferencesKey = stringPreferencesKey("sort_by")
     )
     object ThemeSetting : Settings<ThemeMode>(
         title = "Theme",
         defaultValue = ThemeMode.SYSTEM,
+        preferencesKey = stringPreferencesKey("theme")
     )
     object FontSize : Settings<Int>(
         title = "Font size",
         defaultValue = 16,
+        preferencesKey = stringPreferencesKey("font_size")
     )
 }

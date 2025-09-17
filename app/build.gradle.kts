@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,6 +73,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:3.0.0") // For Moshi
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // Optional: For logging network requests
     implementation("com.squareup.moshi:moshi-kotlin:1.15.2") // Check for the latest version
+
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.2")
     // ... other dependencies
     val room_version = "2.7.2"

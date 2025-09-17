@@ -35,9 +35,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun ChordsTheme(
-    //darkTheme: Boolean = isSystemInDarkTheme(),
     themeMode: ThemeMode,
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
