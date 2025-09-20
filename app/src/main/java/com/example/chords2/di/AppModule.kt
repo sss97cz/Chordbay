@@ -1,11 +1,10 @@
 package com.example.chords2.di
 
-import androidx.room.Room
 import com.example.chords2.data.database.AppDatabase
 import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.remote.RetrofitInstance
-import com.example.chords2.data.repository.PostRepository
-import com.example.chords2.data.repository.PostRepositoryImpl
+import com.example.chords2.data.repository.SongRemoteRepository
+import com.example.chords2.data.repository.SongRemoteRepositoryImpl
 import com.example.chords2.data.repository.SongRepository
 import com.example.chords2.data.repository.SongRepositoryImpl
 import com.example.chords2.ui.viewmodel.SongViewModel
@@ -30,8 +29,8 @@ val appModule = module {
     single {
         RetrofitInstance.api
     }
-    single<PostRepository> {
-        PostRepositoryImpl(get())
+    single<SongRemoteRepository> {
+        SongRemoteRepositoryImpl(get())
     }
     single { SettingsDataStore(androidContext()) }
 }

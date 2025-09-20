@@ -20,11 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chords2.data.database.SongEntity
+import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.text.SongText
 import com.example.chords2.ui.composable.component.button.TransposeButton
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import org.koin.androidx.compose.koinViewModel
 
@@ -34,39 +36,23 @@ fun SongScreen(
     songViewModel: SongViewModel = koinViewModel(),
     songId: String,
     navController: NavController,
-    isPost: Boolean = false,
-    // setTopAppBarConfig: (String, @Composable RowScope.() -> Unit) -> Unit,
+    isRemote: Boolean = false,
 ) {
-    val songIdInt = songId.toIntOrNull()
-    var songData by remember { mutableStateOf<SongEntity?>(null) }
+    val songData by produceState<Song?>(initialValue = null, key1 = songId) {
+        value = if (!isRemote && songId.toIntOrNull() != null) {
+            songViewModel.getSongById(songId.toInt()).collect { songValue ->
+                value = songValue
+            }
+        } else if (isRemote) {
+            songViewModel.getRemoteSongById(songId)
+        } else {
+            null
+        }
+    }
     val song = songData
     val canNavigateBack = navController.previousBackStackEntry != null
     var semitones by remember { mutableIntStateOf(0) }
     val fontSize = songViewModel.songTextFontSize.collectAsState()
-
-    LaunchedEffect(songIdInt) {
-        if (songIdInt != null) {
-            if (isPost){ //super temporary solution
-                Log.d("SongScreen", "Post $isPost, songIdInt: $songIdInt")
-                val post = songViewModel.posts.value.firstOrNull { it.id == songIdInt }
-                Log.d("SongScreen", "Post $post")
-                if (post == null) {
-                    navController.popBackStack()
-                    return@LaunchedEffect
-                }
-                songData = SongEntity(
-                    id = post.id,
-                    title = post.title,
-                    artist = post.userId.toString(),
-                    content = post.body
-                )
-
-            }else {
-                songViewModel.getSongById(songIdInt).collect { songData = it }
-            }
-
-        }
-    }
     Scaffold(
         topBar = {
             MyTopAppBar(

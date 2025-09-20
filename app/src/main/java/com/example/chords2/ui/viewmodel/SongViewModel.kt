@@ -1,18 +1,17 @@
 package com.example.chords2.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.chords2.data.database.SongEntity
 import com.example.chords2.data.datastore.SettingsDataStore
+import com.example.chords2.data.mappers.toSong
+import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.util.Chords
 import com.example.chords2.data.model.util.MainTabs
-import com.example.chords2.data.model.post.Post
-import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.SongUi
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
-import com.example.chords2.data.repository.PostRepository
+import com.example.chords2.data.repository.SongRemoteRepository
 import com.example.chords2.data.repository.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,11 +23,12 @@ import kotlinx.coroutines.launch
 
 class SongViewModel(
     private val songRepository: SongRepository,
-    private val postRepository: PostRepository,
+    private val songRemoteRepository: SongRemoteRepository,
     private val settingsDataStore: SettingsDataStore,
 ) : ViewModel() {
 
-//-------------------- Settings states - Persistent storage -------------------------------------
+//----------------------- Settings states - Persistent storage -------------------------------------
+    // sort
     val sortOption: StateFlow<SortBy> = settingsDataStore.getSetting(Settings.SortBySetting)
         .stateIn(
             scope = viewModelScope,
@@ -40,7 +40,7 @@ class SongViewModel(
             settingsDataStore.setSetting(Settings.SortBySetting, sortOption)
         }
     }
-
+    // textSize
     val songTextFontSize: StateFlow<Int> = settingsDataStore.getSetting(Settings.FontSize)
         .stateIn(
             scope = viewModelScope,
@@ -52,7 +52,7 @@ class SongViewModel(
             settingsDataStore.setSetting(Settings.FontSize, fontSize)
         }
     }
-
+    // theme
     val themeMode: StateFlow<ThemeMode> = settingsDataStore.getSetting(Settings.ThemeSetting)
         .stateIn(
             scope = viewModelScope,
@@ -79,7 +79,7 @@ class SongViewModel(
 
 
     //-------------------local song CRUD operations ------------------------------------------------
-    val songs: StateFlow<List<SongEntity>> = combine(
+    val songs: StateFlow<List<Song>> = combine(
         songRepository.getAllSongs(),
         sortOption,
         searchQuery
@@ -97,7 +97,7 @@ class SongViewModel(
             initialValue = emptyList()
         )
 
-    fun getSongById(id: Int): StateFlow<SongEntity?> = songRepository.getSongById(id)
+    fun getSongById(id: Int): StateFlow<Song?> = songRepository.getSongById(id)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -106,40 +106,23 @@ class SongViewModel(
 
     fun insertSong(song: Song) {
         viewModelScope.launch {
-            val newSong = SongEntity(
-                title = song.title,
-                artist = song.artist,
-                content = song.content
-            )
-            songRepository.insertSong(newSong)
+            songRepository.insertSong(song)
         }
     }
 
-    suspend fun addNewSongAndGetId(song: Song = Song()): Long {
-        return songRepository.insertSong(
-            SongEntity(
-                title = song.title,
-                artist = song.artist,
-                content = song.content
-            )
-        )
+    suspend fun addNewSongAndGetId(): Long {
+        return songRepository.insertSong()
     }
 
-    fun deleteSong(song: SongEntity) {
+    fun deleteSong(song: Song) {
         viewModelScope.launch {
             songRepository.deleteSong(song)
         }
     }
 
-    fun updateSong(song: SongEntity) {
+    fun updateSong(song: Song) {
         viewModelScope.launch {
-            val songToUpdate = SongEntity(
-                id = song.id,
-                title = song.title,
-                artist = song.artist,
-                content = song.content
-            )
-            songRepository.updateSong(songToUpdate)
+            songRepository.updateSong(song)
         }
     }
 
@@ -173,10 +156,11 @@ class SongViewModel(
     }
 
     // jsonplaceholder api
-    private val _posts = MutableStateFlow<List<Post>>(emptyList())
-    val posts: StateFlow<List<Post>> = _posts.asStateFlow()
+    private val _remoteSongs = MutableStateFlow<List<Song>>(emptyList())
+    val remoteSongs: StateFlow<List<Song>> = _remoteSongs.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(
+        false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
@@ -186,9 +170,9 @@ class SongViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-            postRepository.getPosts()
+            songRemoteRepository.getSongs()
                 .onSuccess { fetchedPosts ->
-                    _posts.value = fetchedPosts
+                    _remoteSongs.value = fetchedPosts
                 }
                 .onFailure { exception ->
                     _error.value = "Failed to fetch posts: ${exception.message}"
@@ -196,35 +180,13 @@ class SongViewModel(
             _isLoading.value = false
         }
     }
-
-    fun submitNewPost(post: Post) {
+    fun saveSongToDatabase(song: Song) =
         viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            postRepository.createPost(post = post)
-                .onSuccess { createdPost ->
-                    // Successfully created, you might want to refresh the list
-                    // or add it to the existing list to update UI immediately
-                    fetchPosts() // Simplest way to refresh
-                    // Or: _posts.value = _posts.value + createdPost
-                    _error.value = "Post created: ${createdPost.title}" // User feedback
-                }
-                .onFailure { exception ->
-                    _error.value = "Failed to create post: ${exception.message}"
-                }
-            _isLoading.value = false
+            songRepository.insertRemoteSong(song)
         }
-    }
 
-    fun savePostToDb(post: Post) {
-        viewModelScope.launch {
-            val song = SongEntity(
-                title = post.title,
-                artist = post.userId.toString(),
-                content = post.body
-            )
-            songRepository.insertSong(song)
-        }
-    }
+    fun getRemoteSongById(id: String): Song? =
+        remoteSongs.value.firstOrNull { it.id == id }
+
 
 }

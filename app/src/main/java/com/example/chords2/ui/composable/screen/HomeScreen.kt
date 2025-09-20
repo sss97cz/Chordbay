@@ -40,9 +40,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.chords2.data.mappers.toSongUi
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.ui.composable.component.fab.HomeSortFAB
-import com.example.chords2.ui.composable.component.listitem.PostItem
+import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
 import com.example.chords2.ui.composable.component.listitem.SongItem
 import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
 import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
@@ -222,31 +223,31 @@ fun HomeScreen(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
-                            items(songs.value) { songEntity ->
+                            items(songs.value) { song ->
                                 SongItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(100.dp),
-                                    songTitle = songEntity.title,
-                                    songArtist = songEntity.artist,
+                                    songTitle = song.title,
+                                    songArtist = song.artist,
                                     onSongClick = {
                                         if (!enableEditing) {
                                             navController.navigate(
                                                 Paths.SongPath.createRoute(
-                                                    songEntity.id.toString()
+                                                    song.id.toString()
                                                 )
                                             )
                                         } else {
                                             navController.navigate(
                                                 Paths.EditSongPath.createRoute(
-                                                    songId = songEntity.id.toString()
+                                                    songId = song.id.toString()
                                                 )
                                             )
                                         }
                                     },
                                     onDeleteClick = {
                                         scope.launch {
-                                            songViewModel.deleteSong(songEntity)
+                                            songViewModel.deleteSong(song)
                                         }
                                     }
                                 )
@@ -260,21 +261,21 @@ fun HomeScreen(
                             songViewModel.fetchPosts()
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        val posts = songViewModel.posts.collectAsState()
+                        val remoteSongs = songViewModel.remoteSongs.collectAsState()
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                         ) {
-                            items(posts.value) { post ->
-                                PostItem(
+                            items(remoteSongs.value) { song ->
+                                RemoteSongItem(
                                     modifier = Modifier.fillMaxWidth(),
-                                    post = post,
-                                    onPostClick = {
-                                        navController.navigate(Paths.PostPath.createRoute(post.id.toString()))
+                                    song = song.toSongUi(),
+                                    onSongClick = {
+                                        navController.navigate(Paths.PostPath.createRoute(song.id))
                                     },
-                                    onPostSave = {
+                                    onSongSave = {
                                         scope.launch {
-                                            songViewModel.savePostToDb(post)
+                                            songViewModel.saveSongToDatabase(song)
                                         }
                                     }
                                 )

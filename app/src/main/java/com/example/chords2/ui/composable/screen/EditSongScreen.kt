@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.database.SongEntity // Import SongEntity
+import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.textfield.SongContentEditor
 import com.example.chords2.ui.composable.component.textfield.SongTextField
 import com.example.chords2.ui.composable.topappbar.MyTopAppBar
@@ -56,7 +57,7 @@ fun EditSongScreen(
     val currentSongDbId: Int? = remember(songId) { songId.toIntOrNull() }
     val songIdInt = remember(songId) { songId.toIntOrNull() }
 
-    val songData by produceState<SongEntity?>(initialValue = null, key1 = songIdInt) {
+    val songData by produceState<Song?>(initialValue = null, key1 = songIdInt) {
         if (songIdInt != null) {
             songViewModel.getSongById(songIdInt).collect { songValue ->
                 value = songValue
@@ -88,13 +89,13 @@ fun EditSongScreen(
                         // TODO: Implement save logic using songViewModel
                         if (song != null) {
                             if (currentSongDbId != null) {
-                                val updatedSongEntity = SongEntity(
-                                    id = currentSongDbId,
+                                val updatedSong = Song(
+                                    id = currentSongDbId.toString(),
                                     title = songName,
                                     artist = songArtist,
                                     content = songContent.text
                                 )
-                                songViewModel.updateSong(updatedSongEntity)
+                                songViewModel.updateSong(updatedSong)
                             }
                         }
                         navController.popBackStack() // Go back after saving

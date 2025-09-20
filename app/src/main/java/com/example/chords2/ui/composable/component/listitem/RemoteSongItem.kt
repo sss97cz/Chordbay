@@ -15,19 +15,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.chords2.data.model.post.Post
+import com.example.chords2.data.model.SongUi
 import com.example.chords2.ui.theme.imagevector.Download
 
 @Composable
-fun PostItem(
+fun RemoteSongItem(
     modifier: Modifier = Modifier,
-    post: Post,
-    onPostClick: (Post) -> Unit,
-    onPostSave: (Post) -> Unit,
+    song: SongUi,
+    onSongClick: (SongUi) -> Unit,
+    onSongSave: (SongUi) -> Unit,
 ) {
     Card(
         modifier = modifier,
-        onClick = { onPostClick(post) }
+        onClick = { onSongClick(song) }
     ){
         Column(
             modifier = Modifier
@@ -41,7 +41,7 @@ fun PostItem(
             ){
                 IconButton(
                     onClick = {
-                        onPostSave(post)
+                        onSongSave(song)
                     },
                     modifier = Modifier.size(20.dp),
                 ) {
@@ -51,8 +51,8 @@ fun PostItem(
                     )
                 }
             }
-            Text(text = post.userId.toString())
-            Text(text = post.title)
+            Text(text = song.artist)
+            Text(text = song.title)
         }
     }
 }

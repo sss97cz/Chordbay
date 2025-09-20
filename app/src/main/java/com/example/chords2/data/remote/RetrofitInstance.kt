@@ -8,22 +8,24 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://jsonplaceholder.typicode.com/"
+//    private const val BASE_URL = "https://jsonplaceholder.typicode.com/"
+    private const val BASE_URL = "https://chordbay.eu"
+
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY // Log request and response bodies
+            level = HttpLoggingInterceptor.Level.BODY
         })
         .build()
-    val api: JsonPlaceholderApiService by lazy {
+    val api: ChordsBayApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(httpClient) // Optional: Use custom OkHttpClient
+            .client(httpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(JsonPlaceholderApiService::class.java)
+            .create(ChordsBayApiService::class.java)
     }
 
 }
