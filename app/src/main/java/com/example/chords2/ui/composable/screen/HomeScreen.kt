@@ -1,6 +1,7 @@
 package com.example.chords2.ui.composable.screen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,18 +13,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,6 +56,8 @@ import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.ui.composable.component.fab.HomeSortFAB
 import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
 import com.example.chords2.ui.composable.component.listitem.SongItem
+import com.example.chords2.ui.composable.component.menu.BottomSheetContent
+import com.example.chords2.ui.composable.component.menu.SongMenu
 import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
 import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
 import com.example.chords2.ui.composable.navigation.Paths
@@ -63,7 +76,7 @@ fun HomeScreen(
 ) {
     val songs = songViewModel.songs.collectAsState()
     val scope = rememberCoroutineScope()
-    var enableEditing by remember { mutableStateOf(false) }
+    var showSongMenu by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val selectedTab = songViewModel.selectedTab.collectAsState()
@@ -76,7 +89,9 @@ fun HomeScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var searchBarIsActive by rememberSaveable { mutableStateOf(false) } // For SearchBar's own active state (results overlay)
     val keyboardController = LocalSoftwareKeyboardController.current
-    val focusRequester = remember { FocusRequester() }
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState()
+    )
 
 
     // Update ViewModel from searchQuery
@@ -107,7 +122,16 @@ fun HomeScreen(
         },
         drawerState = drawerState
     ) {
-        Scaffold(
+        BottomSheetScaffold(
+            sheetPeekHeight = 0.dp,
+            scaffoldState = scaffoldState,
+            sheetContent = {
+                BottomSheetContent(
+                    onPostClick = {},
+                    onEditClick = {},
+                    onDeleteClick = {},
+                )
+            },
             topBar = {
                 HomeTopAppBar(
                     title = selectedTab.value.title,
@@ -134,19 +158,19 @@ fun HomeScreen(
                     onMenuToggle = { showOptionsMenu = !showOptionsMenu }
                 )
             },
-            floatingActionButton = {
-                HomeSortFAB(
-                    onFabClick = {
-                        showFabMenu = !showFabMenu
-                    },
-                    isFabMenuExpanded = showFabMenu,
-                    onMenuToggle = { showFabMenu = !showFabMenu },
-                    sortBy = sortOption,
-                    onSortSelected = { selected ->
-                        songViewModel.setSortOption(selected)
-                    }
-                )
-            }
+//            floatingActionButton = {
+//                HomeSortFAB(
+//                    onFabClick = {
+//                        showFabMenu = !showFabMenu
+//                    },
+//                    isFabMenuExpanded = showFabMenu,
+//                    onMenuToggle = { showFabMenu = !showFabMenu },
+//                    sortBy = sortOption,
+//                    onSortSelected = { selected ->
+//                        songViewModel.setSortOption(selected)
+//                    }
+//                )
+
         ) { innerPadding ->
             Column(
                 modifier = modifier
@@ -198,27 +222,6 @@ fun HomeScreen(
                 }
                 when (selectedTab.value) {
                     MainTabs.MY_SONGS -> {
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Button(
-                                onClick = {
-                                    enableEditing = !enableEditing
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (enableEditing) {
-                                        Color.Green
-                                    } else {
-                                        Color.Red
-                                    }
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit Song"
-                                )
-                            }
-                        }
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -231,28 +234,46 @@ fun HomeScreen(
                                     songTitle = song.title,
                                     songArtist = song.artist,
                                     onSongClick = {
-                                        if (!enableEditing) {
-                                            navController.navigate(
-                                                Paths.SongPath.createRoute(
-                                                    song.id.toString()
-                                                )
+                                        navController.navigate(
+                                            Paths.SongPath.createRoute(
+                                                song.localId.toString()
                                             )
-                                        } else {
-                                            navController.navigate(
-                                                Paths.EditSongPath.createRoute(
-                                                    songId = song.id.toString()
-                                                )
-                                            )
-                                        }
+                                        )
                                     },
                                     onDeleteClick = {
                                         scope.launch {
                                             songViewModel.deleteSong(song)
                                         }
+                                    },
+                                    onLongClick = {
+                                        scope.launch {
+                                            showSongMenu = true
+                                            scaffoldState.bottomSheetState.expand()
+                                        }
                                     }
                                 )
                             }
                         }
+//                        if (showSongMenu) {
+//                            SongMenu(
+//                                expanded = true,
+//                                onDismissRequest = {
+//                                    showSongMenu = false
+//                                },
+//                                onEditClick = {
+//                                    showSongMenu = false
+//                                    navController.navigate(
+//                                        Paths.EditSongPath.createRoute(
+//                                            songId = "0" // TODO: Pass the actual song ID here
+//                                        )
+//                                    )
+//                                },
+//                                onDeleteClick = {},
+//                                onPostClick = {},
+//                                scope = scope,
+//                                sheetState = rememberStandardBottomSheetState()
+//                            )
+//                        }
                     }
 
                     MainTabs.REMOTE_SONGS -> {
@@ -271,7 +292,7 @@ fun HomeScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     song = song.toSongUi(),
                                     onSongClick = {
-                                        navController.navigate(Paths.PostPath.createRoute(song.id))
+                                        navController.navigate(Paths.PostPath.createRoute(song.remoteId.toString()))
                                     },
                                     onSongSave = {
                                         scope.launch {

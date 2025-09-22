@@ -90,7 +90,7 @@ fun EditSongScreen(
                         if (song != null) {
                             if (currentSongDbId != null) {
                                 val updatedSong = Song(
-                                    id = currentSongDbId.toString(),
+                                    localId = currentSongDbId,
                                     title = songName,
                                     artist = songArtist,
                                     content = songContent.text

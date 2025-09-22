@@ -1,6 +1,7 @@
 package com.example.chords2.ui.composable.component.listitem
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,11 +25,15 @@ fun SongItem(
     songTitle: String,
     songArtist: String,
     onSongClick: () -> Unit,
+    onLongClick: () -> Unit,
     onDeleteClick: () -> Unit,
 ) {
     Card(
-        modifier = modifier,
-        onClick = { onSongClick() }
+        modifier = modifier
+            .combinedClickable(
+                onClick = onSongClick,
+                onLongClick = onLongClick
+            )
     ) {
         Column(
             modifier = Modifier

@@ -27,7 +27,7 @@ class SongViewModel(
     private val settingsDataStore: SettingsDataStore,
 ) : ViewModel() {
 
-//----------------------- Settings states - Persistent storage -------------------------------------
+    //----------------------- Settings states - Persistent storage -------------------------------------
     // sort
     val sortOption: StateFlow<SortBy> = settingsDataStore.getSetting(Settings.SortBySetting)
         .stateIn(
@@ -35,11 +35,13 @@ class SongViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = Settings.SortBySetting.defaultValue
         )
+
     fun setSortOption(sortOption: SortBy) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.SortBySetting, sortOption)
         }
     }
+
     // textSize
     val songTextFontSize: StateFlow<Int> = settingsDataStore.getSetting(Settings.FontSize)
         .stateIn(
@@ -47,11 +49,13 @@ class SongViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = Settings.FontSize.defaultValue
         )
+
     fun setSongTextFontSize(fontSize: Int) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.FontSize, fontSize)
         }
     }
+
     // theme
     val themeMode: StateFlow<ThemeMode> = settingsDataStore.getSetting(Settings.ThemeSetting)
         .stateIn(
@@ -59,18 +63,20 @@ class SongViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = Settings.ThemeSetting.defaultValue
         )
+
     fun saveThemeMode(themeMode: ThemeMode) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.ThemeSetting, themeMode)
         }
     }
 
-//---------------- Home Screen states -----------------------------------------------------------
+    //---------------- Home Screen states -----------------------------------------------------------
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
     }
+
     private val _selectedTab = MutableStateFlow(MainTabs.MY_SONGS)
     val selectedTab: StateFlow<MainTabs> = _selectedTab.asStateFlow()
     fun selectTab(tab: MainTabs) {
@@ -92,10 +98,10 @@ class SongViewModel(
                     it.artist.contains(searchQuery, ignoreCase = true)
         }
     }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     fun getSongById(id: Int): StateFlow<Song?> = songRepository.getSongById(id)
         .stateIn(
@@ -155,12 +161,29 @@ class SongViewModel(
         return baseChord?.value
     }
 
-    // jsonplaceholder api
+//------------------- Remote songs operations ------------------------------------------------
     private val _remoteSongs = MutableStateFlow<List<Song>>(emptyList())
-    val remoteSongs: StateFlow<List<Song>> = _remoteSongs.asStateFlow()
+    val remoteSongs: StateFlow<List<Song>> = combine(
+        sortOption,
+        _remoteSongs,
+        searchQuery
+    ) { sortOption, songs, searchQuery ->
+        when (sortOption) {
+            SortBy.SONG_NAME -> songs.sortedBy { it.title }
+            SortBy.ARTIST_NAME -> songs.sortedBy { it.artist }
+        }.filter {
+            it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.artist.contains(searchQuery, ignoreCase = true)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     private val _isLoading = MutableStateFlow(
-        false)
+        false
+    )
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
@@ -180,13 +203,14 @@ class SongViewModel(
             _isLoading.value = false
         }
     }
+
     fun saveSongToDatabase(song: Song) =
         viewModelScope.launch {
             songRepository.insertRemoteSong(song)
         }
 
     fun getRemoteSongById(id: String): Song? =
-        remoteSongs.value.firstOrNull { it.id == id }
+        remoteSongs.value.firstOrNull { it.remoteId == id }
 
 
 }

@@ -13,28 +13,28 @@ fun Song.toSongUi(): SongUi =
     )
 fun SongEntity.toSong(): Song =
     Song(
-        id = id.toString(),
+        localId = id,
         title = title,
         artist = artist,
         content = content,
     )
 fun SongDto.toSong(): Song =
     Song(
-        id = id,
+        remoteId = id,
         title = title,
         artist = artist,
         content = content,
     )
 fun Song.toDto(): SongDto =
     SongDto(
-        id = id,
+        id = remoteId ?: "",
         title = title,
         artist = artist,
         content = content,
     )
 fun Song.toSongEntity(): SongEntity =
     SongEntity(
-        id = id.toInt(),
+        id = localId ?: 0,
         title = title,
         artist = artist,
         content = content,
@@ -42,7 +42,6 @@ fun Song.toSongEntity(): SongEntity =
 
 fun SongUi.toSong(): Song =
     Song(
-        id = "",
         title = title,
         artist = artist,
         content = content,
