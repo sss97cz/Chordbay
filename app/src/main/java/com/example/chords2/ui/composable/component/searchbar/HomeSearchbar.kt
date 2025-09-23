@@ -1,8 +1,10 @@
 package com.example.chords2.ui.composable.component.searchbar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -13,6 +15,8 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,11 +34,8 @@ fun HomeSearchbar(
             windowInsets = WindowInsets(top = 0),
             onQueryChange = onQueryChange,
             onSearch = { onSearch(it) },
-            active = false, // Crucial: Keep 'active' state false
+            active = false,
             onActiveChange = {
-                // Do nothing here, or only minimal logic if needed.
-                // We don't want it to change 'active' state to true
-                // which would trigger the overlay.
             },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Search songs or artists...") },

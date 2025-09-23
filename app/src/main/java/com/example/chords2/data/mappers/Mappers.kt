@@ -27,7 +27,6 @@ fun SongDto.toSong(): Song =
     )
 fun Song.toDto(): SongDto =
     SongDto(
-        id = remoteId ?: "",
         title = title,
         artist = artist,
         content = content,

@@ -83,6 +83,22 @@ class SongViewModel(
         _selectedTab.value = tab
     }
 
+    val _selectedSongsList = MutableStateFlow<List<Song>>(emptyList())
+    val selectedSongsList: StateFlow<List<Song>> = _selectedSongsList.asStateFlow()
+    fun selectSong(song: Song) {
+        val currentList = selectedSongsList.value.toMutableList()
+        if (currentList.contains(song)) {
+            currentList.remove(song)
+        } else {
+            currentList.add(song)
+        }
+        _selectedSongsList.value = currentList
+    }
+    fun clearSelectedSongs() {
+        _selectedSongsList.value = emptyList()
+    }
+
+
 
     //-------------------local song CRUD operations ------------------------------------------------
     val songs: StateFlow<List<Song>> = combine(
@@ -212,5 +228,38 @@ class SongViewModel(
     fun getRemoteSongById(id: String): Song? =
         remoteSongs.value.firstOrNull { it.remoteId == id }
 
+    fun postSong(song: Song) {
+        viewModelScope.launch {
+            songRemoteRepository.createSong(song)
+                .onSuccess { /* Handle success if needed */ }
+                .onFailure { exception ->
+                    _error.value = "Failed to post song: ${exception.message}"
+                }
+        }
+    }
+    fun postSongs(songs: List<Song>) {
+        songs.forEach { song ->
+            postSong(song)
+        }
+    }
 
+    val _selectedRemoteSongs = MutableStateFlow<List<Song>>(emptyList())
+    val selectedRemoteSongs: StateFlow<List<Song>> = _selectedRemoteSongs.asStateFlow()
+    fun selectRemoteSong(song: Song) {
+        val currentList = selectedRemoteSongs.value.toMutableList()
+        if (currentList.contains(song)) {
+            currentList.remove(song)
+        } else {
+            currentList.add(song)
+        }
+        _selectedRemoteSongs.value = currentList
+    }
+    fun clearSelectedRemoteSongs() {
+        _selectedRemoteSongs.value = emptyList()
+    }
+    fun saveSelectedRemoteSongsToDatabase() {
+        for (song in selectedRemoteSongs.value) {
+            saveSongToDatabase(song)
+        }
+    }
 }

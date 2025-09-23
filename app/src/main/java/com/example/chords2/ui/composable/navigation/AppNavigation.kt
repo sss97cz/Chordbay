@@ -82,22 +82,22 @@ fun AppNavigation(
             }
         }
         composable(
-            route = Paths.PostPath.route,
+            route = Paths.RemoteSongPath.route,
             arguments = listOf(
                 navArgument(
-                    name = "postId"
+                    name = "remoteId"
                 ) {
                     type = NavType.StringType
                 }
             )
         ) {
-            val postId = it.arguments?.getString("postId")
-            if (postId != null) {
-                Log.d("AppNavigation", "postId: $postId")
+            val remoteId = it.arguments?.getString("remoteId")
+            if (remoteId != null) {
+                Log.d("AppNavigation", "remoteId: $remoteId")
                 SongScreen(
                     songViewModel = viewModel,
                     navController = navController,
-                    songId = postId,
+                    songId = remoteId,
                     isRemote = true
                 )
             } else {

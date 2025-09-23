@@ -3,9 +3,13 @@ package com.example.chords2.ui.composable.topappbar
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBoxScope
@@ -42,7 +46,21 @@ fun HomeTopAppBar(
                 IconButton(onClick = onMenuClick) {
                     Icon(Icons.Default.MoreVert, contentDescription = "More options")
                 }
-                DropdownMenu(expanded = showOptionsMenu, onDismissRequest = onMenuToggle) {
+                DropdownMenu(
+                    expanded = showOptionsMenu,
+                    onDismissRequest = onMenuToggle
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Settings") },
+                        onClick = { /* Handle settings */ },
+                        leadingIcon = { Icon(Icons.Filled.Refresh, contentDescription = null) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("About") },
+                        onClick = { /* Handle about */ },
+                        leadingIcon = { Icon(Icons.Filled.Info, contentDescription = null) }
+                    )
+                    Divider()
                     DropdownMenuItem(
                         text = { Text("Option 1") },
                         onClick = { /* Do something... */ }
@@ -52,6 +70,7 @@ fun HomeTopAppBar(
                         onClick = { /* Do something... */ }
                     )
                 }
+
             }
         },
     )

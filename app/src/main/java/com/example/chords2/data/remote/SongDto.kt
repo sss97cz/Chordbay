@@ -7,7 +7,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class SongDto(
     @Json(name = "id")
-    val id: String,
+    val id: String? = null,
     @Json(name = "title")
     val title: String,
     @Json(name = "artist")
