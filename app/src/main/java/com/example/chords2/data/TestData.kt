@@ -1,6 +1,6 @@
 package com.example.chords2.data
 
-import com.example.chords2.data.database.SongEntity
+import com.example.chords2.data.database.song.SongEntity
 
 object TestData {
     val songs = listOf(

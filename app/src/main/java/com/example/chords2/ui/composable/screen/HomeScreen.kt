@@ -1,17 +1,14 @@
 package com.example.chords2.ui.composable.screen
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -47,7 +44,6 @@ import com.example.chords2.data.mappers.toSongUi
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.ui.composable.component.fab.HomeSortFAB
 import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
-import com.example.chords2.ui.composable.component.listitem.SongItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContent
 import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
 import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
@@ -93,16 +89,19 @@ fun HomeScreen(
         )
     )
     // Dynamic bottom padding for LazyColumn
-    val tergetPadding by remember(scaffoldState.bottomSheetState.currentValue) {
+    val targetPadding by remember(scaffoldState.bottomSheetState.currentValue) {
         derivedStateOf {
             when (scaffoldState.bottomSheetState.currentValue) {
-                SheetValue.Expanded -> 185.dp
-                else -> 32.dp
+                SheetValue.Expanded -> 190.dp
+                SheetValue.PartiallyExpanded -> {
+                    if (selectedSongsList.isNotEmpty()) 64.dp else 24.dp
+                }
+                else -> 24.dp
             }
         }
     }
     val dynamicBottomPadding by animateDpAsState(
-        targetValue = tergetPadding,
+        targetValue = targetPadding,
         animationSpec = tween(durationMillis = 60)
     )
     val sheetPeekHeight by remember(
@@ -119,9 +118,9 @@ fun HomeScreen(
                 }
             } else {
                 if (selectedRemoteSongsList.isNotEmpty()) {
-                    0.dp
-                } else {
                     BottomSheetDefaults.SheetPeekHeight
+                } else {
+                    0.dp
                 }
             }
         }
@@ -157,40 +156,47 @@ fun HomeScreen(
             scaffoldState = scaffoldState,
             sheetContent = {
                 when (selectedTab.value) {
-                    MainTabs.MY_SONGS -> BottomSheetContent(
-                        selectedSongs = selectedSongsList,
-                        onPostClick = {
-                            songViewModel.postSongs(selectedSongsList)
-                            scope.launch {
-                                scaffoldState.bottomSheetState.hide()
-                                songViewModel.clearSelectedSongs()
-                            }
-                        },
-                        onEditClick = {
-                            if (selectedSongsList.size == 1) {
-                                val song = selectedSongsList[0]
-                                navController.navigate(
-                                    route = Paths.EditSongPath.createRoute(songId = song.localId.toString())
-                                )
+                    MainTabs.MY_SONGS -> {
+                        BottomSheetContent(
+                            selectedSongs = selectedSongsList,
+                            onPostClick = {
+                                songViewModel.postSongs(selectedSongsList)
+                                scope.launch {
+                                    scaffoldState.bottomSheetState.hide()
+                                    songViewModel.clearSelectedSongs()
+                                }
+                            },
+                            onEditClick = {
+                                if (selectedSongsList.size == 1) {
+                                    val song = selectedSongsList[0]
+                                    navController.navigate(
+                                        route = Paths.EditSongPath.createRoute(songId = song.localId.toString())
+                                    )
+                                    scope.launch {
+                                        scaffoldState.bottomSheetState.hide()
+                                        songViewModel.clearSelectedSongs()
+                                    }
+                                }
+                            },
+                            onDeleteClick = {
+                                for (song in selectedSongsList) {
+                                    songViewModel.deleteSong(song)
+                                }
+                                if (scaffoldState.bottomSheetState.currentValue != SheetValue.Hidden) {
+                                    scope.launch {
+                                        scaffoldState.bottomSheetState.hide()
+                                        songViewModel.clearSelectedSongs()
+                                    }
+                                }
+                            },
+                            onCloseClick = {
                                 scope.launch {
                                     scaffoldState.bottomSheetState.hide()
                                     songViewModel.clearSelectedSongs()
                                 }
                             }
-                        },
-                        onDeleteClick = {
-                            for (song in selectedSongsList) {
-                                songViewModel.deleteSong(song)
-                            }
-                            if (scaffoldState.bottomSheetState.currentValue != SheetValue.Hidden) {
-                                scope.launch {
-                                    scaffoldState.bottomSheetState.hide()
-                                    songViewModel.clearSelectedSongs()
-                                }
-                            }
-                        },
-                    )
-
+                        )
+                    }
                     MainTabs.REMOTE_SONGS -> {
                         BottomSheetContentRemote(
                             selectedRemoteSongs = selectedRemoteSongsList,
@@ -241,8 +247,7 @@ fun HomeScreen(
                                 .calculateStartPadding(LocalLayoutDirection.current),
                             end = innerPadding
                                 .calculateEndPadding(LocalLayoutDirection.current),
-                        )
-                        .fillMaxSize()
+                        ).fillMaxSize()
                 ) {
                     PrimaryTabRow(
                         modifier = Modifier.fillMaxWidth(),

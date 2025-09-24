@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
@@ -27,12 +28,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.chords2.data.model.Song
+import com.example.chords2.ui.theme.imagevector.Playlist_add
+
 @Composable
 fun BottomSheetContent(
     selectedSongs: List<Song>,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     onPostClick: () -> Unit,
+    onCloseClick: () -> Unit,
 ) {
     val single = selectedSongs.size == 1
     val count = selectedSongs.size
@@ -44,6 +48,7 @@ fun BottomSheetContent(
             val title = song.title.ifBlank { "Untitled" }
             "$artist - $title"
         }
+
         else -> "$count songs selected"
     }
 
@@ -52,16 +57,32 @@ fun BottomSheetContent(
             .fillMaxWidth()
             .padding(bottom = 8.dp)
     ) {
-        Text(
-            text = headerText,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                modifier = Modifier.padding(
+                    horizontal = 20.dp, vertical = 16.dp
+                ),
+                text = headerText,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.weight(1f))
+            IconButton(
+                modifier = Modifier.align(Alignment.Top),
+                onClick = {
+                    onCloseClick()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
         HorizontalDivider()
 
         Row(
@@ -78,10 +99,16 @@ fun BottomSheetContent(
                     onClick = onEditClick
                 )
             }
+                ActionIcon(
+                    icon = Icons.Default.Delete,
+                    label = "Delete",
+                    onClick = onDeleteClick
+                )
+
             ActionIcon(
-                icon = Icons.Default.Delete,
-                label = "Delete",
-                onClick = onDeleteClick
+                icon = Playlist_add,
+                label = "Add to Playlist",
+                onClick = onPostClick
             )
             if (count > 0) {
                 ActionIcon(

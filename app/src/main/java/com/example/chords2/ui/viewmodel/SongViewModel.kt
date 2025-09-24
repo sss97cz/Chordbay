@@ -1,5 +1,6 @@
 package com.example.chords2.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.datastore.SettingsDataStore
@@ -94,10 +95,10 @@ class SongViewModel(
         }
         _selectedSongsList.value = currentList
     }
+
     fun clearSelectedSongs() {
         _selectedSongsList.value = emptyList()
     }
-
 
 
     //-------------------local song CRUD operations ------------------------------------------------
@@ -177,7 +178,7 @@ class SongViewModel(
         return baseChord?.value
     }
 
-//------------------- Remote songs operations ------------------------------------------------
+    //------------------- Remote songs operations ------------------------------------------------
     private val _remoteSongs = MutableStateFlow<List<Song>>(emptyList())
     val remoteSongs: StateFlow<List<Song>> = combine(
         sortOption,
@@ -237,6 +238,7 @@ class SongViewModel(
                 }
         }
     }
+
     fun postSongs(songs: List<Song>) {
         songs.forEach { song ->
             postSong(song)
@@ -254,12 +256,45 @@ class SongViewModel(
         }
         _selectedRemoteSongs.value = currentList
     }
+
     fun clearSelectedRemoteSongs() {
         _selectedRemoteSongs.value = emptyList()
     }
+
     fun saveSelectedRemoteSongsToDatabase() {
         for (song in selectedRemoteSongs.value) {
             saveSongToDatabase(song)
         }
+    }
+
+    val _artists: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    val artists: StateFlow<List<String>> = _artists.asStateFlow()
+    fun fetchAllArtists() {
+        viewModelScope.launch {
+            songRemoteRepository.getAllArtists()
+                .onSuccess { fetchedArtists ->
+                    _artists.value = fetchedArtists
+                }
+                .onFailure { exception ->
+                    _error.value = "Failed to fetch artists: ${exception.message}"
+                }
+        }
+    }
+
+    fun getSongsByArtist(artist: String): StateFlow<List<Song>> {
+        Log.d("SongViewModel", "getSongsByArtist called with artist: $artist")
+        val artistSongs = MutableStateFlow<List<Song>>(emptyList())
+        viewModelScope.launch {
+            songRemoteRepository.getSongsByArtist(artist)
+                .onSuccess { fetchedSongs ->
+                    artistSongs.value = fetchedSongs
+                    Log.d("SongViewModel", "Fetched ${fetchedSongs.size} songs for artist: $artist")
+                }
+                .onFailure { exception ->
+                    _error.value = "Failed to fetch songs by artist: ${exception.message}"
+                    Log.e("SongViewModel", "Error fetching songs for artist $artist: ${exception.message}")
+                }
+        }
+        return artistSongs
     }
 }

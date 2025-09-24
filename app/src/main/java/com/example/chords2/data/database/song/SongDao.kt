@@ -1,4 +1,4 @@
-package com.example.chords2.data.database
+package com.example.chords2.data.database.song
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,11 +6,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.chords2.data.database.song.SongEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SongDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertSong(song: SongEntity): Long
 
     @Update

@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chords2.data.database.SongEntity // Import SongEntity
+import com.example.chords2.data.database.song.SongEntity // Import SongEntity
 import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.textfield.SongContentEditor
 import com.example.chords2.ui.composable.component.textfield.SongTextField

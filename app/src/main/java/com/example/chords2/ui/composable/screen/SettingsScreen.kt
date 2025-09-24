@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -52,6 +53,8 @@ fun SettingsScreen(
     var defoultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
     var isFontSizeMenuExpanded by remember { mutableStateOf(false) }
     val themeMode = songViewModel.themeMode.collectAsState().value
+    val text = songViewModel.getSongsByArtist("Kabát").collectAsState().value.joinToString { it.title }
+
 
     Scaffold(
         topBar = {
@@ -185,6 +188,7 @@ fun SettingsScreen(
                     }
                 }
             }
+            Text(text)
         }
     }
 }

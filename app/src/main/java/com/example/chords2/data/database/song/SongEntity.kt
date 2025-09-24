@@ -1,4 +1,4 @@
-package com.example.chords2.data.database
+package com.example.chords2.data.database.song
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,8 +1,8 @@
 package com.example.chords2.data.repository
 
 import android.util.Log
-import com.example.chords2.data.database.SongDao
-import com.example.chords2.data.database.SongEntity
+import com.example.chords2.data.database.song.SongDao
+import com.example.chords2.data.database.song.SongEntity
 import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.mappers.toSongEntity
 import com.example.chords2.data.model.Song
