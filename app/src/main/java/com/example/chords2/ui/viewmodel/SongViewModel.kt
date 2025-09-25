@@ -201,9 +201,7 @@ class SongViewModel(
         initialValue = emptyList()
     )
 
-    private val _isLoading = MutableStateFlow(
-        false
-    )
+    private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
@@ -325,9 +323,9 @@ class SongViewModel(
         }
     }
 
-    fun deletePlaylist(playlist: PlaylistEntity) {
+    fun deletePlaylist(id: Int) {
         viewModelScope.launch {
-            TODO("Not yet implemented")
+            playlistRepository.deletePlaylist(playlists.value.first { it.id == id} )
         }
     }
 

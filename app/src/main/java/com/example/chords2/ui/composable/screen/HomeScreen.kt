@@ -152,9 +152,6 @@ fun HomeScreen(
                 onPlaylistClick = {
                     navController.navigate(Paths.PlaylistPath.createRoute(it.id))
                 },
-                onLongPlaylistClick = {
-                    songViewModel.deletePlaylist(it)
-                },
                 onSettingsClick = {
                     navController.navigate(Paths.SettingsPath.route)
                 }

@@ -25,7 +25,6 @@ import com.example.chords2.data.database.playlist.PlaylistEntity
 fun MyDrawerContent(
     playlists: List<PlaylistEntity>,
     onPlaylistClick: (PlaylistEntity) -> Unit,
-    onLongPlaylistClick: (PlaylistEntity) -> Unit,
     onSettingsClick: () -> Unit
 ) {
     ModalDrawerSheet {

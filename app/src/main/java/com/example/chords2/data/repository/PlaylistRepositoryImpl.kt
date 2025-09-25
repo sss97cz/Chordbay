@@ -36,6 +36,10 @@ class PlaylistRepositoryImpl(
 
     }
 
+    override suspend fun deletePlaylist(playlist: PlaylistEntity) {
+        playlistDao.deletePlaylist(playlist)
+    }
+
 
 
 }
