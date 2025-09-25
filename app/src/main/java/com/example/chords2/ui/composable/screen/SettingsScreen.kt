@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -39,7 +38,7 @@ import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
 import com.example.chords2.ui.composable.navigation.Paths
-import com.example.chords2.ui.composable.topappbar.MyTopAppBar
+import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
 
 @Composable

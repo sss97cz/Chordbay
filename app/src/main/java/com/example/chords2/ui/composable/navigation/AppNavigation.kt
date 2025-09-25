@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.chords2.ui.composable.screen.EditSongScreen
 import com.example.chords2.ui.composable.screen.HomeScreen
+import com.example.chords2.ui.composable.screen.PlaylistScreen
 import com.example.chords2.ui.composable.screen.SettingsScreen
 import com.example.chords2.ui.composable.screen.SongScreen
 import com.example.chords2.ui.viewmodel.SongViewModel
@@ -112,6 +113,29 @@ fun AppNavigation(
                 songViewModel = viewModel,
                 navController = navController
             )
+        }
+
+        composable(
+            route = Paths.PlaylistPath.route,
+            arguments = listOf(
+                navArgument(
+                    name = "playlistId"
+                ) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            val playlistId = it.arguments?.getInt("playlistId")
+            if (playlistId != null) {
+                PlaylistScreen(
+                    // modifier = Modifier.padding(innerPadding),
+                    songViewModel = viewModel,
+                    navController = navController,
+                    playlistId = playlistId
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
     }
 }

@@ -4,18 +4,15 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,13 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chords2.data.database.song.SongEntity // Import SongEntity
 import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.textfield.SongContentEditor
 import com.example.chords2.ui.composable.component.textfield.SongTextField
-import com.example.chords2.ui.composable.topappbar.MyTopAppBar
+import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
-import kotlinx.coroutines.flow.first // To get the first value from StateFlow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

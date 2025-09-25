@@ -108,7 +108,7 @@ fun RemoteSongItem(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = song.artist,
+                    text = song.title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

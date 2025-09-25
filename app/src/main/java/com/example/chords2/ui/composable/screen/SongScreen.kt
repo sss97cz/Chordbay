@@ -23,11 +23,8 @@ import androidx.navigation.NavController
 import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.text.SongText
 import com.example.chords2.ui.composable.component.button.TransposeButton
-import com.example.chords2.ui.composable.topappbar.MyTopAppBar
+import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

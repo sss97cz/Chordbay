@@ -48,13 +48,14 @@ import com.example.chords2.ui.composable.component.menu.BottomSheetContent
 import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
 import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
 import com.example.chords2.ui.composable.navigation.Paths
-import com.example.chords2.ui.composable.topappbar.HomeTopAppBar
+import com.example.chords2.ui.composable.component.topappbar.HomeTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.BottomSheetDefaults
+import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 
@@ -76,6 +77,8 @@ fun HomeScreen(
     val sortOption by songViewModel.sortOption.collectAsState()
     val selectedSongsList by songViewModel.selectedSongsList.collectAsState()
     val selectedRemoteSongsList by songViewModel.selectedRemoteSongs.collectAsState()
+    val playlists by songViewModel.playlists.collectAsState()
+    var showAddPlaylistDialog by remember { mutableStateOf(false) }
 
 
     var searchBarExpanded by remember { mutableStateOf(false) }
@@ -96,6 +99,7 @@ fun HomeScreen(
                 SheetValue.PartiallyExpanded -> {
                     if (selectedSongsList.isNotEmpty()) 64.dp else 24.dp
                 }
+
                 else -> 24.dp
             }
         }
@@ -144,6 +148,13 @@ fun HomeScreen(
     ModalNavigationDrawer(
         drawerContent = {
             MyDrawerContent(
+                playlists = playlists,
+                onPlaylistClick = {
+                    navController.navigate(Paths.PlaylistPath.createRoute(it.id))
+                },
+                onLongPlaylistClick = {
+                    songViewModel.deletePlaylist(it)
+                },
                 onSettingsClick = {
                     navController.navigate(Paths.SettingsPath.route)
                 }
@@ -197,6 +208,7 @@ fun HomeScreen(
                             }
                         )
                     }
+
                     MainTabs.REMOTE_SONGS -> {
                         BottomSheetContentRemote(
                             selectedRemoteSongs = selectedRemoteSongsList,
@@ -234,7 +246,11 @@ fun HomeScreen(
                         showOptionsMenu = !showOptionsMenu
                     },
                     showOptionsMenu = showOptionsMenu,
-                    onMenuToggle = { showOptionsMenu = !showOptionsMenu }
+                    onMenuToggle = { showOptionsMenu = !showOptionsMenu },
+                    onPlaylistClick = {
+                        showOptionsMenu = false
+                        showAddPlaylistDialog = true
+                    },
                 )
             },
         ) { innerPadding ->
@@ -247,7 +263,8 @@ fun HomeScreen(
                                 .calculateStartPadding(LocalLayoutDirection.current),
                             end = innerPadding
                                 .calculateEndPadding(LocalLayoutDirection.current),
-                        ).fillMaxSize()
+                        )
+                        .fillMaxSize()
                 ) {
                     PrimaryTabRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -404,6 +421,15 @@ fun HomeScreen(
                             }
                         }
                     }
+                }
+                if (showAddPlaylistDialog) {
+                    CreatePlaylistDialog(
+                        onDismissRequest = { showAddPlaylistDialog = false },
+                        onCreatePlaylist = { playlistName ->
+                            songViewModel.createPlaylist(playlistName)
+                            showAddPlaylistDialog = false
+                        },
+                    )
                 }
                 Box(
                     modifier = Modifier

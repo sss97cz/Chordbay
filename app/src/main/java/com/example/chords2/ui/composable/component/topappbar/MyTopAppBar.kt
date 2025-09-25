@@ -1,4 +1,4 @@
-package com.example.chords2.ui.composable.topappbar
+package com.example.chords2.ui.composable.component.topappbar
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable

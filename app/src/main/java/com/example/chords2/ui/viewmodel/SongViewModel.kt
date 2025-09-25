@@ -3,6 +3,7 @@ package com.example.chords2.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chords2.data.database.playlist.PlaylistEntity
 import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.model.Song
@@ -12,6 +13,7 @@ import com.example.chords2.data.model.SongUi
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
+import com.example.chords2.data.repository.PlaylistRepository
 import com.example.chords2.data.repository.SongRemoteRepository
 import com.example.chords2.data.repository.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,7 @@ class SongViewModel(
     private val songRepository: SongRepository,
     private val songRemoteRepository: SongRemoteRepository,
     private val settingsDataStore: SettingsDataStore,
+    private val playlistRepository: PlaylistRepository,
 ) : ViewModel() {
 
     //----------------------- Settings states - Persistent storage -------------------------------------
@@ -297,4 +300,37 @@ class SongViewModel(
         }
         return artistSongs
     }
+
+//------------------------------- Playlist  operations ---------------------------------------------
+
+    val playlists: StateFlow<List<PlaylistEntity>> = playlistRepository.getAllPlaylists()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+    fun createPlaylist(name: String) {
+        viewModelScope.launch {
+            playlistRepository.makePlaylist(name)
+        }
+    }
+
+    fun addSongToPlaylist(playlistId: Int, song: Song) {
+        viewModelScope.launch {
+            if (song.localId != null) {
+                playlistRepository.addSongToPlaylist(playlistId, song)
+            } else {
+                Log.e("SongViewModel", "Cannot add song to playlist: song.localId is null")
+            }
+        }
+    }
+
+    fun deletePlaylist(playlist: PlaylistEntity) {
+        viewModelScope.launch {
+            TODO("Not yet implemented")
+        }
+    }
+
+
+
 }

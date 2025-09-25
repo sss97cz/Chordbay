@@ -14,4 +14,8 @@ sealed class Paths(
         fun createRoute(remoteId : String) = "remoteSong/$remoteId"
     }
     object SettingsPath: Paths("settings")
+
+    object PlaylistPath: Paths("playlist/{playlistId}"){
+        fun createRoute(playlistId : Int) = "playlist/$playlistId"
+    }
 }

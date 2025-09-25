@@ -3,6 +3,8 @@ package com.example.chords2.di
 import com.example.chords2.data.database.AppDatabase
 import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.remote.RetrofitInstance
+import com.example.chords2.data.repository.PlaylistRepository
+import com.example.chords2.data.repository.PlaylistRepositoryImpl
 import com.example.chords2.data.repository.SongRemoteRepository
 import com.example.chords2.data.repository.SongRemoteRepositoryImpl
 import com.example.chords2.data.repository.SongRepository
@@ -16,7 +18,14 @@ import org.koin.dsl.module
 
 val appModule = module {
     single<SongRepository> { SongRepositoryImpl(get()) }
-    viewModel { SongViewModel(get(), get(), get()) }
+    viewModel {
+        SongViewModel(
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
     single<CoroutineScope> { CoroutineScope(Dispatchers.IO) }
     single {
         AppDatabase.getDatabase(androidContext(), get())
@@ -24,8 +33,10 @@ val appModule = module {
     single {
         get<AppDatabase>().songDao()
     }
+    single {
+        get<AppDatabase>().playlistDao()
+    }
 
-    // jsonplaceholder api
     single {
         RetrofitInstance.api
     }
@@ -33,4 +44,8 @@ val appModule = module {
         SongRemoteRepositoryImpl(get())
     }
     single { SettingsDataStore(androidContext()) }
+
+    single<PlaylistRepository> {
+        PlaylistRepositoryImpl(get())
+    }
 }

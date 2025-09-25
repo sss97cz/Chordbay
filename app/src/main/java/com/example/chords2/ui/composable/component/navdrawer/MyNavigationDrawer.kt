@@ -1,5 +1,6 @@
 package com.example.chords2.ui.composable.component.navdrawer
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -9,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,10 +19,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.chords2.data.database.playlist.PlaylistEntity
+
 @Composable
 fun MyDrawerContent(
+    playlists: List<PlaylistEntity>,
+    onPlaylistClick: (PlaylistEntity) -> Unit,
+    onLongPlaylistClick: (PlaylistEntity) -> Unit,
     onSettingsClick: () -> Unit
-){
+) {
     ModalDrawerSheet {
         Column(
             modifier = Modifier
@@ -42,19 +47,16 @@ fun MyDrawerContent(
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
-            NavigationDrawerItem(
-                label = { Text("Item 1") },
-                selected = false,
-                onClick = { /* Handle click */ }
-            )
-            NavigationDrawerItem(
-                label = { Text("Item 2") },
-                selected = false,
-                onClick = { /* Handle click */ }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
+            for (playlist in playlists) {
+                NavigationDrawerItem(
+                    label = { Text(playlist.name) },
+                    selected = false,
+                    onClick = {
+                       onPlaylistClick(playlist)
+                    },
+                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            }
             Text(
                 "Section 2",
                 modifier = Modifier.padding(16.dp),

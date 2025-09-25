@@ -1,4 +1,4 @@
-package com.example.chords2.ui.composable.topappbar
+package com.example.chords2.ui.composable.component.topappbar
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
@@ -6,20 +6,16 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExposedDropdownMenuBoxScope
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import com.example.chords2.ui.composable.navigation.Paths
-import kotlinx.coroutines.launch
+import com.example.chords2.ui.theme.imagevector.Playlist_add
 
 @Composable
 fun HomeTopAppBar(
@@ -30,6 +26,7 @@ fun HomeTopAppBar(
     onMenuClick: () -> Unit,
     showOptionsMenu: Boolean,
     onMenuToggle: () -> Unit,
+    onPlaylistClick: () -> Unit,
 ) {
     MyTopAppBar(
         title = title,
@@ -51,26 +48,17 @@ fun HomeTopAppBar(
                     onDismissRequest = onMenuToggle
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Settings") },
-                        onClick = { /* Handle settings */ },
-                        leadingIcon = { Icon(Icons.Filled.Refresh, contentDescription = null) }
+                        text = { Text("New Playlist") },
+                        onClick = onPlaylistClick,
+                        leadingIcon = { Icon(Playlist_add, contentDescription = null) }
                     )
-                    DropdownMenuItem(
-                        text = { Text("About") },
-                        onClick = { /* Handle about */ },
-                        leadingIcon = { Icon(Icons.Filled.Info, contentDescription = null) }
-                    )
-                    Divider()
-                    DropdownMenuItem(
-                        text = { Text("Option 1") },
-                        onClick = { /* Do something... */ }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Option 2") },
-                        onClick = { /* Do something... */ }
-                    )
+//                    HorizontalDivider()
+//                    DropdownMenuItem(
+//                        text = { Text("Help") },
+//                        onClick = { /* Handle about */ },
+//                        leadingIcon = { Icon(Icons.Filled.Info, contentDescription = null) }
+//                    )
                 }
-
             }
         },
     )
