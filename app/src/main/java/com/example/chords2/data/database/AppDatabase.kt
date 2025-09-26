@@ -40,8 +40,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DATABASE_NAME
-                ).fallbackToDestructiveMigration()
-                    .addCallback(AppDatabaseCallback(scope)).build()
+                ).addCallback(AppDatabaseCallback(scope)).build()
                 AppDatabaseCallback.INSTANCE = instance
                 INSTANCE = instance
                 instance

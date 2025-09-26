@@ -42,7 +42,7 @@ fun MyDrawerContent(
             HorizontalDivider()
 
             Text(
-                "Section 1",
+                "Playlists",
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -57,7 +57,7 @@ fun MyDrawerContent(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             }
             Text(
-                "Section 2",
+                "HAHAHAHAAHAHAHAH",
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.titleMedium
             )

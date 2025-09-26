@@ -293,7 +293,10 @@ class SongViewModel(
                 }
                 .onFailure { exception ->
                     _error.value = "Failed to fetch songs by artist: ${exception.message}"
-                    Log.e("SongViewModel", "Error fetching songs for artist $artist: ${exception.message}")
+                    Log.e(
+                        "SongViewModel",
+                        "Error fetching songs for artist $artist: ${exception.message}"
+                    )
                 }
         }
         return artistSongs
@@ -307,6 +310,7 @@ class SongViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
     fun createPlaylist(name: String) {
         viewModelScope.launch {
             playlistRepository.makePlaylist(name)
@@ -325,10 +329,26 @@ class SongViewModel(
 
     fun deletePlaylist(id: Int) {
         viewModelScope.launch {
-            playlistRepository.deletePlaylist(playlists.value.first { it.id == id} )
+            playlistRepository.deletePlaylist(playlists.value.first { it.id == id })
         }
     }
 
 
+    fun getSongsInPlaylist(playlistId: Int): StateFlow<List<Song>> =
+        playlistRepository.getSongsInPlaylist(playlistId)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
+    fun getPlaylistById(id: Int): StateFlow<PlaylistEntity?> =
+        playlists.combine(playlists) { playlists, _ ->
+            playlists.firstOrNull { it.id == id }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
 
 }

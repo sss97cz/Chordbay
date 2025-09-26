@@ -37,6 +37,7 @@ fun BottomSheetContent(
     onDeleteClick: () -> Unit,
     onPostClick: () -> Unit,
     onCloseClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit
 ) {
     val single = selectedSongs.size == 1
     val count = selectedSongs.size
@@ -99,16 +100,16 @@ fun BottomSheetContent(
                     onClick = onEditClick
                 )
             }
-                ActionIcon(
-                    icon = Icons.Default.Delete,
-                    label = "Delete",
-                    onClick = onDeleteClick
-                )
+            ActionIcon(
+                icon = Icons.Default.Delete,
+                label = "Delete",
+                onClick = onDeleteClick
+            )
 
             ActionIcon(
                 icon = Playlist_add,
                 label = "Add to Playlist",
-                onClick = onPostClick
+                onClick = onAddToPlaylistClick
             )
             if (count > 0) {
                 ActionIcon(

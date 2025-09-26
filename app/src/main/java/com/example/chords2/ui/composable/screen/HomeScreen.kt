@@ -1,5 +1,6 @@
 package com.example.chords2.ui.composable.screen
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,6 +56,7 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.BottomSheetDefaults
+import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
@@ -79,6 +81,7 @@ fun HomeScreen(
     val selectedRemoteSongsList by songViewModel.selectedRemoteSongs.collectAsState()
     val playlists by songViewModel.playlists.collectAsState()
     var showAddPlaylistDialog by remember { mutableStateOf(false) }
+    var showAddSongToPlaylistDialog by remember { mutableStateOf(false) }
 
 
     var searchBarExpanded by remember { mutableStateOf(false) }
@@ -195,6 +198,12 @@ fun HomeScreen(
                                         scaffoldState.bottomSheetState.hide()
                                         songViewModel.clearSelectedSongs()
                                     }
+                                }
+                            },
+                            onAddToPlaylistClick = {
+                                scope.launch {
+                                    showAddSongToPlaylistDialog = true
+                                    scaffoldState.bottomSheetState.hide()
                                 }
                             },
                             onCloseClick = {
@@ -419,15 +428,6 @@ fun HomeScreen(
                         }
                     }
                 }
-                if (showAddPlaylistDialog) {
-                    CreatePlaylistDialog(
-                        onDismissRequest = { showAddPlaylistDialog = false },
-                        onCreatePlaylist = { playlistName ->
-                            songViewModel.createPlaylist(playlistName)
-                            showAddPlaylistDialog = false
-                        },
-                    )
-                }
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -444,6 +444,33 @@ fun HomeScreen(
                         sortBy = sortOption,
                         onSortSelected = { selected ->
                             songViewModel.setSortOption(selected)
+                        }
+                    )
+                }
+                // ------------------------ Dialogs ------------------------------------------------
+                if (showAddPlaylistDialog) {
+                    CreatePlaylistDialog(
+                        onDismissRequest = { showAddPlaylistDialog = false },
+                        onCreatePlaylist = { playlistName ->
+                            songViewModel.createPlaylist(playlistName)
+                            showAddPlaylistDialog = false
+                        },
+                    )
+                }
+                if (showAddSongToPlaylistDialog) {
+                    AddSongToPlaylistDialog(
+                        onDismiss = { showAddSongToPlaylistDialog = false },
+                        playlists = playlists,
+                        onConfirm = { playlistId ->
+                            for (song in selectedSongsList) {
+                                Log.d("HomeScreen", "Adding song ${song.title} to playlist $playlistId")
+                                songViewModel.addSongToPlaylist(
+                                    song = song,
+                                    playlistId = playlistId
+                                )
+                            }
+                            songViewModel.clearSelectedSongs()
+                            showAddSongToPlaylistDialog = false
                         }
                     )
                 }
