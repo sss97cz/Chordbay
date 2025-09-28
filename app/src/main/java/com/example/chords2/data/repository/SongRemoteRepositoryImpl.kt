@@ -47,11 +47,17 @@ class SongRemoteRepositoryImpl(
         }
     }
 
-    override suspend fun createSong(song: Song): Result<Boolean> {
+    override suspend fun createSong(song: Song): Result<String> {
         return try {
             val response = apiService.createSong(song.toDto())
             if (response.isSuccessful) {
-                Result.success(true)
+                val songId = response.body()
+                if (songId != null) {
+                    Log.d("SongRemoteRepositoryImpl", "Song created with ID: $songId")
+                    Result.success(songId)
+                } else {
+                    Result.failure(IOException("Empty response body"))
+                }
             } else {
                 Result.failure(IOException("Failed to create song"))
             }

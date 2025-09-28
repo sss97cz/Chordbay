@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -231,12 +232,36 @@ class SongViewModel(
         remoteSongs.value.firstOrNull { it.remoteId == id }
 
     fun postSong(song: Song) {
+        val isPost = song.remoteId == null
+        Log.d("SongViewModel", "isPost: $isPost")
         viewModelScope.launch {
-            songRemoteRepository.createSong(song)
-                .onSuccess { /* Handle success if needed */ }
-                .onFailure { exception ->
-                    _error.value = "Failed to post song: ${exception.message}"
-                }
+            if (isPost) {
+                Log.d("SongViewModel", "Posting song: $song")
+                songRemoteRepository.createSong(song)
+                    .onSuccess {
+                        Log.d("SongViewModel", "Song posted successfully with ID: $it")
+                        updateSong(song.copy(remoteId = it)).also {
+                            Log.d("SongViewModel", "Local song updated with remote ID: $it")
+                        }
+                    }
+                    .onFailure { exception ->
+                        _error.value = "Failed to post song: ${exception.message}"
+                    }
+            } else {
+                Log.d("SongViewModel", "Updating song: $song")
+                songRemoteRepository.updateSong(song)
+                    .onSuccess {
+                        if (it) {
+                            // Optionally update local database if needed
+                            Log.d("SongViewModel", "Song updated successfully on remote server")
+                        } else {
+                            _error.value = "Failed to update song: Unknown error"
+                        }
+                    }
+                    .onFailure { exception ->
+                        _error.value = "Failed to update song: ${exception.message}"
+                    }
+            }
         }
     }
 

@@ -84,13 +84,15 @@ fun EditSongScreen(
                         // TODO: Implement save logic using songViewModel
                         if (song != null) {
                             if (currentSongDbId != null) {
-                                val updatedSong = Song(
-                                    localId = currentSongDbId,
-                                    title = songName,
-                                    artist = songArtist,
-                                    content = songContent.text
+                                songViewModel.updateSong(
+                                    Song(
+                                        localId = currentSongDbId,
+                                        remoteId = song.remoteId,
+                                        title = songName,
+                                        artist = songArtist,
+                                        content = songContent.text
+                                    )
                                 )
-                                songViewModel.updateSong(updatedSong)
                             }
                         }
                         navController.popBackStack() // Go back after saving

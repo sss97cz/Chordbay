@@ -75,6 +75,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:3.0.0") // For Moshi
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // Optional: For logging network requests
     implementation("com.squareup.moshi:moshi-kotlin:1.15.2") // Check for the latest version
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
 
     implementation("androidx.datastore:datastore-preferences:1.1.7")
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.2")
