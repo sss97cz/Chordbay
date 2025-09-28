@@ -55,7 +55,9 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ListItem
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
@@ -318,46 +320,6 @@ fun HomeScreen(
                     when (selectedTab.value) {
 //-------------------------------- MY SONGS---------------------------------------------------------
                         MainTabs.MY_SONGS -> {
-//                            LazyColumn(
-//                                modifier = Modifier
-//                                    .fillMaxSize()
-//                                    .padding(top = 4.dp),
-//                                verticalArrangement = Arrangement.spacedBy(16.dp),
-//                                contentPadding = PaddingValues(
-//                                    top = 4.dp,
-//                                    bottom = dynamicBottomPadding
-//                                ),
-//                            ) {
-//                                items(songs.value) { song ->
-//                                    SongItem(
-//                                        modifier = Modifier
-//                                            .fillMaxWidth()
-//                                            .height(100.dp),
-//                                        songTitle = song.title,
-//                                        songArtist = song.artist,
-//                                        onSongClick = {
-//                                            if (selectedSongsList.isNotEmpty()) {
-//                                                scope.launch {
-//                                                    songViewModel.selectSong(song)
-//                                                }
-//                                            } else {
-//                                                navController.navigate(
-//                                                    Paths.SongPath.createRoute(
-//                                                        song.localId.toString()
-//                                                    )
-//                                                )
-//                                            }
-//                                        },
-//                                        onLongClick = {
-//                                            scope.launch {
-//                                                songViewModel.selectSong(song)
-//                                                scaffoldState.bottomSheetState.expand()
-//                                            }
-//                                        },
-//                                        isSelected = selectedSongsList.contains(song)
-//                                    )
-//                                }
-//                            }
                             AlphabeticalSongList(
                                 songs = songs.value,
                                 bottomPadding = dynamicBottomPadding,
@@ -386,8 +348,11 @@ fun HomeScreen(
                         }
 //-------------------------------- REMOTE SONGS-----------------------------------------------------
                         MainTabs.REMOTE_SONGS -> {
+                            val artists = songViewModel.artists.collectAsState()
                             LaunchedEffect(Unit) {
                                 songViewModel.fetchPosts()
+                                songViewModel.fetchAllArtists()
+                                Log.d("HomeScreen", "Fetched artists: ${artists.value}")
                             }
                             val remoteSongs = songViewModel.remoteSongs.collectAsState()
                             LazyColumn(
@@ -398,30 +363,45 @@ fun HomeScreen(
                                 ),
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                             ) {
-                                items(remoteSongs.value) { song ->
-                                    RemoteSongItem(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        song = song.toSongUi(),
-                                        onSongClick = {
-                                            if (selectedRemoteSongsList.isNotEmpty()) {
-                                                scope.launch {
-                                                    songViewModel.selectRemoteSong(song)
-                                                }
-                                            } else {
+//                                items(remoteSongs.value) { song ->
+//                                    RemoteSongItem(
+//                                        modifier = Modifier.fillMaxWidth(),
+//                                        song = song.toSongUi(),
+//                                        onSongClick = {
+//                                            if (selectedRemoteSongsList.isNotEmpty()) {
+//                                                scope.launch {
+//                                                    songViewModel.selectRemoteSong(song)
+//                                                }
+//                                            } else {
+//                                                navController.navigate(
+//                                                    Paths.RemoteSongPath.createRoute(
+//                                                        song.remoteId.toString()
+//                                                    )
+//                                                )
+//                                            }
+//                                        },
+//                                        onLongClick = {
+//                                            scope.launch {
+//                                                songViewModel.selectRemoteSong(song)
+//                                                scaffoldState.bottomSheetState.expand()
+//                                            }
+//                                        },
+//                                        isSelected = selectedRemoteSongsList.contains(song)
+//                                    )
+//                                }
+                                items(artists.value) { artist ->
+                                    ListItem(
+                                        headlineContent = { Text(artist) },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp)
+                                            .padding(bottom = 4.dp)
+                                            .padding(top = 8.dp)
+                                            .clickable {
                                                 navController.navigate(
-                                                    Paths.RemoteSongPath.createRoute(
-                                                        song.remoteId.toString()
-                                                    )
+                                                    Paths.ArtistSongsPath.createRoute(artistName = artist)
                                                 )
                                             }
-                                        },
-                                        onLongClick = {
-                                            scope.launch {
-                                                songViewModel.selectRemoteSong(song)
-                                                scaffoldState.bottomSheetState.expand()
-                                            }
-                                        },
-                                        isSelected = selectedRemoteSongsList.contains(song)
                                     )
                                 }
                             }

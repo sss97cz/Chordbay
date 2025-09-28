@@ -18,4 +18,7 @@ sealed class Paths(
     object PlaylistPath: Paths("playlist/{playlistId}"){
         fun createRoute(playlistId : Int) = "playlist/$playlistId"
     }
+    object ArtistSongsPath: Paths("artistSongs/{artistName}"){
+        fun createRoute(artistName : String) = "artistSongs/$artistName"
+    }
 }

@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.chords2.ui.composable.screen.ArtistSongsScreen
 import com.example.chords2.ui.composable.screen.EditSongScreen
 import com.example.chords2.ui.composable.screen.HomeScreen
 import com.example.chords2.ui.composable.screen.PlaylistScreen
@@ -133,6 +134,28 @@ fun AppNavigation(
                     navController = navController,
                     playlistId = playlistId
                 )
+            } else {
+                navController.popBackStack()
+            }
+        }
+
+        composable(
+            route = Paths.ArtistSongsPath.route,
+            arguments = listOf(
+                navArgument(
+                    name = "artistName"
+                ) {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            val artistName = it.arguments?.getString("artistName")
+            if (artistName != null) {
+                 ArtistSongsScreen(
+                     songViewModel = viewModel,
+                     navController = navController,
+                     artistName = artistName
+                 )
             } else {
                 navController.popBackStack()
             }
