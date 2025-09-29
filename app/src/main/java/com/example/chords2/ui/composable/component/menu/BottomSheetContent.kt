@@ -26,12 +26,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.chords2.data.model.Song
 import com.example.chords2.ui.theme.imagevector.Playlist_add
 
 @Composable
 fun BottomSheetContent(
+    bottomPadding: Dp,
     selectedSongs: List<Song>,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -56,7 +58,7 @@ fun BottomSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp)
+            .padding(bottom = 8.dp + bottomPadding)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()

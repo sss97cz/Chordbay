@@ -56,6 +56,9 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ListItem
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
@@ -109,8 +112,9 @@ fun HomeScreen(
             }
         }
     }
+    val bottomSystemPadding = WindowInsets.navigationBars.asPaddingValues()
     val dynamicBottomPadding by animateDpAsState(
-        targetValue = targetPadding,
+        targetValue = targetPadding + bottomSystemPadding.calculateBottomPadding(),
         animationSpec = tween(durationMillis = 60)
     )
     val sheetPeekHeight by remember(
@@ -171,6 +175,7 @@ fun HomeScreen(
                 when (selectedTab.value) {
                     MainTabs.MY_SONGS -> {
                         BottomSheetContent(
+                            bottomPadding = bottomSystemPadding.calculateBottomPadding(),
                             selectedSongs = selectedSongsList,
                             onPostClick = {
                                 songViewModel.postSongs(selectedSongsList)

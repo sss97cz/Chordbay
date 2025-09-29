@@ -52,7 +52,7 @@ fun PlaylistScreen(
                         IconButton(
                             onClick = {
                                 songViewModel.deletePlaylist(playlistId)
-                                navController.popBackStack()
+                                navController.navigateUp()
                             }
                         ) {
                             Icon(

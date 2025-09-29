@@ -101,7 +101,7 @@ fun ArtistSongsScreen(
         topBar = {
             MyTopAppBar(
                 title = artistName,
-                onNavigationIconClick = { navController.popBackStack() },
+                onNavigationIconClick = { navController.navigateUp() },
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack
             )
         },
@@ -158,7 +158,6 @@ fun ArtistSongsScreen(
                     )
                 }
             }
-
         }
     }
 }

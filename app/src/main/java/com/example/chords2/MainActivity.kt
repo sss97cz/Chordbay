@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
+import androidx.core.view.WindowCompat
 import com.example.chords2.data.model.util.Chords
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.ui.composable.navigation.AppNavigation
