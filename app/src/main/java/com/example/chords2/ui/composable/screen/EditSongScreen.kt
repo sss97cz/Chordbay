@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,13 @@ fun EditSongScreen(
     songViewModel: SongViewModel = koinViewModel(),
     //   setTopAppBarConfig: (String, @Composable RowScope.() -> Unit) -> Unit
 ) {
+
+    DisposableEffect(Unit) {
+        onDispose {
+            navController.navigateUp()
+        }
+    }
+
     Log.d("EditSongScreen", "Screen started. Received songId (String?): $songId")
 
     var songName by rememberSaveable { mutableStateOf("") }
@@ -81,7 +89,6 @@ fun EditSongScreen(
                     { navController.navigateUp() }
                 } else null, actions = {
                     IconButton(onClick = {
-                        // TODO: Implement save logic using songViewModel
                         if (song != null) {
                             if (currentSongDbId != null) {
                                 songViewModel.updateSong(
@@ -93,9 +100,10 @@ fun EditSongScreen(
                                         content = songContent.text
                                     )
                                 )
+                                navController.navigateUp()
                             }
                         }
-                        navController.popBackStack() // Go back after saving
+                        Log.d("EditSongScreen", "Save button clicked. Song saved: name='${songName}'")
                     }) {
                         Icon(Icons.Filled.Done, contentDescription = "Save")
                     }

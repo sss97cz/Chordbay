@@ -37,12 +37,7 @@ class SongRepositoryImpl(
     }
 
     override suspend fun insertRemoteSong(song: Song) {
-        songDao.insertSong(
-            SongEntity(
-                title = song.title,
-                artist = song.artist,
-                content = song.content
-            )
-        )
+        Log.d("SongRepositoryImpl", "insertRemoteSong called with song: $song")
+        songDao.insertSong(song.toSongEntity())
     }
 }

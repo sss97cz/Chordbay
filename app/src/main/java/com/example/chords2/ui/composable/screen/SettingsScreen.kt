@@ -49,10 +49,9 @@ fun SettingsScreen(
     val canNavigateBack = navController.previousBackStackEntry != null
     val fontSize = songViewModel.songTextFontSize.collectAsState().value
     var isSortMenuExpanded by remember { mutableStateOf(false) }
-    var defoultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
+    var defaultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
     var isFontSizeMenuExpanded by remember { mutableStateOf(false) }
     val themeMode = songViewModel.themeMode.collectAsState().value
-    val text = songViewModel.getSongsByArtist("Kabát").collectAsState().value.joinToString { it.title }
 
 
     Scaffold(
@@ -93,7 +92,7 @@ fun SettingsScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = defoultSortOption.displayName,
+                                        text = defaultSortOption.displayName,
                                         Modifier.padding(start = 8.dp)
                                     )
                                     IconButton(onClick = { isSortMenuExpanded = true }) {
@@ -107,7 +106,7 @@ fun SettingsScreen(
                                             DropdownMenuItem(
                                                 text = { Text(sortOption.displayName) },
                                                 onClick = {
-                                                    defoultSortOption = sortOption
+                                                    defaultSortOption = sortOption
                                                     isSortMenuExpanded = false
                                                 }
                                             )
@@ -187,7 +186,6 @@ fun SettingsScreen(
                     }
                 }
             }
-            Text(text)
         }
     }
 }
