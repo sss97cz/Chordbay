@@ -56,7 +56,8 @@ fun ArtistSongsScreen(
             songViewModel.clearSelectedRemoteSongs()
         }
     }
-    val songsByArtist = remember {songViewModel.getSongsByArtist(artistName)}
+    val canNavigateUp = navController.previousBackStackEntry != null
+    val songsByArtist = remember { songViewModel.getSongsByArtist(artistName) }
     val songs by songsByArtist.collectAsState()
     val selectedRemoteSongsList by songViewModel.selectedRemoteSongs.collectAsState()
 
@@ -70,7 +71,7 @@ fun ArtistSongsScreen(
     )
     val sheetPeekHeight by remember(
         selectedRemoteSongsList.isNotEmpty(),
-        ) {
+    ) {
         derivedStateOf {
             if (selectedRemoteSongsList.isNotEmpty()) {
                 BottomSheetDefaults.SheetPeekHeight
@@ -84,9 +85,9 @@ fun ArtistSongsScreen(
             when (scaffoldState.bottomSheetState.currentValue) {
                 SheetValue.Expanded -> 190.dp
                 SheetValue.PartiallyExpanded -> {
-                    if (selectedRemoteSongsList.isNotEmpty()) 40.dp else 24.dp
+                    if (selectedRemoteSongsList.isNotEmpty()) 26.dp else 0.dp
                 }
-                else -> 24.dp
+                else -> 0.dp
             }
         }
     }
@@ -101,7 +102,11 @@ fun ArtistSongsScreen(
         topBar = {
             MyTopAppBar(
                 title = artistName,
-                onNavigationIconClick = { navController.navigateUp() },
+                onNavigationIconClick = {
+                    if (canNavigateUp) {
+                        navController.navigateUp()
+                    }
+                },
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack
             )
         },
@@ -126,6 +131,7 @@ fun ArtistSongsScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
+                .padding(4.dp)
                 .fillMaxSize()
         ) {
             LazyColumn(

@@ -41,18 +41,21 @@ fun PlaylistScreen(
     val playlistState = songViewModel.getPlaylistById(playlistId).collectAsState()
     val playlist = playlistState.value
 
+    val canNavigateUp = navController.previousBackStackEntry != null
     if (playlist != null) {
         Scaffold(
             topBar = {
                 MyTopAppBar(
                     title = playlist.name,
                     navigationIcon = Icons.AutoMirrored.Default.ArrowBack,
-                    onNavigationIconClick = { navController.popBackStack() },
+                    onNavigationIconClick = { if (canNavigateUp) navController.navigateUp() },
                     actions = {
                         IconButton(
                             onClick = {
                                 songViewModel.deletePlaylist(playlistId)
-                                navController.navigateUp()
+                                if (canNavigateUp) {
+                                    navController.navigateUp()
+                                }
                             }
                         ) {
                             Icon(

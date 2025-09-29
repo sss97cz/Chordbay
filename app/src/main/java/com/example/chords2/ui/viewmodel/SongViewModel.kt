@@ -1,6 +1,8 @@
 package com.example.chords2.ui.viewmodel
 
 import android.util.Log
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.playlist.PlaylistEntity
@@ -376,4 +378,24 @@ class SongViewModel(
             initialValue = null
         )
 
+
+
+    //------------------- Edit Song Screen states ------------------------------------------------
+    private val _songName = MutableStateFlow<String>("")
+    val songName = _songName.asStateFlow()
+    fun setSongName(name: String) {
+        _songName.value = name
+    }
+
+    private val _songArtist = MutableStateFlow<String>("")
+    val songArtist = _songArtist.asStateFlow()
+    fun setSongArtist(artist: String) {
+        _songArtist.value = artist
+    }
+
+    private val _songContent = MutableStateFlow<TextFieldValue>(TextFieldValue(""))
+    val songContent = _songContent.asStateFlow()
+    fun setSongContent(content: TextFieldValue) {
+        _songContent.value = content
+    }
 }

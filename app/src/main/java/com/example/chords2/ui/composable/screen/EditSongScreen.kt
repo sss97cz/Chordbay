@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -39,7 +40,6 @@ fun EditSongScreen(
     songId: String,
     navController: NavController,
     songViewModel: SongViewModel = koinViewModel(),
-    //   setTopAppBarConfig: (String, @Composable RowScope.() -> Unit) -> Unit
 ) {
 
     DisposableEffect(Unit) {
@@ -50,15 +50,20 @@ fun EditSongScreen(
 
     Log.d("EditSongScreen", "Screen started. Received songId (String?): $songId")
 
-    var songName by rememberSaveable { mutableStateOf("") }
-    var songArtist by rememberSaveable { mutableStateOf("") }
-    var songContent by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
+
+    val songName by songViewModel.songName.collectAsState()
+    val songArtist by songViewModel.songArtist.collectAsState()
+    val songContent by songViewModel.songContent.collectAsState()
 
 
     val currentSongDbId: Int? = remember(songId) { songId.toIntOrNull() }
-    val songIdInt = remember(songId) { songId.toIntOrNull() }
+    val songIdInt = remember(songId) {
+        if (songId != "new") {
+            songId.toIntOrNull()
+        } else {
+            null
+        }
+    }
 
     val songData by produceState<Song?>(initialValue = null, key1 = songIdInt) {
         if (songIdInt != null) {
@@ -66,15 +71,17 @@ fun EditSongScreen(
                 value = songValue
             }
         } else {
-            value = null
+            if (songId == "new") {
+                value = Song(localId = null, remoteId = null, title = "", artist = "", content = "")
+            }
         }
     }
     val song = songData
-    if (song != null) {
-        LaunchedEffect(songId) {
-            songName = song.title
-            songArtist = song.artist
-            songContent = TextFieldValue(song.content)
+    LaunchedEffect(Unit) {
+        if (song != null) {
+            songViewModel.setSongName(song.title)
+            songViewModel.setSongArtist(song.artist)
+            songViewModel.setSongContent(TextFieldValue(song.content))
             Log.d("EditSongScreen", "States updated from loaded song: name='${songName}'")
         }
     }
@@ -90,7 +97,18 @@ fun EditSongScreen(
                 } else null, actions = {
                     IconButton(onClick = {
                         if (song != null) {
-                            if (currentSongDbId != null) {
+                            if (songId == "new") {
+                                songViewModel.insertSong(
+                                    Song(
+                                        localId = null,
+                                        remoteId = song.remoteId,
+                                        title = songName,
+                                        artist = songArtist,
+                                        content = songContent.text
+                                    )
+                                )
+                                navController.navigateUp()
+                            } else if (currentSongDbId != null) {
                                 songViewModel.updateSong(
                                     Song(
                                         localId = currentSongDbId,
@@ -103,7 +121,10 @@ fun EditSongScreen(
                                 navController.navigateUp()
                             }
                         }
-                        Log.d("EditSongScreen", "Save button clicked. Song saved: name='${songName}'")
+                        Log.d(
+                            "EditSongScreen",
+                            "Save button clicked. Song saved: name='${songName}'"
+                        )
                     }) {
                         Icon(Icons.Filled.Done, contentDescription = "Save")
                     }
@@ -125,14 +146,14 @@ fun EditSongScreen(
                 SongTextField(
                     modifier = Modifier.weight(1f),
                     value = songName,
-                    onValueChange = { songName = it },
+                    onValueChange = { songViewModel.setSongName(it) },
                     singleLine = true,
                     label = "Song Title"
                 )
                 SongTextField(
                     modifier = Modifier.weight(1f),
                     value = songArtist,
-                    onValueChange = { songArtist = it },
+                    onValueChange = { songViewModel.setSongArtist(it) },
                     singleLine = true,
                     label = "Artist"
                 )
@@ -146,7 +167,7 @@ fun EditSongScreen(
                         .fillMaxSize()
                         .padding(top = 8.dp),
                     value = songContent,
-                    onValueChange = { songContent = it },
+                    onValueChange = { songViewModel.setSongContent(it) },
                 )
             }
         }

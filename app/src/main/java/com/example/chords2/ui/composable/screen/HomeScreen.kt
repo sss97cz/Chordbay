@@ -61,6 +61,9 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
@@ -249,9 +252,8 @@ fun HomeScreen(
                     },
                     onAddClick = {
                         scope.launch {
-                            val newSongId = songViewModel.addNewSongAndGetId()
                             navController.navigate(
-                                route = Paths.EditSongPath.createRoute(songId = newSongId.toString())
+                                route = Paths.EditSongPath.createRoute(songId = "new")
                             )
                         }
                     },
@@ -399,14 +401,13 @@ fun HomeScreen(
                                         headlineContent = { Text(artist) },
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 8.dp)
-                                            .padding(bottom = 4.dp)
-                                            .padding(top = 8.dp)
+                                            .clip(MaterialTheme.shapes.medium)
                                             .clickable {
                                                 navController.navigate(
                                                     Paths.ArtistSongsPath.createRoute(artistName = artist)
                                                 )
-                                            }
+                                            },
+                                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                                     )
                                 }
                             }
