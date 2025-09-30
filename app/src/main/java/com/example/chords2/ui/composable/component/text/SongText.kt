@@ -25,15 +25,17 @@ fun SongText(
     chordsColor: Color = Color.Unspecified
 ) {
     Text(
-        text = text.highlightChords(semitones = semitones, chordsColor = chordsColor),
+        text = text.highlightChords(semitones = semitones, chordsColor = chordsColor, fontSize = fontSize),
         modifier = modifier,
         fontFamily = FontFamily.Monospace,
-        fontSize = fontSize.sp
+        fontSize = fontSize.sp,
+        lineHeight = (fontSize * 1.6f).sp
     )
 }
 
 private fun String.highlightChords(
     semitones: Int,
+    fontSize: Int,
     chordsColor: Color = Color.Unspecified
 ): AnnotatedString {
     val allChords = Chords.allChordsToString()
@@ -58,7 +60,7 @@ private fun String.highlightChords(
                                 color = chordsColor,
                                 fontWeight = FontWeight.Bold,
                                 fontStyle = FontStyle.Italic,
-                                fontSize = 25.sp
+                                fontSize = (fontSize * 1.6f).sp
                             )
                         ) {
                             val baseChord = Chords.allBaseChords.firstOrNull {

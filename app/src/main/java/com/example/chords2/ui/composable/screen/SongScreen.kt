@@ -10,9 +10,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
@@ -50,6 +56,9 @@ fun SongScreen(
     val canNavigateBack = navController.previousBackStackEntry != null
     var semitones by remember { mutableIntStateOf(0) }
     val fontSize = songViewModel.songTextFontSize.collectAsState()
+
+    val isDropdownMenuExpanded = remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             MyTopAppBar(
@@ -78,6 +87,42 @@ fun SongScreen(
                             )
                         }
                     }
+                    Box() {
+                        IconButton(
+                            onClick = {
+                                isDropdownMenuExpanded.value = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More Options"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isDropdownMenuExpanded.value,
+                            onDismissRequest = { isDropdownMenuExpanded.value = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("+ Font Size") },
+                                onClick = {
+                                    if (songViewModel.songTextFontSize.value < 30) {
+                                        songViewModel.setSongTextFontSize(
+                                            songViewModel.songTextFontSize.value + 1
+                                        )
+                                    }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("- Font Size") },
+                                onClick = {
+                                    if (songViewModel.songTextFontSize.value > 10)
+                                    songViewModel.setSongTextFontSize(
+                                        songViewModel.songTextFontSize.value - 1
+                                    )
+                                }
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -102,7 +147,7 @@ fun SongScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
+                            .padding(8.dp)
                     ) {
                         SongText(
                             modifier = Modifier.fillMaxSize(),

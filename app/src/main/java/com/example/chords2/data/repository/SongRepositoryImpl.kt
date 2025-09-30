@@ -17,14 +17,12 @@ class SongRepositoryImpl(
 
     override fun getAllSongs(): Flow<List<Song>> = songDao.getAllSongs().map { it.map { it.toSong() } }
 
-    override fun getSongById(id: Int): Flow<Song?> {
-        Log.d("SongRepositoryImpl", "getSongById called with id: $id")
-        val temp = songDao.getSongById(id).map { it?.toSong() }
-        return temp
-    }
+    override fun getSongById(id: Int): Flow<Song?> =
+        songDao.getSongById(id).map { it?.toSong() }
 
     override suspend fun insertSong(song: Song) =
         songDao.insertSong(song.toSongEntity())
+
     override suspend fun insertSong(): Long =
         songDao.insertSong(SongEntity())
 
@@ -37,7 +35,6 @@ class SongRepositoryImpl(
     }
 
     override suspend fun insertRemoteSong(song: Song) {
-        Log.d("SongRepositoryImpl", "insertRemoteSong called with song: $song")
         songDao.insertSong(song.toSongEntity())
     }
 }
