@@ -9,7 +9,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
 object RetrofitInstance {
-//    private const val BASE_URL = "https://jsonplaceholder.typicode.com/"
     private const val BASE_URL = "https://chordbay.eu"
 
     private val moshi = Moshi.Builder()
@@ -24,7 +23,7 @@ object RetrofitInstance {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(httpClient)
-            .addConverterFactory(ScalarsConverterFactory.create()) // <-- handles plain text
+            .addConverterFactory(ScalarsConverterFactory.create()) // handles plain text
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(ChordsBayApiService::class.java)

@@ -53,7 +53,7 @@ fun SongScreen(
         }
     }
     val song = songData
-    val canNavigateBack = navController.previousBackStackEntry != null
+    val canNavigateBack = remember { navController.previousBackStackEntry != null }
     var semitones by remember { mutableIntStateOf(0) }
     val fontSize = songViewModel.songTextFontSize.collectAsState()
 

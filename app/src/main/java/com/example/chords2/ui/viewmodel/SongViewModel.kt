@@ -381,7 +381,7 @@ class SongViewModel(
 
 
     //------------------- Edit Song Screen states ------------------------------------------------
-    private val _songName = MutableStateFlow<String>("")
+    private val _songName = MutableStateFlow<String?>(null)
     val songName = _songName.asStateFlow()
     fun setSongName(name: String) {
         _songName.value = name

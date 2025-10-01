@@ -48,15 +48,16 @@ fun EditSongScreen(
         }
     }
 
-    Log.d("EditSongScreen", "Screen started. Received songId (String?): $songId")
-
+    Log.d("EditSongScreen", "Screen started. Received songId: $songId")
 
     val songName by songViewModel.songName.collectAsState()
     val songArtist by songViewModel.songArtist.collectAsState()
     val songContent by songViewModel.songContent.collectAsState()
 
 
+
     val currentSongDbId: Int? = remember(songId) { songId.toIntOrNull() }
+    Log.d("EditSongScreen", "Current song DB ID: $currentSongDbId")
     val songIdInt = remember(songId) {
         if (songId != "new") {
             songId.toIntOrNull()
@@ -75,10 +76,11 @@ fun EditSongScreen(
                 value = Song(localId = null, remoteId = null, title = "", artist = "", content = "")
             }
         }
+        Log.d("EditSongScreen", "Song data loaded: ${value ?: "null"}")
     }
     val song = songData
-    LaunchedEffect(Unit) {
-        if (song != null) {
+    LaunchedEffect(song) {
+        if (song != null && songName == null) {
             songViewModel.setSongName(song.title)
             songViewModel.setSongArtist(song.artist)
             songViewModel.setSongContent(TextFieldValue(song.content))
@@ -102,7 +104,7 @@ fun EditSongScreen(
                                     Song(
                                         localId = null,
                                         remoteId = song.remoteId,
-                                        title = songName,
+                                        title = songName ?: "",
                                         artist = songArtist,
                                         content = songContent.text
                                     )
@@ -113,7 +115,7 @@ fun EditSongScreen(
                                     Song(
                                         localId = currentSongDbId,
                                         remoteId = song.remoteId,
-                                        title = songName,
+                                        title = songName ?: "",
                                         artist = songArtist,
                                         content = songContent.text
                                     )
@@ -145,7 +147,7 @@ fun EditSongScreen(
             ) {
                 SongTextField(
                     modifier = Modifier.weight(1f),
-                    value = songName,
+                    value = songName ?: "",
                     onValueChange = { songViewModel.setSongName(it) },
                     singleLine = true,
                     label = "Song Title"

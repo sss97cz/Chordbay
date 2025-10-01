@@ -190,6 +190,7 @@ fun HomeScreen(
                             onEditClick = {
                                 if (selectedSongsList.size == 1) {
                                     val song = selectedSongsList[0]
+                                    Log.d("HomeScreen", "Editing song ${song.localId}")
                                     navController.navigate(
                                         route = Paths.EditSongPath.createRoute(songId = song.localId.toString())
                                     )
