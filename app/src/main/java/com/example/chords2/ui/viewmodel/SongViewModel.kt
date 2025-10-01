@@ -398,4 +398,9 @@ class SongViewModel(
     fun setSongContent(content: TextFieldValue) {
         _songContent.value = content
     }
+    fun clearSongStates() {
+        _songName.value = null
+        _songArtist.value = ""
+        _songContent.value = TextFieldValue("")
+    }
 }

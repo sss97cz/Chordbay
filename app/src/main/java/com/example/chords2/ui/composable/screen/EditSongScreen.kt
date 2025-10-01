@@ -41,6 +41,9 @@ fun EditSongScreen(
     navController: NavController,
     songViewModel: SongViewModel = koinViewModel(),
 ) {
+    LaunchedEffect(Unit) {
+        songViewModel.clearSongStates()
+    }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -85,6 +88,11 @@ fun EditSongScreen(
             songViewModel.setSongArtist(song.artist)
             songViewModel.setSongContent(TextFieldValue(song.content))
             Log.d("EditSongScreen", "States updated from loaded song: name='${songName}'")
+        } else if (songId == "new") {
+            songViewModel.setSongName("")
+            songViewModel.setSongArtist("")
+            songViewModel.setSongContent(TextFieldValue(""))
+            Log.d("EditSongScreen", "States initialized for new song.")
         }
     }
     val canNavigateBack = navController.previousBackStackEntry != null
@@ -94,8 +102,9 @@ fun EditSongScreen(
                 title = "Song Editor",
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 navigationIconContentDescription = if (canNavigateBack) "Back" else null,
-                onNavigationIconClick = if (canNavigateBack) {
-                    { navController.navigateUp() }
+                onNavigationIconClick = if (canNavigateBack) { {
+                        navController.navigateUp()
+                    }
                 } else null, actions = {
                     IconButton(onClick = {
                         if (song != null) {

@@ -1,5 +1,7 @@
 package com.example.chords2.ui.composable.component.navdrawer
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -32,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import com.example.chords2.data.database.playlist.PlaylistEntity
+import com.example.chords2.ui.theme.imagevector.Playlist_add
 
 @Composable
 fun MyDrawerContent(
@@ -39,7 +42,11 @@ fun MyDrawerContent(
     onPlaylistClick: (PlaylistEntity) -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    var playlistsExpanded by remember {mutableStateOf(true)}
+    var playlistsExpanded by remember { mutableStateOf(true) }
+    val animatedRotation by animateFloatAsState(
+        targetValue = if (playlistsExpanded) -180f else 0f,
+        animationSpec = tween(durationMillis = 300)
+    )
     ModalDrawerSheet {
         Column(
             modifier = Modifier
@@ -83,14 +90,22 @@ fun MyDrawerContent(
 //                        .rotate(if (playlistsExpanded) 180f else 0f)
 //                )
                 NavigationDrawerItem(
-                    label = { Text("Playlists", style = MaterialTheme.typography.titleMedium) },
+                    label = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("Playlists", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.weight(1f))
+                            Icon(
+                                Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                modifier = Modifier.rotate(animatedRotation)
+                            )
+                        }
+                    },
                     selected = false,
                     icon = {
-                        Icon(
-                            Icons.Default.ArrowDropDown,
-                            contentDescription = null,
-                            modifier = Modifier.rotate(if (playlistsExpanded) -90f else 0f)
-                        )
+                        Icon(Playlist_add, null)
                     },
                     onClick = { playlistsExpanded = !playlistsExpanded },
                     modifier = Modifier
@@ -98,7 +113,7 @@ fun MyDrawerContent(
                 )
             }
             if (playlistsExpanded) {
-                playlists.forEachIndexed { i , playlist ->
+                playlists.forEachIndexed { i, playlist ->
                     NavigationDrawerItem(
                         label = { Text(playlist.name) },
                         selected = false,
