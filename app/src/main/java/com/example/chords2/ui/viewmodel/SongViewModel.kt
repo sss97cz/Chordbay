@@ -385,6 +385,7 @@ class SongViewModel(
     val songName = _songName.asStateFlow()
     fun setSongName(name: String) {
         _songName.value = name
+        Log.d("SongViewModel", name)
     }
 
     private val _songArtist = MutableStateFlow<String>("")
@@ -402,5 +403,14 @@ class SongViewModel(
         _songName.value = null
         _songArtist.value = ""
         _songContent.value = TextFieldValue("")
+        setHasLoadedEdit(false)
+        Log.d("SongViewModel", "song states resert")
     }
+    private val _hasLoadedEdit = MutableStateFlow(false)
+    val hasLoadedEdit = _hasLoadedEdit.asStateFlow()
+    fun setHasLoadedEdit(loaded: Boolean) {
+        _hasLoadedEdit.value = loaded
+        Log.d("SongViewModel", "hasLoadedEdit set to $loaded")
+    }
+
 }

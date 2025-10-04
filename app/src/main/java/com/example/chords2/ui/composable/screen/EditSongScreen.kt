@@ -32,6 +32,8 @@ import com.example.chords2.ui.composable.component.textfield.SongContentEditor
 import com.example.chords2.ui.composable.component.textfield.SongTextField
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -41,23 +43,14 @@ fun EditSongScreen(
     navController: NavController,
     songViewModel: SongViewModel = koinViewModel(),
 ) {
-    // TODO("needs fixing")
-    LaunchedEffect(Unit) {
-        songViewModel.clearSongStates()
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            navController.navigateUp()
-        }
-    }
-
     Log.d("EditSongScreen", "Screen started. Received songId: $songId")
 
-    val songName by songViewModel.songName.collectAsState()
+    val songNameState by songViewModel.songName.collectAsState()
     val songArtist by songViewModel.songArtist.collectAsState()
     val songContent by songViewModel.songContent.collectAsState()
-
+    val songName = songNameState
+    val hasLoaded = songViewModel.hasLoadedEdit.collectAsState()
+    Log.d("EditSongScreen", hasLoaded.value.toString())
 
 
     val currentSongDbId: Int? = remember(songId) { songId.toIntOrNull() }
@@ -72,28 +65,55 @@ fun EditSongScreen(
 
     val songData by produceState<Song?>(initialValue = null, key1 = songIdInt) {
         if (songIdInt != null) {
-            songViewModel.getSongById(songIdInt).collect { songValue ->
-                value = songValue
+            if (!hasLoaded.value) {
+                songViewModel.getSongById(songIdInt).collect { songValue ->
+                    value = songValue
+                    Log.d("EditSongScreen", "state set to: $songValue")
+                }
+            } else {
+                songViewModel.getSongById(songIdInt).collect {
+                    value = it?.copy(
+                        title = songName ?: "",
+                        artist = songArtist,
+                        content = songContent.text
+                    )
+                }
             }
         } else {
             if (songId == "new") {
-                value = Song(localId = null, remoteId = null, title = "", artist = "", content = "")
+                if (songName == null) {
+                    value =
+                        Song(
+                            localId = null,
+                            remoteId = null,
+                            title = "",
+                            artist = "",
+                            content = ""
+                        )
+                    Log.d("EditSongScreen", "state set to: new song1")
+
+                } else {
+                    value =
+                        Song(
+                            localId = null,
+                            remoteId = null,
+                            title = songName,
+                            artist = songArtist,
+                            content = songContent.text
+                        )
+                    Log.d("EditSongScreen", "state set to: new song2")
+                }
             }
         }
         Log.d("EditSongScreen", "Song data loaded: ${value ?: "null"}")
     }
     val song = songData
-    LaunchedEffect(song) {
-        if (song != null && songName == null) {
-            songViewModel.setSongName(song.title)
-            songViewModel.setSongArtist(song.artist)
-            songViewModel.setSongContent(TextFieldValue(song.content))
+    LaunchedEffect(songData) {
+        if (!hasLoaded.value) {
+            songViewModel.setSongName(song?.title ?: "")
+            songViewModel.setSongArtist(song?.artist ?: "")
+            songViewModel.setSongContent(TextFieldValue(song?.content ?: ""))
             Log.d("EditSongScreen", "States updated from loaded song: name='${songName}'")
-        } else if (songId == "new") {
-            songViewModel.setSongName("")
-            songViewModel.setSongArtist("")
-            songViewModel.setSongContent(TextFieldValue(""))
-            Log.d("EditSongScreen", "States initialized for new song.")
         }
     }
     val canNavigateBack = navController.previousBackStackEntry != null
@@ -103,8 +123,10 @@ fun EditSongScreen(
                 title = "Song Editor",
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 navigationIconContentDescription = if (canNavigateBack) "Back" else null,
-                onNavigationIconClick = if (canNavigateBack) { {
+                onNavigationIconClick = if (canNavigateBack) {
+                    {
                         navController.navigateUp()
+                        songViewModel.clearSongStates()
                     }
                 } else null, actions = {
                     IconButton(onClick = {
@@ -119,7 +141,6 @@ fun EditSongScreen(
                                         content = songContent.text
                                     )
                                 )
-                                navController.navigateUp()
                             } else if (currentSongDbId != null) {
                                 songViewModel.updateSong(
                                     Song(
@@ -130,8 +151,10 @@ fun EditSongScreen(
                                         content = songContent.text
                                     )
                                 )
-                                navController.navigateUp()
                             }
+                            navController.navigateUp()
+                            runBlocking { delay(500) }
+                            songViewModel.clearSongStates()
                         }
                         Log.d(
                             "EditSongScreen",
@@ -158,7 +181,10 @@ fun EditSongScreen(
                 SongTextField(
                     modifier = Modifier.weight(1f),
                     value = songName ?: "",
-                    onValueChange = { songViewModel.setSongName(it) },
+                    onValueChange = {
+                        songViewModel.setSongName(it)
+                        Log.d("EditSongScreen", songName ?: "")
+                    },
                     singleLine = true,
                     label = "Song Title"
                 )
