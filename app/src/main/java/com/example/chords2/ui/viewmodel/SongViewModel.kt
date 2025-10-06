@@ -412,6 +412,48 @@ class SongViewModel(
         _hasLoadedEdit.value = loaded
         Log.d("SongViewModel", "hasLoadedEdit set to $loaded")
     }
-    //hahaha
 
+
+
+    fun saveEditedSong(songId: String) {
+        viewModelScope.launch {
+            if (songId == "new") {
+                songRepository.insertSong(
+                    Song(
+                        localId = null,
+                        remoteId = null,
+                        title = songName.value ?: "",
+                        artist = songArtist.value,
+                        content = songContent.value.text
+                    )
+                )
+            } else {
+                songRepository.updateSong(
+                    Song(
+                        localId = songId.toInt(),
+                        remoteId = null,
+                        title = songName.value ?: "",
+                        artist = songArtist.value,
+                        content = songContent.value.text
+                    )
+                )
+            }
+        }
+    }
+    fun loadEditSong(songId: String) {
+        viewModelScope.launch {
+            if (songId != "new") {
+                val song = songRepository.getSongById(songId.toInt()).first()
+                if (song != null) {
+                    _songName.value = song.title
+                    _songArtist.value = song.artist
+                    _songContent.value = TextFieldValue(song.content)
+                    Log.d("SongViewModel", "Loaded song: $song")
+                } else {
+                    Log.e("SongViewModel", "No song found with ID: $songId")
+                }
+            }
+            setHasLoadedEdit(true)
+        }
+    }
 }

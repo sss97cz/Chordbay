@@ -43,79 +43,18 @@ fun EditSongScreen(
     navController: NavController,
     songViewModel: SongViewModel = koinViewModel(),
 ) {
-    Log.d("EditSongScreen", "Screen started. Received songId: $songId")
-
-    val songNameState by songViewModel.songName.collectAsState()
+    val songName by songViewModel.songName.collectAsState()
     val songArtist by songViewModel.songArtist.collectAsState()
     val songContent by songViewModel.songContent.collectAsState()
-    val songName = songNameState
-    val hasLoaded = songViewModel.hasLoadedEdit.collectAsState()
-    Log.d("EditSongScreen", hasLoaded.value.toString())
+    val hasLoaded by songViewModel.hasLoadedEdit.collectAsState()
 
-
-    val currentSongDbId: Int? = remember(songId) { songId.toIntOrNull() }
-    Log.d("EditSongScreen", "Current song DB ID: $currentSongDbId")
-    val songIdInt = remember(songId) {
-        if (songId != "new") {
-            songId.toIntOrNull()
-        } else {
-            null
+    // Load song only once per songId
+    LaunchedEffect(songId) {
+        if (!hasLoaded) {
+            songViewModel.loadEditSong(songId)
         }
     }
 
-    val songData by produceState<Song?>(initialValue = null, key1 = songIdInt) {
-        if (songIdInt != null) {
-            if (!hasLoaded.value) {
-                songViewModel.getSongById(songIdInt).collect { songValue ->
-                    value = songValue
-                    Log.d("EditSongScreen", "state set to: $songValue")
-                }
-            } else {
-                songViewModel.getSongById(songIdInt).collect {
-                    value = it?.copy(
-                        title = songName ?: "",
-                        artist = songArtist,
-                        content = songContent.text
-                    )
-                }
-            }
-        } else {
-            if (songId == "new") {
-                if (songName == null) {
-                    value =
-                        Song(
-                            localId = null,
-                            remoteId = null,
-                            title = "",
-                            artist = "",
-                            content = ""
-                        )
-                    Log.d("EditSongScreen", "state set to: new song1")
-
-                } else {
-                    value =
-                        Song(
-                            localId = null,
-                            remoteId = null,
-                            title = songName,
-                            artist = songArtist,
-                            content = songContent.text
-                        )
-                    Log.d("EditSongScreen", "state set to: new song2")
-                }
-            }
-        }
-        Log.d("EditSongScreen", "Song data loaded: ${value ?: "null"}")
-    }
-    val song = songData
-    LaunchedEffect(songData) {
-        if (!hasLoaded.value) {
-            songViewModel.setSongName(song?.title ?: "")
-            songViewModel.setSongArtist(song?.artist ?: "")
-            songViewModel.setSongContent(TextFieldValue(song?.content ?: ""))
-            Log.d("EditSongScreen", "States updated from loaded song: name='${songName}'")
-        }
-    }
     val canNavigateBack = navController.previousBackStackEntry != null
     Scaffold(
         topBar = {
@@ -130,36 +69,9 @@ fun EditSongScreen(
                     }
                 } else null, actions = {
                     IconButton(onClick = {
-                        if (song != null) {
-                            if (songId == "new") {
-                                songViewModel.insertSong(
-                                    Song(
-                                        localId = null,
-                                        remoteId = song.remoteId,
-                                        title = songName ?: "",
-                                        artist = songArtist,
-                                        content = songContent.text
-                                    )
-                                )
-                            } else if (currentSongDbId != null) {
-                                songViewModel.updateSong(
-                                    Song(
-                                        localId = currentSongDbId,
-                                        remoteId = song.remoteId,
-                                        title = songName ?: "",
-                                        artist = songArtist,
-                                        content = songContent.text
-                                    )
-                                )
-                            }
-                            navController.navigateUp()
-                            runBlocking { delay(500) }
-                            songViewModel.clearSongStates()
-                        }
-                        Log.d(
-                            "EditSongScreen",
-                            "Save button clicked. Song saved: name='${songName}'"
-                        )
+                        songViewModel.saveEditedSong(songId)
+                        navController.navigateUp()
+                        songViewModel.clearSongStates()
                     }) {
                         Icon(Icons.Filled.Done, contentDescription = "Save")
                     }
@@ -174,17 +86,13 @@ fun EditSongScreen(
                 .padding(start = 8.dp, end = 8.dp, top = 8.dp)
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SongTextField(
                     modifier = Modifier.weight(1f),
                     value = songName ?: "",
-                    onValueChange = {
-                        songViewModel.setSongName(it)
-                        Log.d("EditSongScreen", songName ?: "")
-                    },
+                    onValueChange = { songViewModel.setSongName(it) },
                     singleLine = true,
                     label = "Song Title"
                 )
@@ -197,8 +105,7 @@ fun EditSongScreen(
                 )
             }
             Row(
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 SongContentEditor(
                     modifier = Modifier
