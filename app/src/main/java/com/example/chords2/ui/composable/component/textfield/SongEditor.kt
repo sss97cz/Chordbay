@@ -84,7 +84,7 @@ fun SongContentEditor(
                     onTextLayout = { layoutResult ->
                         val idx = value.selection.end.coerceIn(0, value.text.length)
                         val caret = layoutResult.getCursorRect(idx)
-                        val extra = with(density) { 24.dp.toPx() }  // use captured density
+                        val extra = with(density) { 24.dp.toPx() }
                         val inflated = androidx.compose.ui.geometry.Rect(
                             caret.left,
                             caret.top,

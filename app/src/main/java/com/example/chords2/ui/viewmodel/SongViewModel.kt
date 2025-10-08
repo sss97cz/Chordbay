@@ -403,6 +403,7 @@ class SongViewModel(
         _songName.value = null
         _songArtist.value = ""
         _songContent.value = TextFieldValue("")
+        _remoteId.value = null
         setHasLoadedEdit(false)
         Log.d("SongViewModel", "song states resert")
     }
@@ -412,9 +413,7 @@ class SongViewModel(
         _hasLoadedEdit.value = loaded
         Log.d("SongViewModel", "hasLoadedEdit set to $loaded")
     }
-
-
-
+    private val _remoteId = MutableStateFlow<String?>(null)
     fun saveEditedSong(songId: String) {
         viewModelScope.launch {
             if (songId == "new") {
@@ -431,11 +430,11 @@ class SongViewModel(
                 songRepository.updateSong(
                     Song(
                         localId = songId.toInt(),
-                        remoteId = null,
+                        remoteId = _remoteId.value,
                         title = songName.value ?: "",
                         artist = songArtist.value,
                         content = songContent.value.text
-                    )
+                    ).also{Log.d("SongViewModel", "$it")}
                 )
             }
         }
@@ -448,6 +447,7 @@ class SongViewModel(
                     _songName.value = song.title
                     _songArtist.value = song.artist
                     _songContent.value = TextFieldValue(song.content)
+                    _remoteId.value = song.remoteId
                     Log.d("SongViewModel", "Loaded song: $song")
                 } else {
                     Log.e("SongViewModel", "No song found with ID: $songId")

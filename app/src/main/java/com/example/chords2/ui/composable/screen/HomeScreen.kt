@@ -58,6 +58,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ListItem
@@ -67,6 +68,7 @@ import androidx.compose.ui.draw.clip
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
+import com.example.chords2.ui.composable.component.listitem.ArtistItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 
 
@@ -398,17 +400,24 @@ fun HomeScreen(
 //                                    )
 //                                }
                                 items(artists.value) { artist ->
-                                    ListItem(
-                                        headlineContent = { Text(artist) },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(MaterialTheme.shapes.medium)
-                                            .clickable {
-                                                navController.navigate(
-                                                    Paths.ArtistSongsPath.createRoute(artistName = artist)
-                                                )
-                                            },
-                                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+//                                    ListItem(
+//                                        headlineContent = { Text(artist) },
+//                                        modifier = Modifier
+//                                            .fillMaxWidth()
+//                                            .clip(MaterialTheme.shapes.medium)
+//                                            .clickable {
+//                                                navController.navigate(
+//                                                    Paths.ArtistSongsPath.createRoute(artistName = artist)
+//                                                )
+//                                            },
+//                                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+//                                    )
+                                    ArtistItem(
+                                        title = artist,
+                                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                                        onClick = { navController.navigate(
+                                            Paths.ArtistSongsPath.createRoute(artist)
+                                        )}
                                     )
                                 }
                             }
