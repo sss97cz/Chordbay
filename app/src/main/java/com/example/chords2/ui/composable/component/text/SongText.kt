@@ -1,6 +1,7 @@
 package com.example.chords2.ui.composable.component.text
 
 import android.util.Log
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.example.chords2.data.model.util.Chords
@@ -60,7 +62,8 @@ private fun String.highlightChords(
                                 color = chordsColor,
                                 fontWeight = FontWeight.Bold,
                                 fontStyle = FontStyle.Italic,
-                                fontSize = (fontSize * 1.6f).sp
+                                fontSize = (fontSize * 1.3f).sp,
+                                baselineShift = BaselineShift(0.5f),
                             )
                         ) {
                             val baseChord = Chords.allBaseChords.firstOrNull {
@@ -70,6 +73,13 @@ private fun String.highlightChords(
                             val transposedBaseChord =
                                 baseChord?.transpose(semitones)?.value ?: "error"
                             append(transposedBaseChord + suffix)
+                        }
+                        withStyle(
+                            SpanStyle(
+                                fontSize = (fontSize * 0.25f).sp,
+                            )
+                        ) {
+                            append(" ") // space for better readability
                         }
                     } else {
                         append("[$chordContent]") // if not a chord, keep it literal

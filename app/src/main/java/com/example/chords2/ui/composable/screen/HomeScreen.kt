@@ -371,7 +371,7 @@ fun HomeScreen(
                                     top = 4.dp,
                                     bottom = dynamicBottomPadding
                                 ),
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
 //                                items(remoteSongs.value) { song ->
 //                                    RemoteSongItem(
@@ -413,15 +413,37 @@ fun HomeScreen(
 //                                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
 //                                    )
                                     ArtistItem(
-                                        title = artist,
-                                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                                        artist = artist.name,
+                                        songCount = artist.songCount,
+                                        modifier = Modifier.fillMaxWidth(),
                                         onClick = { navController.navigate(
-                                            Paths.ArtistSongsPath.createRoute(artist)
+                                            Paths.ArtistSongsPath.createRoute(artist.name)
                                         )}
                                     )
                                 }
                             }
                         }
+                    }
+                }
+                if(selectedTab.value == MainTabs.MY_SONGS) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = dynamicBottomPadding)
+                    ) {
+                        HomeSortFAB(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd),
+                            onFabClick = {
+                                showFabMenu = !showFabMenu
+                            },
+                            isFabMenuExpanded = showFabMenu,
+                            onMenuToggle = { showFabMenu = !showFabMenu },
+                            sortBy = sortOption,
+                            onSortSelected = { selected ->
+                                songViewModel.setSortOption(selected)
+                            }
+                        )
                     }
                 }
                 Box(

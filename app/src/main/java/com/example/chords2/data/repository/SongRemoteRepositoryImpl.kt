@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.chords2.data.mappers.toDto
 import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.remote.ArtistDto
 import com.example.chords2.data.remote.ChordsBayApiService
 import java.io.IOException
 
@@ -66,7 +67,7 @@ class SongRemoteRepositoryImpl(
         }
     }
 
-    override suspend fun getAllArtists(): Result<List<String>> {
+    override suspend fun getAllArtists(): Result<List<ArtistDto>> {
         return try {
             val response = apiService.getAllArtists()
             if (response.isSuccessful) {

@@ -15,6 +15,7 @@ import com.example.chords2.data.model.SongUi
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
+import com.example.chords2.data.remote.ArtistDto
 import com.example.chords2.data.repository.PlaylistRepository
 import com.example.chords2.data.repository.SongRemoteRepository
 import com.example.chords2.data.repository.SongRepository
@@ -295,8 +296,8 @@ class SongViewModel(
         }
     }
 
-    val _artists: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
-    val artists: StateFlow<List<String>> = _artists.asStateFlow()
+    val _artists: MutableStateFlow<List<ArtistDto>> = MutableStateFlow(emptyList())
+    val artists = _artists.asStateFlow()
     fun fetchAllArtists() {
         viewModelScope.launch {
             songRemoteRepository.getAllArtists()

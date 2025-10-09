@@ -23,7 +23,7 @@ interface ChordsBayApiService {
     suspend fun updateSong(@Path("id") id: String, @Body songDto: SongDto): Response<Boolean>
 
     @GET("/api/artists")
-    suspend fun getAllArtists(): Response<List<String>>
+    suspend fun getAllArtists(): Response<List<ArtistDto>>
 
     @GET("/api/songs")
     suspend fun getSongsByArtist(@Query("artist") artist: String): Response<List<SongDto>>
