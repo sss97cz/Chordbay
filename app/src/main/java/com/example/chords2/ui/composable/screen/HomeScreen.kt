@@ -64,6 +64,9 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.ui.draw.clip
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
@@ -360,72 +363,56 @@ fun HomeScreen(
                         MainTabs.REMOTE_SONGS -> {
                             val artists = songViewModel.artists.collectAsState()
                             LaunchedEffect(Unit) {
-                                songViewModel.fetchPosts()
                                 songViewModel.fetchAllArtists()
                                 Log.d("HomeScreen", "Fetched artists: ${artists.value}")
                             }
-                            val remoteSongs = songViewModel.remoteSongs.collectAsState()
-                            LazyColumn(
+                            val isRefreshing = songViewModel.isLoading.collectAsState()
+                            val pullToRefreshState = rememberPullToRefreshState()
+
+
+                            PullToRefreshBox(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(
-                                    top = 4.dp,
-                                    bottom = dynamicBottomPadding
-                                ),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-//                                items(remoteSongs.value) { song ->
-//                                    RemoteSongItem(
-//                                        modifier = Modifier.fillMaxWidth(),
-//                                        song = song.toSongUi(),
-//                                        onSongClick = {
-//                                            if (selectedRemoteSongsList.isNotEmpty()) {
-//                                                scope.launch {
-//                                                    songViewModel.selectRemoteSong(song)
-//                                                }
-//                                            } else {
-//                                                navController.navigate(
-//                                                    Paths.RemoteSongPath.createRoute(
-//                                                        song.remoteId.toString()
-//                                                    )
-//                                                )
-//                                            }
-//                                        },
-//                                        onLongClick = {
-//                                            scope.launch {
-//                                                songViewModel.selectRemoteSong(song)
-//                                                scaffoldState.bottomSheetState.expand()
-//                                            }
-//                                        },
-//                                        isSelected = selectedRemoteSongsList.contains(song)
-//                                    )
-//                                }
-                                items(artists.value) { artist ->
-//                                    ListItem(
-//                                        headlineContent = { Text(artist) },
-//                                        modifier = Modifier
-//                                            .fillMaxWidth()
-//                                            .clip(MaterialTheme.shapes.medium)
-//                                            .clickable {
-//                                                navController.navigate(
-//                                                    Paths.ArtistSongsPath.createRoute(artistName = artist)
-//                                                )
-//                                            },
-//                                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-//                                    )
-                                    ArtistItem(
-                                        artist = artist.name,
-                                        songCount = artist.songCount,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        onClick = { navController.navigate(
-                                            Paths.ArtistSongsPath.createRoute(artist.name)
-                                        )}
+                                isRefreshing = isRefreshing.value,
+                                onRefresh = {
+                                    scope.launch {
+                                        songViewModel.fetchAllArtists()
+                                    }
+                                },
+                                state = pullToRefreshState,
+                                indicator = {
+                                    PullToRefreshDefaults.Indicator(
+                                        state = pullToRefreshState,
+                                        modifier = Modifier.align(Alignment.TopCenter),
+                                        isRefreshing = isRefreshing.value
                                     )
+                                }
+                            ) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(
+                                        top = 4.dp,
+                                        bottom = dynamicBottomPadding
+                                    ),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    items(artists.value) { artist ->
+                                        ArtistItem(
+                                            artist = artist.name,
+                                            songCount = artist.songCount,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            onClick = {
+                                                navController.navigate(
+                                                    Paths.ArtistSongsPath.createRoute(artist.name)
+                                                )
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                if(selectedTab.value == MainTabs.MY_SONGS) {
+                if (selectedTab.value == MainTabs.MY_SONGS) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
@@ -446,25 +433,6 @@ fun HomeScreen(
                         )
                     }
                 }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = dynamicBottomPadding)
-                ) {
-                    HomeSortFAB(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd),
-                        onFabClick = {
-                            showFabMenu = !showFabMenu
-                        },
-                        isFabMenuExpanded = showFabMenu,
-                        onMenuToggle = { showFabMenu = !showFabMenu },
-                        sortBy = sortOption,
-                        onSortSelected = { selected ->
-                            songViewModel.setSortOption(selected)
-                        }
-                    )
-                }
                 // ------------------------ Dialogs ------------------------------------------------
                 if (showAddPlaylistDialog) {
                     CreatePlaylistDialog(
@@ -481,7 +449,10 @@ fun HomeScreen(
                         playlists = playlists,
                         onConfirm = { playlistId ->
                             for (song in selectedSongsList) {
-                                Log.d("HomeScreen", "Adding song ${song.title} to playlist $playlistId")
+                                Log.d(
+                                    "HomeScreen",
+                                    "Adding song ${song.title} to playlist $playlistId"
+                                )
                                 songViewModel.addSongToPlaylist(
                                     song = song,
                                     playlistId = playlistId

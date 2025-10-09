@@ -205,34 +205,36 @@ class SongViewModel(
         initialValue = emptyList()
     )
 
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    fun fetchPosts() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            songRemoteRepository.getSongs()
-                .onSuccess { fetchedPosts ->
-                    _remoteSongs.value = fetchedPosts
-                }
-                .onFailure { exception ->
-                    _error.value = "Failed to fetch posts: ${exception.message}"
-                }
-            _isLoading.value = false
-        }
-    }
 
     fun saveSongToDatabase(song: Song) =
         viewModelScope.launch {
             songRepository.insertRemoteSong(song)
         }
 
-    fun getRemoteSongById(id: String): Song? =
-        remoteSongs.value.firstOrNull { it.remoteId == id }
+    private val _remoteSongById = MutableStateFlow<Song?>(null)
+    val remoteSongById: StateFlow<Song?> = _remoteSongById.asStateFlow()
+
+    fun getRemoteSongById(id: String) {
+        Log.d("SongViewModel", "getRemoteSongById called with id: $id")
+        viewModelScope.launch {
+             songRemoteRepository.getSongById(id)
+                .onSuccess { fetchedSong ->
+                    _remoteSongById.value = fetchedSong
+                    Log.d("SongViewModel", "Fetched remote song successfully: $fetchedSong")
+                }
+                .onFailure { exception ->
+                    _error.value = "Failed to fetch remote song: ${exception.message}"
+                    Log.e("SongViewModel", "Error fetching remote song: ${exception.message}")
+                }.getOrNull()
+        }
+    }
 
     fun postSong(song: Song) {
         val isPost = song.remoteId == null
@@ -300,12 +302,15 @@ class SongViewModel(
     val artists = _artists.asStateFlow()
     fun fetchAllArtists() {
         viewModelScope.launch {
+            _isLoading.value = true
             songRemoteRepository.getAllArtists()
                 .onSuccess { fetchedArtists ->
                     _artists.value = fetchedArtists
+                    _isLoading.value = false
                 }
                 .onFailure { exception ->
                     _error.value = "Failed to fetch artists: ${exception.message}"
+                    _isLoading.value = false
                 }
         }
     }

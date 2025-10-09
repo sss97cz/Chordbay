@@ -82,7 +82,7 @@ private fun String.highlightChords(
                             append(" ") // space for better readability
                         }
                     } else {
-                        append("[$chordContent]") // if not a chord, keep it literal
+                        append("[$chordContent]")
                     }
                 }
 

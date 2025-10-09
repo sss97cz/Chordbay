@@ -3,6 +3,7 @@ package com.example.chords2.ui.composable.component.topappbar
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 @Composable
 fun MyTopAppBar(
     title: String,
+    subtitle : String? = null,
     onNavigationIconClick: (() -> Unit)? = null,
     navigationIcon: ImageVector? = null,
     navigationIconContentDescription: String? = null,
@@ -32,12 +34,22 @@ fun MyTopAppBar(
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = title,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-
+            Column() {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         },
         navigationIcon = {
             if (navigationIcon == null || onNavigationIconClick == null) {

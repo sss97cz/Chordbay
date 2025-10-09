@@ -32,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.chords2.data.helper.pluralText
 import com.example.chords2.data.mappers.toSongUi
 import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
@@ -121,7 +122,7 @@ fun ArtistSongsScreen(
                     }
                     Toast.makeText(
                         navController.context,
-                        "Songs saved to database",
+                        "${pluralText("song", selectedRemoteSongsList.count())} saved to database",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

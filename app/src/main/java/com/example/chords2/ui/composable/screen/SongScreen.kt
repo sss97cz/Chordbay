@@ -1,31 +1,58 @@
 package com.example.chords2.ui.composable.screen
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.util.toRange
 import androidx.navigation.NavController
+import com.example.chords2.data.helper.calculatePercentage
 import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.text.SongText
 import com.example.chords2.ui.composable.component.button.TransposeButton
@@ -33,6 +60,7 @@ import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.viewmodel.SongViewModel
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
@@ -48,6 +76,7 @@ fun SongScreen(
             }
         } else if (isRemote) {
             songViewModel.getRemoteSongById(songId)
+            songViewModel.remoteSongById.collect { value = it }
         } else {
             null
         }
@@ -56,13 +85,23 @@ fun SongScreen(
     val canNavigateBack = remember { navController.previousBackStackEntry != null }
     var semitones by remember { mutableIntStateOf(0) }
     val fontSize = songViewModel.songTextFontSize.collectAsState()
+    val sliderState = remember { mutableFloatStateOf(fontSize.value.toFloat()) }
+    var showSlider by rememberSaveable { mutableStateOf(false) }
 
     val isDropdownMenuExpanded = remember { mutableStateOf(false) }
+
+    val sliderInteraction = remember { MutableInteractionSource() }
+    val sliderColors = SliderDefaults.colors(
+        thumbColor = MaterialTheme.colorScheme.primary,
+        activeTrackColor = MaterialTheme.colorScheme.primary,
+        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+    )
 
     Scaffold(
         topBar = {
             MyTopAppBar(
-                title = "${song?.artist ?: ""} - ${song?.title ?: ""}",
+                title = song?.artist ?: "",
+                subtitle = song?.title ?: "",
                 navigationIcon = if (canNavigateBack) {
                     Icons.AutoMirrored.Filled.ArrowBack
                 } else null,
@@ -103,24 +142,28 @@ fun SongScreen(
                             onDismissRequest = { isDropdownMenuExpanded.value = false },
                         ) {
                             DropdownMenuItem(
-                                text = { Text("+ Font Size") },
-                                onClick = {
-                                    if (songViewModel.songTextFontSize.value < 30) {
-                                        songViewModel.setSongTextFontSize(
-                                            songViewModel.songTextFontSize.value + 1
-                                        )
-                                    }
-                                }
+                                text = { Text("Change Font Size") },
+                                onClick = { showSlider = true },
                             )
-                            DropdownMenuItem(
-                                text = { Text("- Font Size") },
-                                onClick = {
-                                    if (songViewModel.songTextFontSize.value > 10)
-                                    songViewModel.setSongTextFontSize(
-                                        songViewModel.songTextFontSize.value - 1
-                                    )
-                                }
-                            )
+//                            DropdownMenuItem(
+//                                text = { Text("+ Font Size") },
+//                                onClick = {
+//                                    if (songViewModel.songTextFontSize.value < 30) {
+//                                        songViewModel.setSongTextFontSize(
+//                                            songViewModel.songTextFontSize.value + 1
+//                                        )
+//                                    }
+//                                }
+//                            )
+//                            DropdownMenuItem(
+//                                text = { Text("- Font Size") },
+//                                onClick = {
+//                                    if (songViewModel.songTextFontSize.value > 10)
+//                                    songViewModel.setSongTextFontSize(
+//                                        songViewModel.songTextFontSize.value - 1
+//                                    )
+//                                }
+//                            )
                         }
                     }
                 }
@@ -154,9 +197,83 @@ fun SongScreen(
                             text = song.content,
                             semitones = semitones,
                             chordsColor = MaterialTheme.colorScheme.primary,
-                            fontSize = fontSize.value
+                            fontSize = sliderState.floatValue.toInt()
                         )
                     }
+                }
+            }
+            AnimatedVisibility(
+                visible = showSlider,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+            ) {
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ){
+                        IconButton(
+                            onClick = { showSlider = false },
+                            modifier = Modifier
+                                .clip(CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            )
+                        }
+                    }
+                    Slider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        value = sliderState.floatValue,
+                        onValueChange = {
+                            sliderState.floatValue = it
+                        },
+                        valueRange = 10f..30f,
+                        steps = 19,
+                        onValueChangeFinished = {
+                            songViewModel.setSongTextFontSize(sliderState.floatValue.toInt())
+                        },
+                        thumb = {
+                            Box(
+                                modifier = Modifier.size(30.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                SliderDefaults.Thumb(
+                                    interactionSource = sliderInteraction,
+                                    colors = sliderColors,
+                                    thumbSize = DpSize(26.dp, 26.dp)
+                                )
+                                Text(
+                                    text = calculatePercentage(10..30, sliderState.floatValue,)
+                                        .toString() + "%",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontSize = 10.sp,
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .offset(y = (-25).dp)
+                                )
+                            }
+                        }
+                    )
                 }
             }
         }

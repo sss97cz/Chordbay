@@ -35,33 +35,6 @@ fun RemoteSongItem(
     onLongClick: () -> Unit,
     isSelected: Boolean = false,
 ) {
-//    Card(
-//        modifier = modifier.combinedClickable(
-//            onClick = { onSongClick(song) },
-//            onLongClick = onLongClick
-//        ),
-//        colors = CardDefaults.cardColors().copy(
-//            containerColor = if (isSelected)
-//                MaterialTheme.colorScheme.tertiaryContainer else CardDefaults.cardColors().containerColor,
-//            contentColor = if (isSelected) MaterialTheme.colorScheme.onTertiaryContainer else CardDefaults.cardColors().contentColor
-//        )
-//    ){
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(8.dp)
-//        ) {
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically,
-//                horizontalArrangement = Arrangement.End
-//            ){
-//            }
-//            Text(text = song.artist)
-//            Text(text = song.title)
-//        }
-//    }
-
     val colors = CardDefaults.cardColors(
         containerColor = if (isSelected)
             MaterialTheme.colorScheme.tertiaryContainer
