@@ -1,7 +1,7 @@
 package com.example.chords2.data.model
 
 data class SongUi(
-    var title: String = "",
-    var artist: String = "",
-    var content: String = "",
+    val title: String = "",
+    val artist: String = "",
+    val content: String = "",
 )
