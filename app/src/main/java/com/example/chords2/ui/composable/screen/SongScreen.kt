@@ -212,18 +212,26 @@ fun SongScreen(
                         .fillMaxWidth()
                         .clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.medium
-                        )
+//                        .border(
+//                            width = 1.dp,
+//                            color = MaterialTheme.colorScheme.primary,
+//                            shape = MaterialTheme.shapes.medium
+//                        )
                         .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
+                        verticalAlignment = Alignment.CenterVertically
                     ){
+                        Text(
+                            text = "Font Size",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 16.dp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                         IconButton(
                             onClick = { showSlider = false },
                             modifier = Modifier
