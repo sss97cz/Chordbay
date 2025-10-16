@@ -14,13 +14,18 @@ import com.example.chords2.ui.composable.screen.HomeScreen
 import com.example.chords2.ui.composable.screen.PlaylistScreen
 import com.example.chords2.ui.composable.screen.SettingsScreen
 import com.example.chords2.ui.composable.screen.SongScreen
+import com.example.chords2.ui.composable.screen.user.LoginScreen
+import com.example.chords2.ui.composable.screen.user.ManageAccountScreen
+import com.example.chords2.ui.composable.screen.user.RegisterScreen
+import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation(
     // modifier: Modifier = Modifier,
-    viewModel: SongViewModel = koinViewModel()
+    songViewModel: SongViewModel = koinViewModel(),
+    authViewModel: AuthViewModel = koinViewModel(),
 ) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
@@ -34,7 +39,8 @@ fun AppNavigation(
         ) {
             HomeScreen(
                // modifier = Modifier.padding(innerPadding),
-                songViewModel = viewModel,
+                songViewModel = songViewModel,
+                authViewModel = authViewModel,
                 navController = navController,
             )
         }
@@ -52,7 +58,7 @@ fun AppNavigation(
             val songId = backStackEntry.arguments?.getString("songId")
             if (songId != null) {
                 SongScreen(
-                    songViewModel = viewModel,
+                    songViewModel = songViewModel,
                     navController = navController,
                     songId = songId
                 )
@@ -75,7 +81,7 @@ fun AppNavigation(
             val songId = it.arguments?.getString("songId")
             if (songId != null) {
                 EditSongScreen(
-                    songViewModel = viewModel,
+                    songViewModel = songViewModel,
                     navController = navController,
                     songId = songId,
                 )
@@ -97,7 +103,7 @@ fun AppNavigation(
             if (remoteId != null) {
                 Log.d("AppNavigation", "remoteId: $remoteId")
                 SongScreen(
-                    songViewModel = viewModel,
+                    songViewModel = songViewModel,
                     navController = navController,
                     songId = remoteId,
                     isRemote = true
@@ -111,7 +117,7 @@ fun AppNavigation(
             route = Paths.SettingsPath.route
         ) {
             SettingsScreen(
-                songViewModel = viewModel,
+                songViewModel = songViewModel,
                 navController = navController
             )
         }
@@ -130,7 +136,7 @@ fun AppNavigation(
             if (playlistId != null) {
                 PlaylistScreen(
                     // modifier = Modifier.padding(innerPadding),
-                    songViewModel = viewModel,
+                    songViewModel = songViewModel,
                     navController = navController,
                     playlistId = playlistId
                 )
@@ -152,13 +158,43 @@ fun AppNavigation(
             val artistName = it.arguments?.getString("artistName")
             if (artistName != null) {
                  ArtistSongsScreen(
-                     songViewModel = viewModel,
+                     songViewModel = songViewModel,
                      navController = navController,
                      artistName = artistName
                  )
             } else {
                 navController.popBackStack()
             }
+        }
+
+        composable(
+            route = Paths.LoginPath.route
+        ) {
+            Log.d("AppNavigation", "Navigated to LoginPath")
+            LoginScreen(
+                navController = navController,
+                songViewModel = songViewModel,
+                authViewModel = authViewModel,
+            )
+        }
+
+        composable(
+            route = Paths.RegisterPath.route
+        ) {
+             RegisterScreen(
+                 navController = navController,
+                 songViewModel = songViewModel,
+                 authViewModel = authViewModel,
+             )
+        }
+        composable(
+            route = Paths.ManageAccountPath.route
+        ) {
+              ManageAccountScreen(
+                  navController = navController,
+                  songViewModel = songViewModel,
+                  authViewModel = authViewModel,
+              )
         }
     }
 }

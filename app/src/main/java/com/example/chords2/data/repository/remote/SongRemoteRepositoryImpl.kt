@@ -1,12 +1,11 @@
-package com.example.chords2.data.repository
-
+package com.example.chords2.data.repository.remote
 
 import android.util.Log
 import com.example.chords2.data.mappers.toDto
 import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.model.Song
-import com.example.chords2.data.remote.ArtistDto
 import com.example.chords2.data.remote.ChordsBayApiService
+import com.example.chords2.data.remote.model.ArtistDto
 import java.io.IOException
 
 class SongRemoteRepositoryImpl(
@@ -48,9 +47,12 @@ class SongRemoteRepositoryImpl(
         }
     }
 
-    override suspend fun createSong(song: Song): Result<String> {
+    override suspend fun createSong(song: Song, token: String): Result<String> {
         return try {
-            val response = apiService.createSong(song.toDto())
+            val response = apiService.createSong(
+                songDto = song.toDto(),
+                token = token
+            )
             if (response.isSuccessful) {
                 val songId = response.body()
                 if (songId != null) {
@@ -62,7 +64,7 @@ class SongRemoteRepositoryImpl(
             } else {
                 Result.failure(IOException("Failed to create song"))
             }
-            } catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
@@ -91,7 +93,7 @@ class SongRemoteRepositoryImpl(
             if (response.isSuccessful) {
                 val songs = response.body()
                 if (songs != null) {
-                    Result.success(songs.map { it.toSong() } )
+                    Result.success(songs.map { it.toSong() })
                 } else {
                     Result.failure(IOException("Empty response body"))
                 }
@@ -103,9 +105,13 @@ class SongRemoteRepositoryImpl(
         }
     }
 
-    override suspend fun updateSong(song: Song): Result<Boolean> {
+    override suspend fun updateSong(song: Song, token: String): Result<Boolean> {
         return try {
-            val response = apiService.updateSong(song.remoteId.toString(), song.toDto())
+            val response = apiService.updateSong(
+                id = song.remoteId.toString(),
+                token = token,
+                songDto = song.toDto()
+            )
             if (response.isSuccessful) {
                 Result.success(true)
             } else {

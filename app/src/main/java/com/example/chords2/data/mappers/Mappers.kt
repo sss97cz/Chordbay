@@ -3,7 +3,7 @@ package com.example.chords2.data.mappers
 import com.example.chords2.data.database.song.SongEntity
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.SongUi
-import com.example.chords2.data.remote.SongDto
+import com.example.chords2.data.remote.model.SongDto
 
 fun Song.toSongUi(): SongUi =
     SongUi(

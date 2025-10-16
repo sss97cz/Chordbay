@@ -1,15 +1,12 @@
-package com.example.chords2.data.repository
+package com.example.chords2.data.repository.song
 
-import android.util.Log
 import com.example.chords2.data.database.song.SongDao
 import com.example.chords2.data.database.song.SongEntity
 import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.mappers.toSongEntity
 import com.example.chords2.data.model.Song
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 
 class SongRepositoryImpl(
     private val songDao: SongDao

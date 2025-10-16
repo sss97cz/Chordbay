@@ -1,7 +1,6 @@
-package com.example.chords2.data.repository
+package com.example.chords2.data.repository.playlist
 
 import com.example.chords2.data.database.playlist.PlaylistEntity
-import com.example.chords2.data.database.playlist.PlaylistWithSongs
 import com.example.chords2.data.model.Song
 import kotlinx.coroutines.flow.Flow
 

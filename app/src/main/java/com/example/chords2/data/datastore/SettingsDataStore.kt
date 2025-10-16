@@ -5,15 +5,11 @@ import androidx.datastore.preferences.core.edit
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
-import com.example.chords2.ui.composable.screen.SettingsScreen
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 class SettingsDataStore(context: Context) {
-    private val dataStore = context.dataStore
+    private val dataStore = context.dataStoreSettings
     @Suppress("UNCHECKED_CAST")
     fun <T> getSetting(setting: Settings<T>): Flow<T> {
         return dataStore.data.map { preferences ->

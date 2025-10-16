@@ -19,13 +19,18 @@ object RetrofitInstance {
             level = HttpLoggingInterceptor.Level.BODY
         })
         .build()
-    val api: ChordsBayApiService by lazy {
+    val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(httpClient)
             .addConverterFactory(ScalarsConverterFactory.create()) // handles plain text
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(ChordsBayApiService::class.java)
+    }
+    val authApiService by lazy {
+        retrofit.create(AuthApiService::class.java)
+    }
+    val api by lazy {
+        retrofit.create(ChordsBayApiService::class.java)
     }
 }

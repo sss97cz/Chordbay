@@ -21,4 +21,9 @@ sealed class Paths(
     object ArtistSongsPath: Paths("artistSongs/{artistName}"){
         fun createRoute(artistName : String) = "artistSongs/$artistName"
     }
+    object LoginPath: Paths("login")
+
+    object RegisterPath: Paths("register")
+
+    object ManageAccountPath: Paths("manageAccount")
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.playlist.PlaylistEntity
 import com.example.chords2.data.datastore.SettingsDataStore
+import com.example.chords2.data.datastore.UserDataStore
 import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.util.Chords
@@ -15,10 +16,12 @@ import com.example.chords2.data.model.SongUi
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
-import com.example.chords2.data.remote.ArtistDto
-import com.example.chords2.data.repository.PlaylistRepository
-import com.example.chords2.data.repository.SongRemoteRepository
-import com.example.chords2.data.repository.SongRepository
+import com.example.chords2.data.remote.model.ArtistDto
+import com.example.chords2.data.remote.model.AuthRequest
+import com.example.chords2.data.repository.auth.AuthRepository
+import com.example.chords2.data.repository.playlist.PlaylistRepository
+import com.example.chords2.data.repository.remote.SongRemoteRepository
+import com.example.chords2.data.repository.song.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +35,9 @@ class SongViewModel(
     private val songRepository: SongRepository,
     private val songRemoteRepository: SongRemoteRepository,
     private val settingsDataStore: SettingsDataStore,
+    private val userDataStore: UserDataStore,
     private val playlistRepository: PlaylistRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     //----------------------- Settings states - Persistent storage -------------------------------------
@@ -242,7 +247,12 @@ class SongViewModel(
         viewModelScope.launch {
             if (isPost) {
                 Log.d("SongViewModel", "Posting song: $song")
-                songRemoteRepository.createSong(song)
+                val token = authRepository.getAcessToken()
+                if (token == null) {
+                    _error.value = "User not authenticated. Please log in."
+                    return@launch
+                }
+                songRemoteRepository.createSong(song, token)
                     .onSuccess {
                         Log.d("SongViewModel", "Song posted successfully with ID: $it")
                         updateSong(song.copy(remoteId = it)).also {
@@ -254,7 +264,12 @@ class SongViewModel(
                     }
             } else {
                 Log.d("SongViewModel", "Updating song: $song")
-                songRemoteRepository.updateSong(song)
+                val token = authRepository.getAcessToken()
+                if (token == null) {
+                    _error.value = "User not authenticated. Please log in."
+                    return@launch
+                }
+                songRemoteRepository.updateSong(song, token)
                     .onSuccess {
                         if (it) {
                             // Optionally update local database if needed
@@ -462,4 +477,6 @@ class SongViewModel(
             setHasLoadedEdit(true)
         }
     }
+
+
 }

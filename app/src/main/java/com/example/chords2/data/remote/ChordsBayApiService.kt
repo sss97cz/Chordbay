@@ -1,9 +1,11 @@
 package com.example.chords2.data.remote
 
-import retrofit2.Call
+import com.example.chords2.data.remote.model.ArtistDto
+import com.example.chords2.data.remote.model.SongDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -17,10 +19,18 @@ interface ChordsBayApiService {
     suspend fun getSongById(@Path("id") id: String): Response<SongDto>
 
     @POST("/api/songs")
-    suspend fun createSong(@Body songDto: SongDto): Response<String> // Returns the ID of the created song
+    suspend fun createSong(
+        @Header("Authorization Bearer")
+        token: String,
+        @Body songDto: SongDto
+    ): Response<String> // Returns the ID of the created song
 
     @PUT("/api/songs/{id}")
-    suspend fun updateSong(@Path("id") id: String, @Body songDto: SongDto): Response<Boolean>
+    suspend fun updateSong(
+        @Path("id") id: String,
+        @Header("Authorization Bearer") token: String,
+        @Body songDto: SongDto
+    ): Response<Boolean>
 
     @GET("/api/artists")
     suspend fun getAllArtists(): Response<List<ArtistDto>>

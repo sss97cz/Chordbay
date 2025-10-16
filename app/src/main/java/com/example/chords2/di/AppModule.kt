@@ -1,14 +1,19 @@
 package com.example.chords2.di
 
 import com.example.chords2.data.database.AppDatabase
+import com.example.chords2.data.datastore.CredentialManager
 import com.example.chords2.data.datastore.SettingsDataStore
+import com.example.chords2.data.datastore.UserDataStore
 import com.example.chords2.data.remote.RetrofitInstance
-import com.example.chords2.data.repository.PlaylistRepository
-import com.example.chords2.data.repository.PlaylistRepositoryImpl
-import com.example.chords2.data.repository.SongRemoteRepository
-import com.example.chords2.data.repository.SongRemoteRepositoryImpl
-import com.example.chords2.data.repository.SongRepository
-import com.example.chords2.data.repository.SongRepositoryImpl
+import com.example.chords2.data.repository.auth.AuthRepository
+import com.example.chords2.data.repository.auth.AuthRepositoryImpl
+import com.example.chords2.data.repository.playlist.PlaylistRepository
+import com.example.chords2.data.repository.playlist.PlaylistRepositoryImpl
+import com.example.chords2.data.repository.remote.SongRemoteRepository
+import com.example.chords2.data.repository.remote.SongRemoteRepositoryImpl
+import com.example.chords2.data.repository.song.SongRepository
+import com.example.chords2.data.repository.song.SongRepositoryImpl
+import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +27,14 @@ val appModule = module {
         SongViewModel(
             get(),
             get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
+    viewModel {
+        AuthViewModel(
             get(),
             get()
         )
@@ -40,10 +53,21 @@ val appModule = module {
     single {
         RetrofitInstance.api
     }
+    single {
+        RetrofitInstance.authApiService
+    }
     single<SongRemoteRepository> {
         SongRemoteRepositoryImpl(get())
     }
     single { SettingsDataStore(androidContext()) }
+
+    single { UserDataStore(androidContext()) }
+
+    single { CredentialManager(androidContext()) }
+
+    single<AuthRepository> {
+        AuthRepositoryImpl(get(), get())
+    }
 
     single<PlaylistRepository> {
         PlaylistRepositoryImpl(get())

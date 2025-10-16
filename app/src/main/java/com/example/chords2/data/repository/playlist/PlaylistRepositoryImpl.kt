@@ -1,4 +1,4 @@
-package com.example.chords2.data.repository
+package com.example.chords2.data.repository.playlist
 
 import com.example.chords2.data.database.playlist.PlaylistDao
 import com.example.chords2.data.database.playlist.PlaylistEntity

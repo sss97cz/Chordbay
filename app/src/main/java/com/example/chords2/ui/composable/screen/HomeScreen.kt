@@ -73,6 +73,7 @@ import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDia
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
 import com.example.chords2.ui.composable.component.listitem.ArtistItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
+import com.example.chords2.ui.viewmodel.AuthViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,6 +81,7 @@ import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 fun HomeScreen(
     modifier: Modifier = Modifier,
     songViewModel: SongViewModel = koinViewModel(),
+    authViewModel: AuthViewModel = koinViewModel(),
     navController: NavController,
 ) {
     val songs = songViewModel.songs.collectAsState()
@@ -95,6 +97,8 @@ fun HomeScreen(
     val playlists by songViewModel.playlists.collectAsState()
     var showAddPlaylistDialog by remember { mutableStateOf(false) }
     var showAddSongToPlaylistDialog by remember { mutableStateOf(false) }
+
+    val email = authViewModel.userEmail.collectAsState()
 
 
     var searchBarExpanded by remember { mutableStateOf(false) }
@@ -171,7 +175,15 @@ fun HomeScreen(
                 },
                 onSettingsClick = {
                     navController.navigate(Paths.SettingsPath.route)
-                }
+                },
+                userEmail = email.value,
+                onLoginClick = {
+                    navController.navigate(Paths.LoginPath.route)
+                },
+                onManageAccountClick = {
+                    navController.navigate(Paths.ManageAccountPath.route)
+                },
+                onSignOutClick = { authViewModel.logoutUser() }
             )
         },
         drawerState = drawerState

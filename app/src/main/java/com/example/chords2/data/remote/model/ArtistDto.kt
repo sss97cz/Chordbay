@@ -1,4 +1,4 @@
-package com.example.chords2.data.remote
+package com.example.chords2.data.remote.model
 
 import com.squareup.moshi.JsonClass
 
