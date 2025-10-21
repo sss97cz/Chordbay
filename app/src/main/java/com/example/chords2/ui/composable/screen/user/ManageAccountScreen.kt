@@ -3,6 +3,7 @@ package com.example.chords2.ui.composable.screen.user
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,5 +19,11 @@ fun ManageAccountScreen(
 ){
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
         Text("TODO: ManageAccountScreen")
+        Button(onClick = {
+            authViewModel.refreshToken()
+            navController.popBackStack()
+        }) {
+            Text("Go Back")
+        }
     }
 }

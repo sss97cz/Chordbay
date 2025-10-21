@@ -1,6 +1,7 @@
 package com.example.chords2.ui.composable.screen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -68,12 +69,14 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
 import com.example.chords2.ui.composable.component.listitem.ArtistItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 import com.example.chords2.ui.viewmodel.AuthViewModel
+import kotlinx.serialization.Contextual
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -150,10 +153,15 @@ fun HomeScreen(
             }
         }
     }
+    val context = LocalContext.current
+    val error = songViewModel.error.collectAsState()
 
 
     LaunchedEffect(searchQuery) {
         songViewModel.setSearchQuery(searchQuery)
+    }
+    LaunchedEffect(email.value) {
+
     }
 
     BackHandler(enabled = searchBarIsActive) {
@@ -202,6 +210,15 @@ fun HomeScreen(
                                 scope.launch {
                                     scaffoldState.bottomSheetState.hide()
                                     songViewModel.clearSelectedSongs()
+                                    if (error.value != null) {
+                                        Log.d("HomeScreen", "Error posting songs: ${error.value}")
+                                        Toast.makeText(
+                                            context,
+                                            "Error posting songs: ${error.value}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        songViewModel.clearError()
+                                    }
                                 }
                             },
                             onEditClick = {

@@ -22,7 +22,7 @@ class SongRemoteRepositoryImpl(
                     Result.failure(IOException("Empty response body"))
                 }
             } else {
-                Result.failure(IOException("Failed to fetch songs"))
+                Result.failure(IOException("Failed to fetch songs, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -40,7 +40,7 @@ class SongRemoteRepositoryImpl(
                     Result.failure(IOException("Empty response body"))
                 }
             } else {
-                Result.failure(IOException("Failed to fetch song"))
+                Result.failure(IOException("Failed to fetch song, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -51,8 +51,9 @@ class SongRemoteRepositoryImpl(
         return try {
             val response = apiService.createSong(
                 songDto = song.toDto(),
-                token = token
+                token = "Bearer $token"
             )
+
             if (response.isSuccessful) {
                 val songId = response.body()
                 if (songId != null) {
@@ -62,7 +63,7 @@ class SongRemoteRepositoryImpl(
                     Result.failure(IOException("Empty response body"))
                 }
             } else {
-                Result.failure(IOException("Failed to create song"))
+                Result.failure(IOException("Failed to create song, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -80,7 +81,7 @@ class SongRemoteRepositoryImpl(
                     Result.failure(IOException("Empty response body"))
                 }
             } else {
-                Result.failure(IOException("Failed to fetch artists"))
+                Result.failure(IOException("Failed to fetch artists, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -98,7 +99,7 @@ class SongRemoteRepositoryImpl(
                     Result.failure(IOException("Empty response body"))
                 }
             } else {
-                Result.failure(IOException("Failed to fetch songs by artist"))
+                Result.failure(IOException("Failed to fetch songs by artist, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -109,13 +110,13 @@ class SongRemoteRepositoryImpl(
         return try {
             val response = apiService.updateSong(
                 id = song.remoteId.toString(),
-                token = token,
+                token = "Bearer $token",
                 songDto = song.toDto()
             )
             if (response.isSuccessful) {
                 Result.success(true)
             } else {
-                Result.failure(IOException("Failed to update song"))
+                Result.failure(IOException("Failed to update song, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

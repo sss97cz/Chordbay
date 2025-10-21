@@ -216,7 +216,9 @@ class SongViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
-
+    fun clearError() {
+        _error.value = null
+    }
 
     fun saveSongToDatabase(song: Song) =
         viewModelScope.launch {
@@ -229,7 +231,7 @@ class SongViewModel(
     fun getRemoteSongById(id: String) {
         Log.d("SongViewModel", "getRemoteSongById called with id: $id")
         viewModelScope.launch {
-             songRemoteRepository.getSongById(id)
+            songRemoteRepository.getSongById(id)
                 .onSuccess { fetchedSong ->
                     _remoteSongById.value = fetchedSong
                     Log.d("SongViewModel", "Fetched remote song successfully: $fetchedSong")
@@ -245,45 +247,70 @@ class SongViewModel(
         val isPost = song.remoteId == null
         Log.d("SongViewModel", "isPost: $isPost")
         viewModelScope.launch {
+            val token = authRepository.getAcessToken()
+            if (token == null) {
+                _error.value = "User not authenticated. Please log in."
+                return@launch
+            }
+
             if (isPost) {
-                Log.d("SongViewModel", "Posting song: $song")
-                val token = authRepository.getAcessToken()
-                if (token == null) {
-                    _error.value = "User not authenticated. Please log in."
-                    return@launch
-                }
-                songRemoteRepository.createSong(song, token)
-                    .onSuccess {
-                        Log.d("SongViewModel", "Song posted successfully with ID: $it")
-                        updateSong(song.copy(remoteId = it)).also {
-                            Log.d("SongViewModel", "Local song updated with remote ID: $it")
+                var result = songRemoteRepository.createSong(song, token)
+                Log.d("SongViewModel", "Posting new song: $result")
+                // If unauthorized, try refresh + retry
+                if (result.isFailure) {
+                    val message = result.exceptionOrNull()?.message ?: ""
+                    if (message.contains("401")) {
+                        val refreshResult = authRepository.refresh()
+                        if (refreshResult.isSuccess) {
+                            val newToken = authRepository.getAcessToken()
+                            if (newToken != null) {
+                                result = songRemoteRepository.createSong(song, newToken)
+                            }
                         }
                     }
-                    .onFailure { exception ->
-                        _error.value = "Failed to post song: ${exception.message}"
+                }
+
+                result.onSuccess {
+                    Log.d("SongViewModel", "Song posted successfully with ID: $it")
+                    updateSong(song.copy(remoteId = it)).also {
+                        Log.d("SongViewModel", "Local song updated with remote ID: $it")
                     }
+                }.onFailure { exception ->
+                    _error.value = "Failed to post song: ${exception.message}"
+                }
+
             } else {
                 Log.d("SongViewModel", "Updating song: $song")
-                val token = authRepository.getAcessToken()
-                if (token == null) {
-                    _error.value = "User not authenticated. Please log in."
-                    return@launch
-                }
-                songRemoteRepository.updateSong(song, token)
-                    .onSuccess {
-                        if (it) {
-                            // Optionally update local database if needed
-                            Log.d("SongViewModel", "Song updated successfully on remote server")
-                        } else {
-                            _error.value = "Failed to update song: Unknown error"
+
+                var result = songRemoteRepository.updateSong(song, token)
+
+                // If unauthorized, try refresh + retry
+                if (result.isFailure) {
+                    val message = result.exceptionOrNull()?.message ?: ""
+                    if (message.contains("401")) {
+                        val refreshResult = authRepository.refresh()
+                        if (refreshResult.isSuccess) {
+                            val newToken = authRepository.getAcessToken()
+                            if (newToken != null) {
+                                result = songRemoteRepository.updateSong(song, newToken)
+                            }
                         }
                     }
-                    .onFailure { exception ->
-                        _error.value = "Failed to update song: ${exception.message}"
+                }
+
+                result.onSuccess {
+                    if (it) {
+                        Log.d("SongViewModel", "Song updated successfully on remote server")
+                    } else {
+                        _error.value = "Failed to update song: Unknown error"
                     }
+                }.onFailure { exception ->
+                    _error.value = "Failed to update song: ${exception.message}"
+                }
             }
         }
     }
+
 
     fun postSongs(songs: List<Song>) {
         songs.forEach { song ->
@@ -400,7 +427,6 @@ class SongViewModel(
         )
 
 
-
     //------------------- Edit Song Screen states ------------------------------------------------
     private val _songName = MutableStateFlow<String?>(null)
     val songName = _songName.asStateFlow()
@@ -420,6 +446,7 @@ class SongViewModel(
     fun setSongContent(content: TextFieldValue) {
         _songContent.value = content
     }
+
     fun clearSongStates() {
         _songName.value = null
         _songArtist.value = ""
@@ -428,12 +455,14 @@ class SongViewModel(
         setHasLoadedEdit(false)
         Log.d("SongViewModel", "song states resert")
     }
+
     private val _hasLoadedEdit = MutableStateFlow(false)
     val hasLoadedEdit = _hasLoadedEdit.asStateFlow()
     fun setHasLoadedEdit(loaded: Boolean) {
         _hasLoadedEdit.value = loaded
         Log.d("SongViewModel", "hasLoadedEdit set to $loaded")
     }
+
     private val _remoteId = MutableStateFlow<String?>(null)
     fun saveEditedSong(songId: String) {
         viewModelScope.launch {
@@ -455,11 +484,12 @@ class SongViewModel(
                         title = songName.value ?: "",
                         artist = songArtist.value,
                         content = songContent.value.text
-                    ).also{Log.d("SongViewModel", "$it")}
+                    ).also { Log.d("SongViewModel", "$it") }
                 )
             }
         }
     }
+
     fun loadEditSong(songId: String) {
         viewModelScope.launch {
             if (songId != "new") {

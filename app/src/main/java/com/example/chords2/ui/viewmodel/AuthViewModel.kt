@@ -1,5 +1,6 @@
 package com.example.chords2.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.datastore.UserDataStore
@@ -15,6 +16,20 @@ class AuthViewModel(
     private val userDataStore: UserDataStore
 ): ViewModel() {
     //-------------------- User Authentication states ----------------------------------------------
+    init {
+        viewModelScope.launch {
+            userDataStore.getUsername().collect { email ->
+                if (email.isNotEmpty()) {
+                    setUserLoggedIn(true)
+                    setUserEmail(email)
+                    Log.d("AuthViewModel", "Loaded saved username: $email")
+                } else {
+                    setUserLoggedIn(false)
+                    setUserEmail(null)
+                }
+            }
+        }
+    }
     private val _isUserLoggedIn = MutableStateFlow(false)
     val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
     fun setUserLoggedIn(loggedIn: Boolean) {

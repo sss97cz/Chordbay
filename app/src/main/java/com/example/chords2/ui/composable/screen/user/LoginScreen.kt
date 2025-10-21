@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -69,16 +70,35 @@ fun LoginScreen(
     var errorText by remember { mutableStateOf<String?>(null) }
 
     val isEmailValid = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    val isPasswordValid = password.length >= 6
+    val isPasswordValid = password.length >= 9
     val canSubmit = isEmailValid && isPasswordValid && !isLoading
     val canNavigateBack = navController.previousBackStackEntry != null
 
     val isLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
+    val errorMessage = authViewModel.error.collectAsState()
+
+    LaunchedEffect(isLoggedIn.value) {
+        if (isLoggedIn.value) {
+            isLoading = false
+            scope.launch {
+                snackbarHostState.showSnackbar("Successfully logged in")
+            }
+            navController.popBackStack()
+        }
+    }
+    LaunchedEffect(errorMessage.value) {
+        errorMessage.value?.let { error ->
+            isLoading = false
+            scope.launch {
+                snackbarHostState.showSnackbar(error)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             MyTopAppBar(
-                title = "Song Editor",
+                title = "Sign In",
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 navigationIconContentDescription = if (canNavigateBack) "Back" else null,
                 onNavigationIconClick = if (canNavigateBack) {
@@ -135,7 +155,7 @@ fun LoginScreen(
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
                 )
                 Text(
-                    text = "Sign in to sync your playlists and keep your library safe.",
+                    text = "Some totally awesome text that describes this screen",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -191,12 +211,13 @@ fun LoginScreen(
                             singleLine = true,
                             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(
-                                capitalization = KeyboardCapitalization.None
+                                capitalization = KeyboardCapitalization.None,
+                                keyboardType = KeyboardType.Password
                             ),
                             isError = password.isNotBlank() && !isPasswordValid,
                             supportingText = {
                                 AnimatedVisibility(visible = password.isNotBlank() && !isPasswordValid) {
-                                    Text("Password must be at least 6 characters.")
+                                    Text("Password must be at least 9 characters.")
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -219,18 +240,6 @@ fun LoginScreen(
                                 }
                                 isLoading = true
                                 authViewModel.loginUser(email, password)
-                                if (isLoggedIn.value) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Login successful!")
-                                    }
-                                    navController.popBackStack()
-                                } else {
-                                    errorText = "Login failed. Please check your credentials."
-                                    isLoading = false
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(errorText.orEmpty())
-                                    }
-                                }
                             },
                             enabled = canSubmit,
                             modifier = Modifier
@@ -272,26 +281,6 @@ fun LoginScreen(
                             )
                             Divider(Modifier.weight(1f))
                         }
-
-                        OutlinedButton(
-                            onClick = { /* TODO: trigger Google sign in */ },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(22.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("G", color = Color(0xFF4285F4), fontWeight = FontWeight.Bold)
-                            }
-                            Spacer(Modifier.width(12.dp))
-                            Text("Continue with Google")
-                        }
-
                         TextButton(
                             onClick = { navController.popBackStack() },
                             modifier = Modifier.align(Alignment.CenterHorizontally)

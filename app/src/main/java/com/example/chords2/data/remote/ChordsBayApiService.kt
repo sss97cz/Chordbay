@@ -20,7 +20,7 @@ interface ChordsBayApiService {
 
     @POST("/api/songs")
     suspend fun createSong(
-        @Header("Authorization Bearer")
+        @Header("Authorization")
         token: String,
         @Body songDto: SongDto
     ): Response<String> // Returns the ID of the created song
@@ -28,7 +28,7 @@ interface ChordsBayApiService {
     @PUT("/api/songs/{id}")
     suspend fun updateSong(
         @Path("id") id: String,
-        @Header("Authorization Bearer") token: String,
+        @Header("Authorization") token: String,
         @Body songDto: SongDto
     ): Response<Boolean>
 
