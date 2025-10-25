@@ -145,4 +145,20 @@ class SongRemoteRepositoryImpl(
             Result.failure(e)
         }
     }
+
+    override suspend fun deleteSong(id: String, token: String): Result<Boolean> {
+        return try {
+            val response = apiService.deleteSong(
+                id = id,
+                token = "Bearer $token"
+            )
+            if (response.isSuccessful) {
+                Result.success(true)
+            } else {
+                Result.failure(IOException("Failed to delete song, code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

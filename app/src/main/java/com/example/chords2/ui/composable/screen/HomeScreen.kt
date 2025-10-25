@@ -72,10 +72,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
+import com.example.chords2.ui.composable.component.alertdialog.DeleteOptionDialog
+import com.example.chords2.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
 import com.example.chords2.ui.composable.component.listitem.ArtistItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 import com.example.chords2.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.flow.compose
 import kotlinx.serialization.Contextual
 
 
@@ -100,6 +103,8 @@ fun HomeScreen(
     val playlists by songViewModel.playlists.collectAsState()
     var showAddPlaylistDialog by remember { mutableStateOf(false) }
     var showAddSongToPlaylistDialog by remember { mutableStateOf(false) }
+    var showPrivacyBulkDialog by remember { mutableStateOf(false) }
+    var showDeleteOptionDialog by remember { mutableStateOf(false) }
 
     val email = authViewModel.userEmail.collectAsState()
     val isUserLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
@@ -205,20 +210,21 @@ fun HomeScreen(
                             bottomPadding = bottomSystemPadding.calculateBottomPadding(),
                             selectedSongs = selectedSongsList,
                             onPostClick = {
-                                songViewModel.postSongs(selectedSongsList)
-                                scope.launch {
-                                    scaffoldState.bottomSheetState.hide()
-                                    songViewModel.clearSelectedSongs()
-                                    if (error.value != null) {
-                                        Log.d("HomeScreen", "Error posting songs: ${error.value}")
-                                        Toast.makeText(
-                                            context,
-                                            "Error posting songs: ${error.value}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        songViewModel.clearError()
-                                    }
-                                }
+//                                songViewModel.postSongs(selectedSongsList)
+//                                scope.launch {
+//                                    scaffoldState.bottomSheetState.hide()
+//                                    songViewModel.clearSelectedSongs()
+//                                    if (error.value != null) {
+//                                        Log.d("HomeScreen", "Error posting songs: ${error.value}")
+//                                        Toast.makeText(
+//                                            context,
+//                                            "Error posting songs: ${error.value}",
+//                                            Toast.LENGTH_SHORT
+//                                        ).show()
+//                                        songViewModel.clearError()
+//                                    }
+//                                }
+                                showPrivacyBulkDialog = true
                             },
                             onEditClick = {
                                 if (selectedSongsList.size == 1) {
@@ -234,15 +240,17 @@ fun HomeScreen(
                                 }
                             },
                             onDeleteClick = {
-                                for (song in selectedSongsList) {
-                                    songViewModel.deleteSong(song)
-                                }
-                                if (scaffoldState.bottomSheetState.currentValue != SheetValue.Hidden) {
-                                    scope.launch {
-                                        scaffoldState.bottomSheetState.hide()
-                                        songViewModel.clearSelectedSongs()
-                                    }
-                                }
+//                                for (song in selectedSongsList) {
+//                                 //   songViewModel.deleteSong(song)
+////                                    songViewModel.deleteSongRemoteLocal(song)
+//                                }
+//                                if (scaffoldState.bottomSheetState.currentValue != SheetValue.Hidden) {
+//                                    scope.launch {
+//                                        scaffoldState.bottomSheetState.hide()
+//                                        songViewModel.clearSelectedSongs()
+//                                    }
+//                                }
+                                showDeleteOptionDialog = true
                             },
                             onAddToPlaylistClick = {
                                 scope.launch {
@@ -490,6 +498,45 @@ fun HomeScreen(
                             showAddSongToPlaylistDialog = false
                         }
                     )
+                }
+
+                if (showPrivacyBulkDialog && selectedSongsList.isNotEmpty()) {
+                    PrivacyBulkDialog(
+                        songs = selectedSongsList,
+                        onDismiss = { showPrivacyBulkDialog = false },
+                        onApply = { defaultIsPublic, overrides ->
+                            // Apply privacy and post
+                            songViewModel.applyPrivacyAndPost(
+                                songs = selectedSongsList,
+                                defaultIsPublic = defaultIsPublic,
+                                overrides = overrides
+                            )
+                            showPrivacyBulkDialog = false
+                            scope.launch {
+                                scaffoldState.bottomSheetState.hide()
+                                songViewModel.clearSelectedSongs()
+                            }
+                        }
+                    )
+                }
+
+                if (showDeleteOptionDialog && selectedSongsList.isNotEmpty()) {
+                   DeleteOptionDialog(
+                        songs = selectedSongsList,
+                        onDismiss = { showDeleteOptionDialog = false },
+                        onDelete = { deleteAction ->
+                            // Delete songs based on deleteAction
+                            songViewModel.deleteSongWithOptions(
+                                songs = selectedSongsList,
+                                deleteAction = deleteAction
+                            )
+                            showDeleteOptionDialog = false
+                            scope.launch {
+                                scaffoldState.bottomSheetState.hide()
+                                songViewModel.clearSelectedSongs()
+                            }
+                        }
+                   )
                 }
             }
         }

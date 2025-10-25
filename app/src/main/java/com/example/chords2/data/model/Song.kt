@@ -5,5 +5,6 @@ data class Song(
     val remoteId: String? = null,
     val title: String,
     val artist: String,
-    val content: String
+    val content: String,
+    val isPublic: Boolean = true,
 )

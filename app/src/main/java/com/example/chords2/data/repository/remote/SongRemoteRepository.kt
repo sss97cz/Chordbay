@@ -11,4 +11,5 @@ interface SongRemoteRepository {
     suspend fun getAllArtists(): Result<List<ArtistDto>>
     suspend fun getSongsByArtist(artist: String): Result<List<Song>>
     suspend fun getMySongs(token: String): Result<List<Song>>
+    suspend fun deleteSong(id: String, token: String): Result<Boolean>
 }

@@ -4,6 +4,7 @@ import com.example.chords2.data.remote.model.ArtistDto
 import com.example.chords2.data.remote.model.SongDto
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -47,5 +48,11 @@ interface ChordsBayApiService {
         @Header("Authorization")
         token: String,
     ): Response<List<SongDto>>
+
+    @DELETE ("/api/songs/{id}")
+    suspend fun deleteSong(
+        @Path("id") id: String,
+        @Header("Authorization") token: String
+    ): Response<Boolean>
 
 }

@@ -166,10 +166,29 @@ class SongViewModel(
         }
     }
 
-    fun deleteAll() {
+    fun deleteSongWithOptions(songs: List<Song>, deleteAction: Map<Int, Pair<Boolean, Boolean>>) {
         viewModelScope.launch {
-            songs.value.forEach {
-                songRepository.deleteSong(it)
+            for (song in songs) {
+                val action = deleteAction[song.localId]
+                if (action != null) {
+                    val (deleteLocal, deleteRemote) = action
+                    if (deleteRemote && song.remoteId != null) {
+                        deleteRemoteSong(song)
+                    }
+                    if (deleteLocal) {
+                        deleteSong(song)
+                    }
+                }
+            }
+        }
+    }
+
+    fun deleteSongRemoteLocal(song: Song) {
+        viewModelScope.launch {
+            if (song.remoteId != null) {
+                deleteRemoteSong(song)
+            } else {
+                deleteSong(song)
             }
         }
     }
@@ -328,6 +347,21 @@ class SongViewModel(
                     }
                 }.onFailure { exception ->
                     _error.value = "Failed to update song: ${exception.message}"
+                    val message = exception.message ?: ""
+                    if (message.contains("403")) {
+                        val result = songRemoteRepository.createSong(
+                            token = token,
+                            song = song.copy(remoteId = null)
+                        )
+                        result.onSuccess {
+                            Log.d("SongViewModel", "Song posted successfully with ID: $it")
+                            updateSong(song.copy(remoteId = it)).also {
+                                Log.d("SongViewModel", "Local song updated with remote ID: $it")
+                            }
+                        }.onFailure { exception ->
+                            _error.value = "Failed to post song: ${exception.message}"
+                        }
+                    }
                 }
             }
         }
@@ -425,9 +459,9 @@ class SongViewModel(
                 }
             }
             result.onSuccess { remoteSongs ->
-                    syncToLocalDb(remoteSongs)
-                    Log.d("SongViewModel", "Synced ${remoteSongs.size} songs to local DB")
-                }
+                syncToLocalDb(remoteSongs)
+                Log.d("SongViewModel", "Synced ${remoteSongs.size} songs to local DB")
+            }
                 .onFailure { exception ->
                     _error.value = "Failed to fetch my songs: ${exception.message}"
 
@@ -446,7 +480,61 @@ class SongViewModel(
             }
         }
     }
-//------------------------------- Playlist  operations ---------------------------------------------
+
+    fun applyPrivacyAndPost(
+        songs: List<Song>,
+        defaultIsPublic: Boolean,
+        overrides: Map<Int, Boolean>
+    ) {
+        // Note: this assumes Song has an isPublic: Boolean property.
+        val songsWithPrivacy = songs.map { s ->
+            val localId = s.localId
+            val resolved = localId?.let { overrides[it] } ?: defaultIsPublic
+            s.copy(isPublic = resolved)
+        }
+        postSongs(songsWithPrivacy)
+    }
+
+    fun deleteRemoteSong(song: Song) {
+        viewModelScope.launch {
+            val token = authRepository.getAcessToken()
+            if (token == null) {
+                _error.value = "User not authenticated. Please log in."
+                return@launch
+            }
+            if (song.remoteId == null) {
+                _error.value = "Cannot delete song: remoteId is null"
+                return@launch
+            }
+            var result = songRemoteRepository.deleteSong(song.remoteId, token)
+
+            // If unauthorized, try refresh + retry
+            if (result.isFailure) {
+                val message = result.exceptionOrNull()?.message ?: ""
+                if (message.contains("401")) {
+                    val refreshResult = authRepository.refresh()
+                    if (refreshResult.isSuccess) {
+                        val newToken = authRepository.getAcessToken()
+                        if (newToken != null) {
+                            result = songRemoteRepository.deleteSong(song.remoteId, newToken)
+                        }
+                    }
+                }
+            }
+            result.onSuccess {
+                if (it) {
+                    Log.d("SongViewModel", "Song deleted successfully from remote server")
+//                    deleteSong(song)
+                } else {
+                    _error.value = "Failed to delete song: Unknown error"
+                }
+            }.onFailure { exception ->
+                _error.value = "Failed to delete song: ${exception.message}"
+            }
+        }
+    }
+
+    //------------------------------- Playlist  operations ---------------------------------------------
 
     val playlists: StateFlow<List<PlaylistEntity>> = playlistRepository.getAllPlaylists()
         .stateIn(

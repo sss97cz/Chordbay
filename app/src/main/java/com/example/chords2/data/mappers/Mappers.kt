@@ -25,6 +25,7 @@ fun SongDto.toSong(): Song =
         title = title,
         artist = artist,
         content = content,
+        isPublic = isPublic
     )
 fun Song.toDto(isRequest: Boolean = true): SongDto =
     SongDto(
@@ -32,6 +33,7 @@ fun Song.toDto(isRequest: Boolean = true): SongDto =
         title = title,
         artist = artist,
         content = content,
+        isPublic = isPublic
     )
 fun Song.toSongEntity(): SongEntity =
     SongEntity(
