@@ -16,7 +16,11 @@ interface ChordsBayApiService {
     suspend fun getSongs(): Response<List<SongDto>>
 
     @GET("/api/songs/{id}")
-    suspend fun getSongById(@Path("id") id: String): Response<SongDto>
+    suspend fun getSongById(
+        @Header("Authorization")
+        token: String,
+        @Path("id") id: String,
+    ): Response<SongDto>
 
     @POST("/api/songs")
     suspend fun createSong(
@@ -37,5 +41,11 @@ interface ChordsBayApiService {
 
     @GET("/api/songs")
     suspend fun getSongsByArtist(@Query("artist") artist: String): Response<List<SongDto>>
+
+    @GET("/api/songs/me")
+    suspend fun getMySongs(
+        @Header("Authorization")
+        token: String,
+    ): Response<List<SongDto>>
 
 }

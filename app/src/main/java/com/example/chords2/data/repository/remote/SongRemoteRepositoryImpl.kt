@@ -29,9 +29,12 @@ class SongRemoteRepositoryImpl(
         }
     }
 
-    override suspend fun getSongById(id: String): Result<Song> {
+    override suspend fun getSongById(id: String, token: String?): Result<Song> {
         return try {
-            val response = apiService.getSongById(id)
+            val response = apiService.getSongById(
+                token = "Bearer $token",
+                id = id,
+            )
             if (response.isSuccessful) {
                 val song = response.body()
                 if (song != null) {
@@ -117,6 +120,26 @@ class SongRemoteRepositoryImpl(
                 Result.success(true)
             } else {
                 Result.failure(IOException("Failed to update song, code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getMySongs(token: String): Result<List<Song>> {
+        return try {
+            val response = apiService.getMySongs(
+                token = "Bearer $token",
+            )
+            if (response.isSuccessful) {
+                val songs = response.body()
+                if (songs != null) {
+                    Result.success(songs.map { it.toSong() })
+                } else {
+                    Result.failure(IOException("Empty response body"))
+                }
+            } else {
+                Result.failure(IOException("Failed to fetch my songs, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

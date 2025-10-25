@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
+import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
@@ -63,9 +65,9 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
 
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable{ mutableStateOf("") }
+    var showPassword by rememberSaveable { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
 
@@ -83,6 +85,7 @@ fun LoginScreen(
             scope.launch {
                 snackbarHostState.showSnackbar("Successfully logged in")
             }
+            songViewModel.fetchMyRemoteSongs()
             navController.popBackStack()
         }
     }
@@ -265,7 +268,9 @@ fun LoginScreen(
                             TextButton(onClick = { /* TODO: navigate to reset password */ }) {
                                 Text("Forgot password?")
                             }
-                            TextButton(onClick = { /* TODO: navigate to sign up */ }) {
+                            TextButton(onClick = {
+                                navController.navigate(Paths.RegisterPath.route)
+                            }) {
                                 Text("Create account")
                             }
                         }

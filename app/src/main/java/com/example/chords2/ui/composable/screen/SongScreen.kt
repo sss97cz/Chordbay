@@ -1,6 +1,7 @@
 package com.example.chords2.ui.composable.screen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -57,6 +58,7 @@ import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.text.SongText
 import com.example.chords2.ui.composable.component.button.TransposeButton
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
+import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.SongViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -145,25 +147,16 @@ fun SongScreen(
                                 text = { Text("Change Font Size") },
                                 onClick = { showSlider = true },
                             )
-//                            DropdownMenuItem(
-//                                text = { Text("+ Font Size") },
-//                                onClick = {
-//                                    if (songViewModel.songTextFontSize.value < 30) {
-//                                        songViewModel.setSongTextFontSize(
-//                                            songViewModel.songTextFontSize.value + 1
-//                                        )
-//                                    }
-//                                }
-//                            )
-//                            DropdownMenuItem(
-//                                text = { Text("- Font Size") },
-//                                onClick = {
-//                                    if (songViewModel.songTextFontSize.value > 10)
-//                                    songViewModel.setSongTextFontSize(
-//                                        songViewModel.songTextFontSize.value - 1
-//                                    )
-//                                }
-//                            )
+                            DropdownMenuItem(
+                                text = { Text("Edit Song") },
+                                onClick = {
+                                    if (song?.localId != null) {
+                                        navController.navigate(
+                                            Paths.EditSongPath.createRoute(songId = song.localId.toString())
+                                        )
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -207,7 +200,7 @@ fun SongScreen(
                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
                 exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
             ) {
-                Column (
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(MaterialTheme.shapes.medium)
@@ -223,7 +216,7 @@ fun SongScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
-                    ){
+                    ) {
                         Text(
                             text = "Font Size",
                             style = MaterialTheme.typography.titleMedium,
@@ -268,7 +261,7 @@ fun SongScreen(
                                     thumbSize = DpSize(26.dp, 26.dp)
                                 )
                                 Text(
-                                    text = calculatePercentage(10..30, sliderState.floatValue,)
+                                    text = calculatePercentage(10..30, sliderState.floatValue)
                                         .toString() + "%",
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontSize = 10.sp,

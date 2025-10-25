@@ -20,21 +20,15 @@ class AuthViewModel(
         viewModelScope.launch {
             userDataStore.getUsername().collect { email ->
                 if (email.isNotEmpty()) {
-                    setUserLoggedIn(true)
                     setUserEmail(email)
                     Log.d("AuthViewModel", "Loaded saved username: $email")
                 } else {
-                    setUserLoggedIn(false)
                     setUserEmail(null)
                 }
             }
         }
     }
-    private val _isUserLoggedIn = MutableStateFlow(false)
-    val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
-    fun setUserLoggedIn(loggedIn: Boolean) {
-        _isUserLoggedIn.value = loggedIn
-    }
+    val isUserLoggedIn: StateFlow<Boolean> = authRepository.isUserLoggedIn
     private val _userEmail = MutableStateFlow<String?>(null)
     val userEmail: StateFlow<String?> = _userEmail.asStateFlow()
     fun setUserEmail(email: String?) {
@@ -51,7 +45,6 @@ class AuthViewModel(
         viewModelScope.launch {
             authRepository.login(AuthRequest(email, password))
                 .onSuccess {
-                    setUserLoggedIn(true)
                     setUserEmail(email)
                     userDataStore.saveUsername(email)
                 }
@@ -64,7 +57,6 @@ class AuthViewModel(
         viewModelScope.launch {
             authRepository.logout()
                 .onSuccess {
-                    setUserLoggedIn(false)
                     setUserEmail(null)
                     userDataStore.saveUsername("")
                 }
@@ -77,7 +69,8 @@ class AuthViewModel(
         viewModelScope.launch {
             authRepository.register(AuthRequest(email, password))
                 .onSuccess {
-                    // Registration successful, you might want to log the user in or notify them
+                    Log.d("AuthViewModel", "Registration successful for user: $email")
+                    loginUser(email, password)
                 }
                 .onFailure { exception ->
                     _error.value = "Registration failed: ${exception.message}"

@@ -102,6 +102,7 @@ fun HomeScreen(
     var showAddSongToPlaylistDialog by remember { mutableStateOf(false) }
 
     val email = authViewModel.userEmail.collectAsState()
+    val isUserLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
 
 
     var searchBarExpanded by remember { mutableStateOf(false) }
@@ -122,7 +123,6 @@ fun HomeScreen(
                 SheetValue.PartiallyExpanded -> {
                     if (selectedSongsList.isNotEmpty()) 64.dp else 24.dp
                 }
-
                 else -> 24.dp
             }
         }
@@ -161,7 +161,6 @@ fun HomeScreen(
         songViewModel.setSearchQuery(searchQuery)
     }
     LaunchedEffect(email.value) {
-
     }
 
     BackHandler(enabled = searchBarIsActive) {

@@ -6,11 +6,18 @@ import com.example.chords2.data.model.TokenPair
 import com.example.chords2.data.remote.AuthApiService
 import com.example.chords2.data.remote.model.AuthRequest
 import com.example.chords2.data.remote.model.RefreshRequest
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class AuthRepositoryImpl(
     private val authApiService: AuthApiService,
     private val credentialManager: CredentialManager,
 ): AuthRepository {
+
+    private val _isUserLoggedIn = MutableStateFlow(false)
+    override val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
+
     override suspend fun login(authRequest: AuthRequest): Result<Unit> {
         return try {
             val response = authApiService.login(authRequest)
@@ -19,6 +26,7 @@ class AuthRepositoryImpl(
                 if (tokenPair != null) {
                     // Save tokens using CredentialManager
                     credentialManager.saveTokens(tokenPair)
+                    _isUserLoggedIn.value = true
                     Result.success(Unit)
                 } else {
                     Result.failure(Exception("Empty response body"))
@@ -73,6 +81,7 @@ class AuthRepositoryImpl(
             if (response.isSuccessful) {
                 // Clear tokens from CredentialManager
                 credentialManager.clearTokens()
+                _isUserLoggedIn.value = false
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("Logout failed with code: ${response.code()}"))
