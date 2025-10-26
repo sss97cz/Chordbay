@@ -264,7 +264,11 @@ class SongViewModel(
     private val _remoteSongById = MutableStateFlow<Song?>(null)
     val remoteSongById: StateFlow<Song?> = _remoteSongById.asStateFlow()
 
-    fun getRemoteSongById(id: String) { // TODO("fix this function")
+    fun getRemoteSongById(id: String) {
+        /* TODO("fix this function, need to remove tokens because now with songs/me functionality
+            its kind of useless. Will keep the remote songs tab only for public songs. And for
+            managing uploaded songs i will use only the my songs tab. Think that  it's the best way.")
+         */
         Log.d("SongViewModel", "getRemoteSongById called with id: $id")
         viewModelScope.launch {
             val token = authRepository.getAcessToken()
