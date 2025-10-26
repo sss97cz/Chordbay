@@ -118,6 +118,7 @@ fun MyDrawerContent(
                         .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
+
                     if (isSignedIn) {
                         val initial = (userName?.firstOrNull()
                             ?: userEmail?.firstOrNull()
@@ -137,14 +138,14 @@ fun MyDrawerContent(
                 }
 
                 Spacer(Modifier.width(12.dp))
-
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         if (isSignedIn) (userName ?: userEmail ?: "Account")
                         else "You are not signed in",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    val subtitle = if (isSignedIn) userEmail ?: "" else "Sign in to sync and back up your data"
+                    val subtitle = if (isSignedIn) userEmail
+                        ?: "" else "Sign in to sync and back up your data"
                     if (subtitle.isNotBlank()) {
                         Text(
                             subtitle,
@@ -162,6 +163,7 @@ fun MyDrawerContent(
                 } else {
                     Button(onClick = onLoginClick) { Text("Sign in") }
                 }
+
             }
 
             HorizontalDivider()

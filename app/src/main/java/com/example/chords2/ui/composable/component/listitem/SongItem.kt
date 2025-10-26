@@ -4,6 +4,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -20,6 +22,7 @@ fun SongItem(
     modifier: Modifier = Modifier,
     songTitle: String,
     songArtist: String,
+    isSynced: Boolean,
     onSongClick: () -> Unit,
     onLongClick: () -> Unit,
     isSelected: Boolean = false,
@@ -67,12 +70,25 @@ fun SongItem(
                     .weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = songTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row() {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = songTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (isSynced) {
+                        Icon(
+                            imageVector = Icons.Filled.CloudDone,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(18.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                }
                 Text(
                     text = songArtist,
                     style = MaterialTheme.typography.bodyMedium,

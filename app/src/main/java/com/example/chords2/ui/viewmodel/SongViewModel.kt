@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -119,14 +120,25 @@ class SongViewModel(
 
 
     //-------------------local song CRUD operations ------------------------------------------------
+    val _myRemoteSongsIds = MutableStateFlow<Set<String>>(emptySet())
+
     val songs: StateFlow<List<Song>> = combine(
         songRepository.getAllSongs(),
         sortOption,
         searchQuery,
-    ) { songs, sortOption, searchQuery ->
+        _myRemoteSongsIds
+    ) { songs, sortOption, searchQuery, myRemoteSongsIds ->
+        val markedSongs = songs.map {
+            Log.d("SongViewModel", "Checking song: ${it.title} with remoteId: ${it.remoteId}")
+            if (it.remoteId != null && myRemoteSongsIds.contains(it.remoteId)) {
+                Log.d("SongViewModel", "Marking song as synced: ${it.title}")
+                it.copy(markSynced = true)
+            } else
+                it
+        }
         when (sortOption) {
-            SortBy.SONG_NAME -> songs.sortedBy { it.title }
-            SortBy.ARTIST_NAME -> songs.sortedBy { it.artist }
+            SortBy.SONG_NAME -> markedSongs.sortedBy { it.title }
+            SortBy.ARTIST_NAME -> markedSongs.sortedBy { it.artist }
         }.filter {
             it.title.contains(searchQuery, ignoreCase = true) ||
                     it.artist.contains(searchQuery, ignoreCase = true)
@@ -335,6 +347,29 @@ class SongViewModel(
                             val newToken = authRepository.getAcessToken()
                             if (newToken != null) {
                                 result = songRemoteRepository.updateSong(song, newToken)
+                                result.onFailure {
+                                    if (it.message?.contains("403") == true || it.message?.contains("404") == true) {
+                                        val result = songRemoteRepository.createSong(
+                                            token = newToken,
+                                            song = song.copy(remoteId = null)
+                                        )
+                                        result.onSuccess {
+                                            Log.d(
+                                                "SongViewModel",
+                                                "Song posted successfully with ID: $it"
+                                            )
+                                            updateSong(song.copy(remoteId = it)).also {
+                                                Log.d(
+                                                    "SongViewModel",
+                                                    "Local song updated with remote ID: $it"
+                                                )
+                                            }
+                                        }.onFailure { exception ->
+                                            _error.value =
+                                                "Failed to post song: ${exception.message}"
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -348,7 +383,7 @@ class SongViewModel(
                 }.onFailure { exception ->
                     _error.value = "Failed to update song: ${exception.message}"
                     val message = exception.message ?: ""
-                    if (message.contains("403")) {
+                    if (message.contains("403") || message.contains("404")) {
                         val result = songRemoteRepository.createSong(
                             token = token,
                             song = song.copy(remoteId = null)
@@ -449,8 +484,10 @@ class SongViewModel(
                         val newToken = authRepository.getAcessToken()
                         if (newToken != null) {
                             val retryResult = songRemoteRepository.getMySongs(newToken)
-                            retryResult.onSuccess { fetchedSongs ->
-                                _remoteSongs.value = fetchedSongs
+                            retryResult.onSuccess { remoteSongs ->
+                                syncToLocalDb(remoteSongs)
+                                _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
+                                Log.d("SongViewModel", "Synced ${remoteSongs.size} songs to local DB")
                             }.onFailure { exception ->
                                 _error.value = "Failed to fetch my songs: ${exception.message}"
                             }
@@ -460,6 +497,7 @@ class SongViewModel(
             }
             result.onSuccess { remoteSongs ->
                 syncToLocalDb(remoteSongs)
+                _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
                 Log.d("SongViewModel", "Synced ${remoteSongs.size} songs to local DB")
             }
                 .onFailure { exception ->

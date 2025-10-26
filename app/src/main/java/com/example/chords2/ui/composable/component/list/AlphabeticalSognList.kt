@@ -99,7 +99,8 @@ fun AlphabeticalSongList(
                         songArtist = song.artist,
                         onSongClick = { onSongClick(song) },
                         onLongClick = { onSongLongClick(song) },
-                        isSelected = selectedSongs.contains(song)
+                        isSelected = selectedSongs.contains(song),
+                        isSynced = song.markSynced
                     )
                 }
             }

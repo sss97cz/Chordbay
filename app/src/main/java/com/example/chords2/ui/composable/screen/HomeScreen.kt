@@ -308,6 +308,12 @@ fun HomeScreen(
                         showOptionsMenu = false
                         showAddPlaylistDialog = true
                     },
+                    onSyncClick = {
+                        showOptionsMenu = false
+                        scope.launch {
+                            songViewModel.fetchMyRemoteSongs()
+                        }
+                    }
                 )
             },
         ) { innerPadding ->

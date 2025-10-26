@@ -18,6 +18,7 @@ fun ArtistItem(
         songArtist = pluralText(msg = "$songCount song", count = songCount),
         onSongClick = onClick,
         onLongClick = {},
-        isSelected = false
+        isSelected = false,
+        isSynced = false
     )
 }

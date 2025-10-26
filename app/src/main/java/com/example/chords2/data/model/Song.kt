@@ -7,4 +7,5 @@ data class Song(
     val artist: String,
     val content: String,
     val isPublic: Boolean = true,
+    val markSynced: Boolean = false
 )

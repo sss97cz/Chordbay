@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,6 +28,7 @@ fun HomeTopAppBar(
     showOptionsMenu: Boolean,
     onMenuToggle: () -> Unit,
     onPlaylistClick: () -> Unit,
+    onSyncClick: () -> Unit,
 ) {
     MyTopAppBar(
         title = title,
@@ -51,6 +53,11 @@ fun HomeTopAppBar(
                         text = { Text("New Playlist") },
                         onClick = onPlaylistClick,
                         leadingIcon = { Icon(Playlist_add, contentDescription = null) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Sync") },
+                        onClick = onSyncClick,
+                        leadingIcon = { Icon(Icons.Filled.Sync, contentDescription = null) }
                     )
 //                    HorizontalDivider()
 //                    DropdownMenuItem(
