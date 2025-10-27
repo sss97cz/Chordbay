@@ -265,18 +265,11 @@ class SongViewModel(
     val remoteSongById: StateFlow<Song?> = _remoteSongById.asStateFlow()
 
     fun getRemoteSongById(id: String) {
-        /* TODO("fix this function, need to remove tokens because now with songs/me functionality
-            its kind of useless. Will keep the remote songs tab only for public songs. And for
-            managing uploaded songs i will use only the my songs tab. Think that  it's the best way.")
-         */
         Log.d("SongViewModel", "getRemoteSongById called with id: $id")
         viewModelScope.launch {
             val token = authRepository.getAcessToken()
-            if (token == null) {
-                _error.value = "User not authenticated. Please log in."
-                return@launch
-            }
-            var result = runCatching { songRemoteRepository.getSongById(id, token) }
+
+            var result = runCatching { songRemoteRepository.getSongById(id, token) } // having token nullable
 
             if (result.isFailure) {
                 val message = result.exceptionOrNull()?.message ?: ""
@@ -290,7 +283,6 @@ class SongViewModel(
                     }
                 }
             }
-
             result.onSuccess { fetchedSong ->
                 val song = fetchedSong.getOrNull()
                 _remoteSongById.value = song
