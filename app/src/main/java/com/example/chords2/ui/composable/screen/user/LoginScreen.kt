@@ -5,9 +5,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -68,36 +70,35 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable{ mutableStateOf("") }
     var showPassword by rememberSaveable { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
+    val isLoading = authViewModel.loading.collectAsState()
     var errorText by remember { mutableStateOf<String?>(null) }
 
     val isEmailValid = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val isPasswordValid = password.length >= 9
-    val canSubmit = isEmailValid && isPasswordValid && !isLoading
+    val canSubmit = isEmailValid && isPasswordValid && !isLoading.value
     val canNavigateBack = navController.previousBackStackEntry != null
 
     val isLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
     val errorMessage = authViewModel.error.collectAsState()
 
-    LaunchedEffect(isLoggedIn.value) {
-        if (isLoggedIn.value) {
-            isLoading = false
-            scope.launch {
-                snackbarHostState.showSnackbar("Successfully logged in")
-            }
-            songViewModel.fetchMyRemoteSongs()
-            navController.popBackStack()
-        }
-    }
-    LaunchedEffect(errorMessage.value) {
-        errorMessage.value?.let { error ->
-            isLoading = false
-            scope.launch {
-                snackbarHostState.showSnackbar(error)
-            }
-        }
-    }
+    LaunchedEffect(isLoading.value) {
+        if (!isLoading.value) {
+            if (isLoggedIn.value) {
 
+                navController.navigate(Paths.HomePath.route) {
+                    popUpTo(Paths.LoginPath.route) {
+                        inclusive = true
+                    }
+                }
+                songViewModel.fetchMyRemoteSongs()
+            } else if (errorMessage.value != null) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(errorMessage.value!!)
+                    authViewModel.clearError()
+                }
+            }
+        }
+    }
     Scaffold(
         topBar = {
             MyTopAppBar(
@@ -118,7 +119,7 @@ fun LoginScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = Color.Transparent
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
@@ -129,6 +130,7 @@ fun LoginScreen(
                         )
                     )
                 )
+                .verticalScroll(rememberScrollState())
                 .padding(padding)
         ) {
             Column(
@@ -158,7 +160,7 @@ fun LoginScreen(
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
                 )
                 Text(
-                    text = "Some totally awesome text that describes this screen",
+                    text = "Sign in to access all app features.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -241,7 +243,6 @@ fun LoginScreen(
                                     errorText = "Please fix the highlighted fields."
                                     return@Button
                                 }
-                                isLoading = true
                                 authViewModel.loginUser(email, password)
                             },
                             enabled = canSubmit,
@@ -249,7 +250,7 @@ fun LoginScreen(
                                 .fillMaxWidth()
                                 .height(48.dp)
                         ) {
-                            if (isLoading) {
+                            if (isLoading.value) {
                                 CircularProgressIndicator(
                                     strokeWidth = 2.dp,
                                     modifier = Modifier.size(20.dp),
@@ -298,7 +299,7 @@ fun LoginScreen(
                 Spacer(Modifier.height(8.dp))
             }
 
-            if (isLoading) {
+            if (isLoading.value) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

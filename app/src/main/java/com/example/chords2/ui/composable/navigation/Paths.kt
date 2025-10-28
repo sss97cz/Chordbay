@@ -26,4 +26,8 @@ sealed class Paths(
     object RegisterPath: Paths("register")
 
     object ManageAccountPath: Paths("manageAccount")
+
+    object VerifyEmailPath: Paths("verifyEmail/{email}"){
+        fun createRoute(email : String) = "verifyEmail/$email"
+    }
 }

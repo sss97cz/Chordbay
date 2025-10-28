@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -267,7 +266,7 @@ class SongViewModel(
     fun getRemoteSongById(id: String) {
         Log.d("SongViewModel", "getRemoteSongById called with id: $id")
         viewModelScope.launch {
-            val token = authRepository.getAcessToken()
+            val token = authRepository.getAccessToken()
 
             var result = runCatching { songRemoteRepository.getSongById(id, token) } // having token nullable
 
@@ -276,7 +275,7 @@ class SongViewModel(
                 if (message.contains("401")) {
                     val refreshResult = authRepository.refresh()
                     if (refreshResult.isSuccess) {
-                        val newToken = authRepository.getAcessToken()
+                        val newToken = authRepository.getAccessToken()
                         if (newToken != null) {
                             result = runCatching { songRemoteRepository.getSongById(id, newToken) }
                         }
@@ -298,7 +297,7 @@ class SongViewModel(
         val isPost = song.remoteId == null
         Log.d("SongViewModel", "isPost: $isPost")
         viewModelScope.launch {
-            val token = authRepository.getAcessToken()
+            val token = authRepository.getAccessToken()
             if (token == null) {
                 _error.value = "User not authenticated. Please log in."
                 return@launch
@@ -313,7 +312,7 @@ class SongViewModel(
                     if (message.contains("401")) {
                         val refreshResult = authRepository.refresh()
                         if (refreshResult.isSuccess) {
-                            val newToken = authRepository.getAcessToken()
+                            val newToken = authRepository.getAccessToken()
                             if (newToken != null) {
                                 result = songRemoteRepository.createSong(song, newToken)
                             }
@@ -340,7 +339,7 @@ class SongViewModel(
                     if (message.contains("401")) {
                         val refreshResult = authRepository.refresh()
                         if (refreshResult.isSuccess) {
-                            val newToken = authRepository.getAcessToken()
+                            val newToken = authRepository.getAccessToken()
                             if (newToken != null) {
                                 result = songRemoteRepository.updateSong(song, newToken)
                                 result.onFailure {
@@ -466,7 +465,7 @@ class SongViewModel(
 
     fun fetchMyRemoteSongs() {
         viewModelScope.launch {
-            val token = authRepository.getAcessToken()
+            val token = authRepository.getAccessToken()
             if (token == null) {
                 _error.value = "User not authenticated. Please log in."
                 return@launch
@@ -477,7 +476,7 @@ class SongViewModel(
                 if (message.contains("401")) {
                     val refreshResult = authRepository.refresh()
                     if (refreshResult.isSuccess) {
-                        val newToken = authRepository.getAcessToken()
+                        val newToken = authRepository.getAccessToken()
                         if (newToken != null) {
                             val retryResult = songRemoteRepository.getMySongs(newToken)
                             retryResult.onSuccess { remoteSongs ->
@@ -531,7 +530,7 @@ class SongViewModel(
 
     fun deleteRemoteSong(song: Song) {
         viewModelScope.launch {
-            val token = authRepository.getAcessToken()
+            val token = authRepository.getAccessToken()
             if (token == null) {
                 _error.value = "User not authenticated. Please log in."
                 return@launch
@@ -548,7 +547,7 @@ class SongViewModel(
                 if (message.contains("401")) {
                     val refreshResult = authRepository.refresh()
                     if (refreshResult.isSuccess) {
-                        val newToken = authRepository.getAcessToken()
+                        val newToken = authRepository.getAccessToken()
                         if (newToken != null) {
                             result = songRemoteRepository.deleteSong(song.remoteId, newToken)
                         }

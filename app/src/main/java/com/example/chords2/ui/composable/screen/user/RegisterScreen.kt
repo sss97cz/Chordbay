@@ -6,9 +6,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Email
@@ -46,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
+import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
@@ -65,29 +68,33 @@ fun RegisterScreen(
     var confirmPassword by rememberSaveable { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var showConfirmPassword by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
+    val isLoading = authViewModel.loading.collectAsState()
     var errorText by remember { mutableStateOf<String?>(null) }
 
     val isEmailValid = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val isPasswordValid = password.length >= 9
     val isConfirmValid = confirmPassword.isNotBlank() && confirmPassword == password
-    val canSubmit = isEmailValid && isPasswordValid && isConfirmValid && !isLoading
+    val canSubmit = isEmailValid && isPasswordValid && isConfirmValid && !isLoading.value
     val canNavigateBack = navController.previousBackStackEntry != null
 
     val isLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
     val errorMessage = authViewModel.error.collectAsState()
 
-    LaunchedEffect(isLoggedIn.value) {
-        if (isLoggedIn.value) {
-            isLoading = false
-            scope.launch { snackbarHostState.showSnackbar("Account created") }
-            navController.popBackStack()
-        }
-    }
-    LaunchedEffect(errorMessage.value) {
-        errorMessage.value?.let { error ->
-            isLoading = false
-            scope.launch { snackbarHostState.showSnackbar(error) }
+    val registerSuccess = authViewModel.registerSuccess.collectAsState()
+
+    LaunchedEffect(isLoading.value){
+        if (!isLoading.value) {
+            if (registerSuccess.value) {
+                navController.navigate(Paths.VerifyEmailPath.createRoute(
+                    email = email
+                ))
+                authViewModel.setRegisterSuccess(false)
+            } else if (errorMessage.value != null) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(errorMessage.value!!)
+                }
+                authViewModel.clearError()
+            }
         }
     }
 
@@ -109,7 +116,7 @@ fun RegisterScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = Color.Transparent
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
@@ -120,6 +127,7 @@ fun RegisterScreen(
                         )
                     )
                 )
+                .verticalScroll(rememberScrollState())
                 .padding(padding)
         ) {
             Column(
@@ -258,7 +266,6 @@ fun RegisterScreen(
                                     errorText = "Please fix the highlighted fields."
                                     return@Button
                                 }
-                                isLoading = true
                                 authViewModel.registerUser(email, password)
                             },
                             enabled = canSubmit,
@@ -266,7 +273,7 @@ fun RegisterScreen(
                                 .fillMaxWidth()
                                 .height(48.dp)
                         ) {
-                            if (isLoading) {
+                            if (isLoading.value) {
                                 CircularProgressIndicator(
                                     strokeWidth = 2.dp,
                                     modifier = Modifier.size(20.dp),
@@ -310,7 +317,7 @@ fun RegisterScreen(
                 Spacer(Modifier.height(8.dp))
             }
 
-            if (isLoading) {
+            if (isLoading.value) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

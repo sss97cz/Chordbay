@@ -90,8 +90,22 @@ class AuthRepositoryImpl(
             Result.failure(e)
         }
     }
+    override suspend fun resensdVerificationEmail(email: String): Result<Unit> {
+        return try {
+            val response = authApiService.resendVerificationEmail(
+                com.example.chords2.data.remote.model.ResendRequest(email)
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Resend verification email failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
-    override suspend fun getAcessToken(): String? =
+    override suspend fun getAccessToken(): String? =
         credentialManager.getAccessToken()
 
 }

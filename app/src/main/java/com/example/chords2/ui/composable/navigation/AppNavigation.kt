@@ -17,6 +17,7 @@ import com.example.chords2.ui.composable.screen.SongScreen
 import com.example.chords2.ui.composable.screen.user.LoginScreen
 import com.example.chords2.ui.composable.screen.user.ManageAccountScreen
 import com.example.chords2.ui.composable.screen.user.RegisterScreen
+import com.example.chords2.ui.composable.screen.user.VerifyEmailScreen
 import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -195,6 +196,22 @@ fun AppNavigation(
                   songViewModel = songViewModel,
                   authViewModel = authViewModel,
               )
+        }
+        composable(
+            route = Paths.VerifyEmailPath.route,
+            arguments = listOf(
+                navArgument(
+                    name = "email"
+                ) {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+               VerifyEmailScreen(
+                   navController = navController,
+                   authViewModel = authViewModel,
+                   email = it.arguments?.getString("email") ?: "",
+               )
         }
     }
 }
