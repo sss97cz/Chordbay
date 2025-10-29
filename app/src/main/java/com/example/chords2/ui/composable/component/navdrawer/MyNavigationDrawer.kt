@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -44,6 +46,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chords2.data.database.playlist.PlaylistEntity
 import com.example.chords2.ui.theme.imagevector.Playlist_add
@@ -56,7 +60,6 @@ fun MyDrawerContent(
     onLoginClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
-    userName: String? = null,
     userEmail: String? = null
 ) {
     var playlistsExpanded by remember { mutableStateOf(true) }
@@ -64,7 +67,7 @@ fun MyDrawerContent(
         targetValue = if (playlistsExpanded) -180f else 0f,
         animationSpec = tween(durationMillis = 300)
     )
-    val isSignedIn = !userName.isNullOrBlank() || !userEmail.isNullOrBlank()
+    val isSignedIn = !userEmail.isNullOrBlank()
 
     ModalDrawerSheet {
         Column(
@@ -76,14 +79,14 @@ fun MyDrawerContent(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.surface,
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                            )
-                        )
-                    )
+//                    .background(
+//                        Brush.verticalGradient(
+//                            colors = listOf(
+//                                MaterialTheme.colorScheme.surface,
+//                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+//                            )
+//                        )
+//                    )
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 Image(
@@ -94,77 +97,85 @@ fun MyDrawerContent(
                     modifier = Modifier.height(40.dp)
                 )
                 Text(
-                    "My Super App Name",
+                    "Chordbay",
                     modifier = Modifier.padding(start = 16.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
             }
+            HorizontalDivider(thickness = 1.dp)
 
-            // Account header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .combinedClickable(
-                        onClick = { if (isSignedIn) onManageAccountClick() else onLoginClick() }
-                    )
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Avatar with initials or icon
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    if (isSignedIn) {
-                        val initial = (userName?.firstOrNull()
-                            ?: userEmail?.firstOrNull()
-                            ?: '•').uppercaseChar().toString()
-                        Text(
-                            initial,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    } else {
-                        Icon(
-                            Icons.Outlined.AccountCircle,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        if (isSignedIn) (userName ?: userEmail ?: "Account")
-                        else "You are not signed in",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    val subtitle = if (isSignedIn) userEmail
-                        ?: "" else "Sign in to sync and back up your data"
-                    if (subtitle.isNotBlank()) {
-                        Text(
-                            subtitle,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                if (isSignedIn) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = onManageAccountClick) { Text("Manage") }
-                        TextButton(onClick = onSignOutClick) { Text("Sign out") }
-                    }
-                } else {
-                    Button(onClick = onLoginClick) { Text("Sign in") }
-                }
-
-            }
+//            // Account header
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .combinedClickable(
+//                        onClick = { if (isSignedIn) onManageAccountClick() else onLoginClick() }
+//                    )
+//                    .padding(horizontal = 16.dp, vertical = 16.dp),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                // Avatar with initials or icon
+//                Box(
+//                    modifier = Modifier
+//                        .size(48.dp)
+//                        .clip(CircleShape)
+//                        .background(MaterialTheme.colorScheme.primaryContainer),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//
+//                    if (isSignedIn) {
+//                        val initial = (userName?.firstOrNull()
+//                            ?: userEmail?.firstOrNull()
+//                            ?: '•').uppercaseChar().toString()
+//                        Text(
+//                            initial,
+//                            style = MaterialTheme.typography.titleMedium,
+//                            color = MaterialTheme.colorScheme.onPrimaryContainer
+//                        )
+//                    } else {
+//                        Icon(
+//                            Icons.Outlined.AccountCircle,
+//                            contentDescription = null,
+//                            tint = MaterialTheme.colorScheme.primary
+//                        )
+//                    }
+//                }
+//
+//                Spacer(Modifier.width(12.dp))
+//                Column(modifier = Modifier.weight(1f)) {
+//                    Text(
+//                        if (isSignedIn) (userName ?: userEmail ?: "Account")
+//                        else "You are not signed in",
+//                        style = MaterialTheme.typography.titleMedium
+//                    )
+//                    val subtitle = if (isSignedIn) userEmail
+//                        ?: "" else "Sign in to sync and back up your data"
+//                    if (subtitle.isNotBlank()) {
+//                        Text(
+//                            subtitle,
+//                            style = MaterialTheme.typography.bodySmall,
+//                            color = MaterialTheme.colorScheme.onSurfaceVariant
+//                        )
+//                    }
+//                }
+//
+//                if (isSignedIn) {
+//                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                        OutlinedButton(onClick = onManageAccountClick) { Text("Manage") }
+//                        TextButton(onClick = onSignOutClick) { Text("Sign out") }
+//                    }
+//                } else {
+//                    Button(onClick = onLoginClick) { Text("Sign in") }
+//                }
+//
+//            }
+            AccountRow(
+                isSignedIn = isSignedIn,
+                userEmail = userEmail,
+                onLoginClick = onLoginClick,
+                onManageAccountClick = onManageAccountClick,
+                onSignOutClick = onSignOutClick
+            )
 
             HorizontalDivider()
 
@@ -173,7 +184,9 @@ fun MyDrawerContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(MaterialTheme.shapes.small)
-                    .clickable { playlistsExpanded = !playlistsExpanded }
+                    .clickable {
+                        playlistsExpanded = !playlistsExpanded
+                    }
                     .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -230,4 +243,84 @@ fun MyDrawerContent(
             Spacer(Modifier.height(12.dp))
         }
     }
+}
+
+@Composable
+fun AccountRow(
+    isSignedIn: Boolean,
+    userEmail: String? = null,
+    onLoginClick: () -> Unit = {},
+    onManageAccountClick: () -> Unit = {},
+    onSignOutClick: () -> Unit = {},
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .combinedClickable(
+                onClick = { if (!isSignedIn) onLoginClick() }
+            )
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSignedIn) {
+                        val initial = (userEmail?.firstOrNull() ?: '•').uppercaseChar().toString()
+                        Text(
+                            initial,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.AccountCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    if (isSignedIn) (userEmail ?: "Account")
+                    else "You are not signed in",
+                    style = MaterialTheme.typography.titleMedium,
+                    overflow = TextOverflow.StartEllipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                if (!isSignedIn) {
+                    Button(onClick = onLoginClick) { Text("Sign in") }
+                }
+            }
+            if (isSignedIn) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        ,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    OutlinedButton(onClick = onManageAccountClick) { Text("Manage") }
+                    TextButton(onClick = onSignOutClick) { Text("Sign out") }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun AccountRowPreview() {
+    AccountRow(
+        isSignedIn = true,
+        userEmail = "user001@chordbay.com"
+    )
 }

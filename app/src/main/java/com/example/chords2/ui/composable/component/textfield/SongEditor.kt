@@ -2,11 +2,15 @@ package com.example.chords2.ui.composable.component.textfield
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -24,6 +28,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -43,6 +49,7 @@ fun SongContentEditor(
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val scope = rememberCoroutineScope()
     val density = androidx.compose.ui.platform.LocalDensity.current  // valid composable read
+    val focusRequester = remember { FocusRequester() }
 
     Surface(
         modifier = modifier
@@ -63,6 +70,13 @@ fun SongContentEditor(
                         MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f),
                         RoundedCornerShape(12.dp)
                     )
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        focusRequester.requestFocus()
+                        scope.launch { bringIntoViewRequester.bringIntoView() }
+                    }
                     .verticalScroll(scrollState)
             ) {
                 BasicTextField(
@@ -79,7 +93,10 @@ fun SongContentEditor(
                         imeAction = ImeAction.Default
                     ),
                     modifier = Modifier
+                        .fillMaxSize()
                         .padding(16.dp)
+                        .heightIn(min = 200.dp)
+                        .focusRequester(focusRequester)
                         .bringIntoViewRequester(bringIntoViewRequester),
                     onTextLayout = { layoutResult ->
                         val idx = value.selection.end.coerceIn(0, value.text.length)

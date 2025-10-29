@@ -57,11 +57,16 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -77,6 +82,7 @@ import com.example.chords2.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
 import com.example.chords2.ui.composable.component.listitem.ArtistItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
+import com.example.chords2.ui.composable.component.text.SearchQuery
 import com.example.chords2.ui.viewmodel.AuthViewModel
 import kotlinx.coroutines.flow.compose
 import kotlinx.serialization.Contextual
@@ -128,6 +134,7 @@ fun HomeScreen(
                 SheetValue.PartiallyExpanded -> {
                     if (selectedSongsList.isNotEmpty()) 64.dp else 24.dp
                 }
+
                 else -> 24.dp
             }
         }
@@ -283,7 +290,7 @@ fun HomeScreen(
             },
             topBar = {
                 HomeTopAppBar(
-                    title = selectedTab.value.title,
+                    title = "Home",
                     onNavigationIconClick = {
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -339,7 +346,7 @@ fun HomeScreen(
                             },
                             selected = MainTabs.MY_SONGS.index == selectedTab.value.index,
                             text = {
-                                Text("My Songs")
+                                Text(MainTabs.MY_SONGS.title)
                             }
                         )
                         Tab(
@@ -348,30 +355,26 @@ fun HomeScreen(
                             },
                             selected = MainTabs.REMOTE_SONGS.index == selectedTab.value.index,
                             text = {
-                                Text("Remote Songs")
+                                Text(MainTabs.REMOTE_SONGS.title)
                             }
                         )
                     }
-                    if (searchBarExpanded) {
-                        HomeSearchbar(
-                            searchBarExpanded = searchBarExpanded,
-                            searchQuery = searchQuery,
-                            onQueryChange = { searchQuery = it },
-                            onSearch = {
-                                keyboardController?.hide()
-                                searchQuery = it
-                                searchBarExpanded = false
-                            },
-                            onSearchClick = {
-                                searchBarExpanded = false
-                            },
-                            onClearClick = {
-                                searchQuery = ""
-                            }
-                        )
-                    } else if (searchQuery.isNotEmpty()) {
-                        Text(": \"$searchQuery\"", fontSize = 20.sp)
-                    }
+                    HomeSearchbar(
+                        searchBarExpanded = searchBarExpanded,
+                        searchQuery = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearch = {
+                            keyboardController?.hide()
+                            searchQuery = it
+//                                searchBarExpanded = false
+                        },
+                        onSearchClick = {
+//                                searchBarExpanded = false
+                        },
+                        onClearClick = {
+                            searchQuery = ""
+                        },
+                    )
                     when (selectedTab.value) {
 //-------------------------------- MY SONGS---------------------------------------------------------
                         MainTabs.MY_SONGS -> {
@@ -527,7 +530,7 @@ fun HomeScreen(
                 }
 
                 if (showDeleteOptionDialog && selectedSongsList.isNotEmpty()) {
-                   DeleteOptionDialog(
+                    DeleteOptionDialog(
                         songs = selectedSongsList,
                         onDismiss = { showDeleteOptionDialog = false },
                         onDelete = { deleteAction ->
@@ -542,7 +545,7 @@ fun HomeScreen(
                                 songViewModel.clearSelectedSongs()
                             }
                         }
-                   )
+                    )
                 }
             }
         }
