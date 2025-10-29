@@ -6,6 +6,7 @@ import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.remote.ChordsBayApiService
 import com.example.chords2.data.remote.model.ArtistDto
+import com.example.chords2.ui.composable.screen.FilterField
 import java.io.IOException
 
 class SongRemoteRepositoryImpl(
@@ -156,6 +157,36 @@ class SongRemoteRepositoryImpl(
                 Result.success(true)
             } else {
                 Result.failure(IOException("Failed to delete song, code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun searchSongs(
+        query: String?,
+        field: FilterField,
+        offset: Int,
+        limit: Int
+    ): Result<List<Song>> {
+        return try {
+            val response = apiService.searchSongs(
+                query = query,
+                field = when (field) {
+                    FilterField.TITLE -> "title"
+                    FilterField.ARTIST -> "artist"
+                    FilterField.BOTH -> "both"
+                    else -> {"both"}
+                },
+                offset = offset,
+                limit = limit
+            )
+            if (response.isSuccessful) {
+                val songs = response.body()
+                if (songs != null) Result.success(songs.map { it.toSong() })
+                else Result.failure(IOException("Empty response body"))
+            } else {
+                Result.failure(IOException("Failed to search songs, code: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

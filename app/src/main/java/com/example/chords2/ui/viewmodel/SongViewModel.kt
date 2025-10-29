@@ -294,6 +294,10 @@ class SongViewModel(
     }
 
     fun postSong(song: Song) {
+        val song = song.copy(
+            title = song.title.ifBlank { "Untitled" }.trim(),
+            artist = song.artist.ifBlank { "Unknown Artist" }.trim()
+        )
         val isPost = song.remoteId == null
         Log.d("SongViewModel", "isPost: $isPost")
         viewModelScope.launch {

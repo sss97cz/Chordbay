@@ -22,7 +22,7 @@ fun SongItem(
     modifier: Modifier = Modifier,
     songTitle: String,
     songArtist: String,
-    isSynced: Boolean,
+    trailingContent: @Composable (() -> Unit)? = null,
     onSongClick: () -> Unit,
     onLongClick: () -> Unit,
     isSelected: Boolean = false,
@@ -77,17 +77,28 @@ fun SongItem(
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
+//                    )
+//                    if (isSynced) {
+//                        Icon(
+//                            imageVector = Icons.Filled.CloudDone,
+//                            contentDescription = null,
+//                            tint = MaterialTheme.colorScheme.primary,
+//                            modifier = Modifier
+//                                .size(18.dp)
+//                                .align(Alignment.CenterVertically)
+//                        )
+//                    }
                     )
-                    if (isSynced) {
-                        Icon(
-                            imageVector = Icons.Filled.CloudDone,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                    if (trailingContent != null) {
+                        Box(
                             modifier = Modifier
-                                .size(18.dp)
                                 .align(Alignment.CenterVertically)
-                        )
+                                .padding(start = 8.dp)
+                        ) {
+                            trailingContent()
+                        }
                     }
+
                 }
                 Text(
                     text = songArtist,

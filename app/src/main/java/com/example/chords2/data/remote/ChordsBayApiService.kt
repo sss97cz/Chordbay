@@ -55,4 +55,14 @@ interface ChordsBayApiService {
         @Header("Authorization") token: String
     ): Response<Boolean>
 
+
+    @GET("/api/songs/search")
+    suspend fun searchSongs(
+        @Query("query") query: String? = null,
+        // "title" | "artist" | "both"
+        @Query("field") field: String? = null,
+        // Optional pagination if you add it later
+        @Query("offset") offset: Int? = null,
+        @Query("limit") limit: Int? = null,
+    ): Response<List<SongDto>>
 }

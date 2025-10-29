@@ -27,73 +27,116 @@ import androidx.compose.ui.unit.dp
 import com.example.chords2.data.model.SongUi
 import com.example.chords2.ui.theme.imagevector.Download
 
+//@Composable
+//fun RemoteSongItem(
+//    modifier: Modifier = Modifier,
+//    song: SongUi,
+//    onSongClick: (SongUi) -> Unit,
+//    onLongClick: () -> Unit,
+//    isSelected: Boolean = false,
+//) {
+//    val colors = CardDefaults.cardColors(
+//        containerColor = if (isSelected)
+//            MaterialTheme.colorScheme.tertiaryContainer
+//        else
+//            CardDefaults.cardColors().containerColor,
+//        contentColor = if (isSelected)
+//            MaterialTheme.colorScheme.onTertiaryContainer
+//        else
+//            CardDefaults.cardColors().contentColor
+//    )
+//
+//    Card(
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .combinedClickable(
+//                onClick = {
+//                    onSongClick(song)
+//                },
+//                onLongClick = onLongClick
+//            ),
+//        colors = colors,
+//        elevation = CardDefaults.cardElevation(
+//            defaultElevation = if (isSelected) 6.dp else 1.dp
+//        )
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .padding(horizontal = 12.dp, vertical = 10.dp)
+//                .heightIn(min = 56.dp),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            if (isSelected) {
+//                Icon(
+//                    imageVector = Icons.Filled.Check,
+//                    contentDescription = "Selected",
+//                    tint = MaterialTheme.colorScheme.primary
+//                )
+//                Spacer(Modifier.width(12.dp))
+//            }
+//
+//            Column(
+//                modifier = Modifier
+//                    .weight(1f),
+//                verticalArrangement = Arrangement.Center
+//            ) {
+//                Text(
+//                    text = song.title,
+//                    style = MaterialTheme.typography.titleMedium,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis
+//                )
+//                Text(
+//                    text = song.artist,
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis
+//                )
+//            }
+//        }
+//    }
+//}
+
 @Composable
 fun RemoteSongItem(
     modifier: Modifier = Modifier,
-    song: SongUi,
-    onSongClick: (SongUi) -> Unit,
+    songTitle: String,
+    songArtist: String,
+    isSynced: Boolean,
+    onSongClick: () -> Unit,
     onLongClick: () -> Unit,
+    onDownloadClick: () -> Unit,
     isSelected: Boolean = false,
-) {
-    val colors = CardDefaults.cardColors(
-        containerColor = if (isSelected)
-            MaterialTheme.colorScheme.tertiaryContainer
-        else
-            CardDefaults.cardColors().containerColor,
-        contentColor = if (isSelected)
-            MaterialTheme.colorScheme.onTertiaryContainer
-        else
-            CardDefaults.cardColors().contentColor
-    )
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .combinedClickable(
+){
+    SongItem(
+        modifier = modifier,
+        songTitle = songTitle,
+        songArtist = songArtist,
+        onSongClick = onSongClick,
+        onLongClick = onLongClick,
+        isSelected = isSelected,
+        trailingContent = {
+            IconButton(
                 onClick = {
-                    onSongClick(song)
+                    onDownloadClick()
                 },
-                onLongClick = onLongClick
-            ),
-        colors = colors,
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 6.dp else 1.dp
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-                .heightIn(min = 56.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (isSelected) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "Selected",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.width(12.dp))
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f),
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.size(24.dp)
             ) {
-                Text(
-                    text = song.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = song.artist,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                if (isSynced) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Downloaded",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Icon(
+                        imageVector = Download,
+                        contentDescription = "Download",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
-    }
+    )
 }

@@ -1,19 +1,14 @@
 package com.example.chords2.ui.composable.screen
 
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,12 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.chords2.data.mappers.toSongUi
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.ui.composable.component.fab.HomeSortFAB
-import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContent
 import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
 import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
@@ -56,36 +48,19 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.DeleteOptionDialog
 import com.example.chords2.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
-import com.example.chords2.ui.composable.component.listitem.ArtistItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
-import com.example.chords2.ui.composable.component.text.SearchQuery
 import com.example.chords2.ui.viewmodel.AuthViewModel
-import kotlinx.coroutines.flow.compose
-import kotlinx.serialization.Contextual
+import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,6 +69,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     songViewModel: SongViewModel = koinViewModel(),
     authViewModel: AuthViewModel = koinViewModel(),
+    remoteSongsViewModel: RemoteSongsViewModel = koinViewModel(),
     navController: NavController,
 ) {
     val songs = songViewModel.songs.collectAsState()
@@ -290,7 +266,8 @@ fun HomeScreen(
             },
             topBar = {
                 HomeTopAppBar(
-                    title = "Home",
+                    searchBarExpanded = searchBarExpanded,
+                    selectedTab = selectedTab.value,
                     onNavigationIconClick = {
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -359,22 +336,24 @@ fun HomeScreen(
                             }
                         )
                     }
-                    HomeSearchbar(
-                        searchBarExpanded = searchBarExpanded,
-                        searchQuery = searchQuery,
-                        onQueryChange = { searchQuery = it },
-                        onSearch = {
-                            keyboardController?.hide()
-                            searchQuery = it
+                    if (selectedTab.value == MainTabs.MY_SONGS) {
+                        HomeSearchbar(
+                            searchBarExpanded = searchBarExpanded,
+                            searchQuery = searchQuery,
+                            onQueryChange = { searchQuery = it },
+                            onSearch = {
+                                keyboardController?.hide()
+                                searchQuery = it
 //                                searchBarExpanded = false
-                        },
-                        onSearchClick = {
+                            },
+                            onSearchClick = {
 //                                searchBarExpanded = false
-                        },
-                        onClearClick = {
-                            searchQuery = ""
-                        },
-                    )
+                            },
+                            onClearClick = {
+                                searchQuery = ""
+                            },
+                        )
+                    }
                     when (selectedTab.value) {
 //-------------------------------- MY SONGS---------------------------------------------------------
                         MainTabs.MY_SONGS -> {
@@ -406,54 +385,59 @@ fun HomeScreen(
                         }
 //-------------------------------- REMOTE SONGS-----------------------------------------------------
                         MainTabs.REMOTE_SONGS -> {
-                            val artists = songViewModel.artists.collectAsState()
-                            LaunchedEffect(Unit) {
-                                songViewModel.fetchAllArtists()
-                                Log.d("HomeScreen", "Fetched artists: ${artists.value}")
-                            }
-                            val isRefreshing = songViewModel.isLoading.collectAsState()
-                            val pullToRefreshState = rememberPullToRefreshState()
-
-
-                            PullToRefreshBox(
-                                modifier = Modifier.fillMaxSize(),
-                                isRefreshing = isRefreshing.value,
-                                onRefresh = {
-                                    scope.launch {
-                                        songViewModel.fetchAllArtists()
-                                    }
-                                },
-                                state = pullToRefreshState,
-                                indicator = {
-                                    PullToRefreshDefaults.Indicator(
-                                        state = pullToRefreshState,
-                                        modifier = Modifier.align(Alignment.TopCenter),
-                                        isRefreshing = isRefreshing.value
-                                    )
-                                }
-                            ) {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(
-                                        top = 4.dp,
-                                        bottom = dynamicBottomPadding
-                                    ),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    items(artists.value) { artist ->
-                                        ArtistItem(
-                                            artist = artist.name,
-                                            songCount = artist.songCount,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            onClick = {
-                                                navController.navigate(
-                                                    Paths.ArtistSongsPath.createRoute(artist.name)
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
-                            }
+//                            val artists = songViewModel.artists.collectAsState()
+//                            LaunchedEffect(Unit) {
+//                                songViewModel.fetchAllArtists()
+//                                Log.d("HomeScreen", "Fetched artists: ${artists.value}")
+//                            }
+//                            val isRefreshing = songViewModel.isLoading.collectAsState()
+//                            val pullToRefreshState = rememberPullToRefreshState()
+//
+//
+//                            PullToRefreshBox(
+//                                modifier = Modifier.fillMaxSize(),
+//                                isRefreshing = isRefreshing.value,
+//                                onRefresh = {
+//                                    scope.launch {
+//                                        songViewModel.fetchAllArtists()
+//                                    }
+//                                },
+//                                state = pullToRefreshState,
+//                                indicator = {
+//                                    PullToRefreshDefaults.Indicator(
+//                                        state = pullToRefreshState,
+//                                        modifier = Modifier.align(Alignment.TopCenter),
+//                                        isRefreshing = isRefreshing.value
+//                                    )
+//                                }
+//                            ) {
+//                                LazyColumn(
+//                                    modifier = Modifier.fillMaxSize(),
+//                                    contentPadding = PaddingValues(
+//                                        top = 4.dp,
+//                                        bottom = dynamicBottomPadding
+//                                    ),
+//                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+//                                ) {
+//                                    items(artists.value) { artist ->
+//                                        ArtistItem(
+//                                            artist = artist.name,
+//                                            songCount = artist.songCount,
+//                                            modifier = Modifier.fillMaxWidth(),
+//                                            onClick = {
+//                                                navController.navigate(
+//                                                    Paths.ArtistSongsPath.createRoute(artist.name)
+//                                                )
+//                                            }
+//                                        )
+//                                    }
+//                                }
+//                            }
+                            RemoteSongsTab(
+                                remoteSongsViewModel = remoteSongsViewModel,
+                                songsViewModel = songViewModel,
+                                navController = navController,
+                            )
                         }
                     }
                 }

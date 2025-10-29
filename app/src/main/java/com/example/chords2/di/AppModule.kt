@@ -13,7 +13,9 @@ import com.example.chords2.data.repository.remote.SongRemoteRepository
 import com.example.chords2.data.repository.remote.SongRemoteRepositoryImpl
 import com.example.chords2.data.repository.song.SongRepository
 import com.example.chords2.data.repository.song.SongRepositoryImpl
+import com.example.chords2.ui.composable.screen.RemoteSongsTab
 import com.example.chords2.ui.viewmodel.AuthViewModel
+import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +39,12 @@ val appModule = module {
         AuthViewModel(
             get(),
             get()
+        )
+    }
+    viewModel {
+        RemoteSongsViewModel(
+            get(),
+            get(),
         )
     }
     single<CoroutineScope> { CoroutineScope(Dispatchers.IO) }

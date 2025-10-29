@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -100,7 +103,17 @@ fun AlphabeticalSongList(
                         onSongClick = { onSongClick(song) },
                         onLongClick = { onSongLongClick(song) },
                         isSelected = selectedSongs.contains(song),
-                        isSynced = song.markSynced
+                        trailingContent = {
+                            if (song.markSynced) {
+                                Icon(
+                                    modifier = Modifier
+                                        .height(20.dp),
+                                    imageVector = Icons.Default.CloudDone,
+                                    contentDescription = "Synced",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                     )
                 }
             }

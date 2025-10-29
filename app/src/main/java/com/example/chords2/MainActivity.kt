@@ -12,6 +12,7 @@ import com.example.chords2.data.model.util.Settings
 import com.example.chords2.ui.composable.navigation.AppNavigation
 import com.example.chords2.ui.theme.ChordsTheme
 import com.example.chords2.ui.viewmodel.AuthViewModel
+import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -23,13 +24,15 @@ class MainActivity : ComponentActivity() {
         Settings.all
         val songViewModel: SongViewModel by viewModel()
         val authViewModel: AuthViewModel by viewModel()
+        val remoteSongsViewModel: RemoteSongsViewModel by viewModel()
         setContent {
             ChordsTheme(
                 themeMode = songViewModel.themeMode.collectAsState().value
             ) {
                 AppNavigation(
                     songViewModel = songViewModel,
-                    authViewModel = authViewModel
+                    authViewModel = authViewModel,
+                    remoteSongsViewModel = remoteSongsViewModel
                 )
             }
         }

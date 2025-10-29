@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.chords2.data.helper.pluralText
-import com.example.chords2.data.mappers.toSongUi
 import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
@@ -144,24 +143,16 @@ fun ArtistSongsScreen(
             ) {
                 items(songs) { song ->
                     RemoteSongItem(
-                        song = song.toSongUi(),
+                        songTitle = song.title,
+                        songArtist = song.artist,
+                        isSynced = song.markSynced,
                         onSongClick = {
-                            if (selectedRemoteSongsList.isNotEmpty()) {
-                                songViewModel.selectRemoteSong(song)
-                            } else {
-                                navController.navigate(
-                                    Paths.RemoteSongPath
-                                        .createRoute(song.remoteId.toString())
-                                )
-                            }
+                            navController.navigate(
+                                Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
+                            )
                         },
-                        onLongClick = {
-                            scope.launch {
-                                songViewModel.selectRemoteSong(song)
-                                scaffoldState.bottomSheetState.expand()
-                            }
-                        },
-                        isSelected = selectedRemoteSongsList.contains(song)
+                        onLongClick = {},
+                        onDownloadClick = {}
                     )
                 }
             }

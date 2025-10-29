@@ -19,6 +19,5 @@ fun ArtistItem(
         onSongClick = onClick,
         onLongClick = {},
         isSelected = false,
-        isSynced = false
     )
 }

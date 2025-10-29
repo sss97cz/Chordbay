@@ -2,6 +2,7 @@ package com.example.chords2.data.repository.remote
 
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.remote.model.ArtistDto
+import com.example.chords2.ui.composable.screen.FilterField
 
 interface SongRemoteRepository {
     suspend fun getSongs(): Result<List<Song>>
@@ -12,4 +13,11 @@ interface SongRemoteRepository {
     suspend fun getSongsByArtist(artist: String): Result<List<Song>>
     suspend fun getMySongs(token: String): Result<List<Song>>
     suspend fun deleteSong(id: String, token: String): Result<Boolean>
+
+    suspend fun searchSongs(
+        query: String?,
+        field: FilterField,
+        offset: Int,
+        limit: Int
+    ): Result<List<Song>>
 }

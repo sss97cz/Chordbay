@@ -16,11 +16,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.ui.theme.imagevector.Playlist_add
 
 @Composable
 fun HomeTopAppBar(
-    title: String,
+    searchBarExpanded: Boolean,
+    selectedTab: MainTabs,
     onNavigationIconClick: () -> Unit,
     onSearchClick: () -> Unit,
     onAddClick: () -> Unit,
@@ -31,12 +33,17 @@ fun HomeTopAppBar(
     onSyncClick: () -> Unit,
 ) {
     MyTopAppBar(
-        title = title,
+        title = when (selectedTab){
+            MainTabs.MY_SONGS -> if (searchBarExpanded) "Search Songs" else "My Songs"
+            MainTabs.REMOTE_SONGS -> MainTabs.REMOTE_SONGS.title
+        },
         navigationIcon = Icons.Filled.Menu,
         onNavigationIconClick = onNavigationIconClick,
         actions = {
-            IconButton(onClick = onSearchClick) {
-                Icon(Icons.Filled.Search, contentDescription = "Search Songs")
+            if (selectedTab == MainTabs.MY_SONGS) {
+                IconButton(onClick = onSearchClick) {
+                    Icon(Icons.Filled.Search, contentDescription = "Search Songs")
+                }
             }
             IconButton(onClick = onAddClick) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Song")
