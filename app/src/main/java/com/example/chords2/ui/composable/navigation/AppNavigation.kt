@@ -162,7 +162,7 @@ fun AppNavigation(
             val artistName = it.arguments?.getString("artistName")
             if (artistName != null) {
                  ArtistSongsScreen(
-                     songViewModel = songViewModel,
+                     remoteSongsViewModel = remoteSongsViewModel,
                      navController = navController,
                      artistName = artistName
                  )

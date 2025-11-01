@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
@@ -19,6 +17,9 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
@@ -31,13 +32,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.component1
 import androidx.navigation.NavHostController
 import com.example.chords2.data.helper.pluralText
+import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
 import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 import kotlinx.coroutines.launch
 import kotlin.collections.isNotEmpty
 
@@ -46,59 +49,54 @@ import kotlin.collections.isNotEmpty
 fun ArtistSongsScreen(
     artistName: String,
     navController: NavHostController,
-    songViewModel: SongViewModel
+    remoteSongsViewModel: RemoteSongsViewModel
 ) {
-    LaunchedEffect(Unit) {
-        songViewModel.clearSelectedRemoteSongs()
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            songViewModel.clearSelectedRemoteSongs()
-        }
-    }
     val canNavigateUp = navController.previousBackStackEntry != null
-    val songsByArtist = remember { songViewModel.getSongsByArtist(artistName) }
-    val songs by songsByArtist.collectAsState()
-    val selectedRemoteSongsList by songViewModel.selectedRemoteSongs.collectAsState()
-
+    val songs =  remoteSongsViewModel.artistSongs.collectAsState()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false
-        )
-    )
-    val sheetPeekHeight by remember(
-        selectedRemoteSongsList.isNotEmpty(),
-    ) {
-        derivedStateOf {
-            if (selectedRemoteSongsList.isNotEmpty()) {
-                BottomSheetDefaults.SheetPeekHeight
-            } else {
-                0.dp
-            }
-        }
+    LaunchedEffect(Unit) {
+        remoteSongsViewModel.getSongsByArtist(artistName)
     }
-    val targetPadding by remember(scaffoldState.bottomSheetState.currentValue) {
-        derivedStateOf {
-            when (scaffoldState.bottomSheetState.currentValue) {
-                SheetValue.Expanded -> 190.dp
-                SheetValue.PartiallyExpanded -> {
-                    if (selectedRemoteSongsList.isNotEmpty()) 26.dp else 0.dp
-                }
-                else -> 0.dp
-            }
-        }
-    }
-    val dynamicBottomPadding by animateDpAsState(
-        targetValue = targetPadding,
-        animationSpec = tween(durationMillis = 60)
-    )
 
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = sheetPeekHeight,
+//    val scaffoldState = rememberBottomSheetScaffoldState(
+//        bottomSheetState = rememberStandardBottomSheetState(
+//            initialValue = SheetValue.Hidden,
+//            skipHiddenState = false
+//        )
+//    )
+//    val sheetPeekHeight by remember(
+//        selectedRemoteSongsList.isNotEmpty(),
+//    ) {
+//        derivedStateOf {
+//            if (selectedRemoteSongsList.isNotEmpty()) {
+//                BottomSheetDefaults.SheetPeekHeight
+//            } else {
+//                0.dp
+//            }
+//        }
+//    }
+//    val targetPadding by remember(scaffoldState.bottomSheetState.currentValue) {
+//        derivedStateOf {
+//            when (scaffoldState.bottomSheetState.currentValue) {
+//                SheetValue.Expanded -> 190.dp
+//                SheetValue.PartiallyExpanded -> {
+//                    if (selectedRemoteSongsList.isNotEmpty()) 26.dp else 0.dp
+//                }
+//                else -> 0.dp
+//            }
+//        }
+//    }
+//    val dynamicBottomPadding by animateDpAsState(
+//        targetValue = targetPadding,
+//        animationSpec = tween(durationMillis = 60)
+//    )
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             MyTopAppBar(
                 title = artistName,
@@ -110,23 +108,23 @@ fun ArtistSongsScreen(
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack
             )
         },
-        sheetContent = {
-            BottomSheetContentRemote(
-                selectedRemoteSongs = selectedRemoteSongsList,
-                onSaveClick = {
-                    scope.launch {
-                        songViewModel.saveSelectedRemoteSongsToDatabase()
-                        scaffoldState.bottomSheetState.hide()
-                        songViewModel.clearSelectedRemoteSongs()
-                    }
-                    Toast.makeText(
-                        navController.context,
-                        "${pluralText("song", selectedRemoteSongsList.count())} saved to database",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            )
-        },
+//        sheetContent = {
+//            BottomSheetContentRemote(
+//                selectedRemoteSongs = selectedRemoteSongsList,
+//                onSaveClick = {
+//                    scope.launch {
+//                        remoteSongsViewModel.saveSelectedRemoteSongsToDatabase()
+//                        scaffoldState.bottomSheetState.hide()
+//                        remoteSongsViewModel.clearSelectedRemoteSongs()
+//                    }
+//                    Toast.makeText(
+//                        navController.context,
+//                        "${pluralText("song", selectedRemoteSongsList.count())} saved to database",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//            )
+//        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -134,14 +132,34 @@ fun ArtistSongsScreen(
                 .padding(4.dp)
                 .fillMaxSize()
         ) {
+//            LazyColumn(
+//                modifier = Modifier.fillMaxSize(),
+//                verticalArrangement = Arrangement.spacedBy(16.dp),
+////                contentPadding = PaddingValues(
+////                    bottom = dynamicBottomPadding
+////                )
+//            ) {
+//                items(songs) { song ->
+//                    RemoteSongItem(
+//                        songTitle = song.title,
+//                        songArtist = song.artist,
+//                        isSynced = song.markSynced,
+//                        onSongClick = {
+//                            navController.navigate(
+//                                Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
+//                            )
+//                        },
+//                        onLongClick = {},
+//                        onDownloadClick = {}
+//                    )
+//                }
+//            }
+//        }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(
-                    bottom = dynamicBottomPadding
-                )
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(songs) { song ->
+                items(songs.value) { song ->
                     RemoteSongItem(
                         songTitle = song.title,
                         songArtist = song.artist,
@@ -152,7 +170,17 @@ fun ArtistSongsScreen(
                             )
                         },
                         onLongClick = {},
-                        onDownloadClick = {}
+                        onDownloadClick = {
+                            remoteSongsViewModel.saveSong(song)
+                            scope.launch {
+                                if (snackbarHostState.currentSnackbarData != null) {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                }
+                                snackbarHostState.showSnackbar(
+                                    message = "\"${song.title}\" downloaded"
+                                )
+                            }
+                        }
                     )
                 }
             }

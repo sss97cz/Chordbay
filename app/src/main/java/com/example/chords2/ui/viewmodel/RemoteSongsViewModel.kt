@@ -1,5 +1,6 @@
 package com.example.chords2.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.chords2.data.repository.remote.SongRemoteRepository
 import com.example.chords2.data.repository.song.SongRepository
@@ -9,6 +10,7 @@ import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.remote.model.ArtistDto
 import com.example.chords2.ui.composable.screen.FilterField
+import com.example.chords2.ui.composable.screen.ResultMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,10 +20,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
 class RemoteSongsViewModel(
     private val songRemoteRepository: SongRemoteRepository,
     private val songRepository: SongRepository
-): ViewModel() {
+) : ViewModel() {
     // UI state
     val query = MutableStateFlow("")
     val field = MutableStateFlow(FilterField.BOTH)
@@ -32,10 +35,28 @@ class RemoteSongsViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val artistFilterQuery = MutableStateFlow("")
     private val _artists = MutableStateFlow<List<ArtistDto>>(emptyList())
-    val artists: StateFlow<List<ArtistDto>> = _artists.asStateFlow()
+    val artists: StateFlow<List<ArtistDto>> = combine(
+        _artists,
+        artistFilterQuery
+    ) { artists, filterQuery ->
+        if (filterQuery.isBlank()) {
+            artists
+        } else {
+            artists.filter { artist ->
+                artist.name.contains(filterQuery, ignoreCase = true)
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _songsRaw = MutableStateFlow<List<Song>>(emptyList())
+
+    private val _searchOption = MutableStateFlow<ResultMode>(ResultMode.ARTISTS)
+    val searchOption: StateFlow<ResultMode> = _searchOption.asStateFlow()
+    fun setSearchOption(newOption: ResultMode) {
+        _searchOption.value = newOption
+    }
 
     // Local set of remote IDs that already exist in your local DB
     private val localRemoteIds: StateFlow<Set<String>> =
@@ -79,12 +100,15 @@ class RemoteSongsViewModel(
     fun onQueryChanged(newQuery: String) {
         query.value = newQuery
         if (newQuery.isBlank()) {
-            // Back to artists mode
             _songsRaw.value = emptyList()
             _error.value = null
+            artistFilterQuery.value = ""
             if (artists.value.isEmpty()) refreshArtists()
         } else {
-            searchDebounced()
+            when (_searchOption.value) {
+                ResultMode.SONGS -> searchDebounced()
+                ResultMode.ARTISTS -> artistFilterQuery.value = newQuery
+            }
         }
     }
 
@@ -127,7 +151,8 @@ class RemoteSongsViewModel(
                 field = field.value,
                 offset = 0,
                 limit = 50
-            ).onSuccess { _songsRaw.value = it }
+            )
+                .onSuccess { _songsRaw.value = it }
                 .onFailure { _error.value = it.message }
             _loading.value = false
         }
@@ -136,7 +161,58 @@ class RemoteSongsViewModel(
     fun saveSong(song: Song) {
         viewModelScope.launch {
             // Insert into local DB; the localRemoteIds flow will update and mark the item as synced
+            if (song.remoteId != null){
+                val localIds = localRemoteIds.value
+                if (localIds.contains(song.remoteId)) {
+                    _artistSongs.value.map {
+                        if (it.remoteId == song.remoteId) {
+                            it.copy(markSynced = true)
+                        } else {
+                            it
+                        }
+                    }
+                }
+            }
             songRepository.insertRemoteSong(song)
         }
+    }
+
+    private val _artistSongs = MutableStateFlow<List<Song>>(emptyList())
+    val artistSongs =
+        combine(
+            _artistSongs,
+            localRemoteIds,
+        ) { songs, localIds ->
+            songs.map { song ->
+                if (song.remoteId != null && localIds.contains(song.remoteId)) {
+                    song.copy(markSynced = true)
+                } else {
+                    song
+                }
+            }
+        }.stateIn(
+            viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
+        )
+
+    fun getSongsByArtist(artist: String) {
+        Log.d("SongViewModel", "getSongsByArtist called with artist: $artist")
+        viewModelScope.launch {
+            songRemoteRepository.getSongsByArtist(artist)
+                .onSuccess { fetchedSongs ->
+                    _artistSongs.value = fetchedSongs
+                    Log.d("SongViewModel", "Fetched ${fetchedSongs.size} songs for artist: $artist")
+                }
+                .onFailure { exception ->
+                    _error.value = "Failed to fetch songs by artist: ${exception.message}"
+                    Log.e(
+                        "SongViewModel",
+                        "Error fetching songs for artist $artist: ${exception.message}"
+                    )
+                }
+        }
+    }
+
+    private fun filterArtists(query: String) {
+        artistFilterQuery.value = query
     }
 }

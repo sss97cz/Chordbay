@@ -1,5 +1,6 @@
 package com.example.chords2.ui.composable.component.listitem
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -31,23 +33,34 @@ fun SongItem(
         containerColor = if (isSelected)
             MaterialTheme.colorScheme.tertiaryContainer
         else
-            CardDefaults.cardColors().containerColor,
+//            CardDefaults.cardColors().containerColor,
+            MaterialTheme.colorScheme.surface,
         contentColor = if (isSelected)
             MaterialTheme.colorScheme.onTertiaryContainer
         else
-            CardDefaults.cardColors().contentColor
+//        CardDefaults.cardColors().contentColor
+            MaterialTheme.colorScheme.onSurface
     )
 
     Card(
         modifier = modifier
-            .fillMaxWidth()
             .combinedClickable(
                 onClick = onSongClick,
                 onLongClick = onLongClick
+            )
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = if (isSelected){
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
+                       },
+                shape = MaterialTheme.shapes.medium
             ),
         colors = colors,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 6.dp else 1.dp
+            defaultElevation = if (isSelected) 14.dp else 12.dp
         )
     ) {
         Row(

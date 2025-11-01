@@ -34,7 +34,7 @@ fun HomeTopAppBar(
 ) {
     MyTopAppBar(
         title = when (selectedTab){
-            MainTabs.MY_SONGS -> if (searchBarExpanded) "Search Songs" else "My Songs"
+            MainTabs.MY_SONGS -> if (searchBarExpanded) "Search Songs" else MainTabs.MY_SONGS.title
             MainTabs.REMOTE_SONGS -> MainTabs.REMOTE_SONGS.title
         },
         navigationIcon = Icons.Filled.Menu,

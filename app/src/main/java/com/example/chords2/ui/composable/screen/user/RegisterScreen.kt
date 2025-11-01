@@ -2,6 +2,7 @@ package com.example.chords2.ui.composable.screen.user
 
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,6 +52,7 @@ import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -72,7 +74,10 @@ fun RegisterScreen(
     var errorText by remember { mutableStateOf<String?>(null) }
 
     val isEmailValid = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    val isPasswordValid = password.length >= 9
+    val isPasswordValid = password.length >= 9 &&
+            password.any { it.isUpperCase() } &&
+            password.any { it.isLowerCase() } &&
+            password.any { it.isDigit() }
     val isConfirmValid = confirmPassword.isNotBlank() && confirmPassword == password
     val canSubmit = isEmailValid && isPasswordValid && isConfirmValid && !isLoading.value
     val canNavigateBack = navController.previousBackStackEntry != null
@@ -82,12 +87,14 @@ fun RegisterScreen(
 
     val registerSuccess = authViewModel.registerSuccess.collectAsState()
 
-    LaunchedEffect(isLoading.value){
+    LaunchedEffect(isLoading.value) {
         if (!isLoading.value) {
             if (registerSuccess.value) {
-                navController.navigate(Paths.VerifyEmailPath.createRoute(
-                    email = email
-                ))
+                navController.navigate(
+                    Paths.VerifyEmailPath.createRoute(
+                        email = email
+                    )
+                )
                 authViewModel.setRegisterSuccess(false)
             } else if (errorMessage.value != null) {
                 scope.launch {
@@ -213,8 +220,17 @@ fun RegisterScreen(
                             ),
                             isError = password.isNotBlank() && !isPasswordValid,
                             supportingText = {
-                                AnimatedVisibility(visible = password.isNotBlank() && !isPasswordValid) {
-                                    Text("Password must be at least 9 characters.")
+                                AnimatedVisibility(visible = !isPasswordValid) {
+                                    AnimatedVisibility(visible = !isPasswordValid) {
+                                        Text(
+                                            """
+                                        Password must contain:
+                                        • At least 9 characters
+                                        • Uppercase and lowercase letters
+                                        • At least one digit
+                                    """.trimIndent()
+                                        )
+                                    }
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -229,7 +245,9 @@ fun RegisterScreen(
                             label = { Text("Confirm password") },
                             leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
                             trailingIcon = {
-                                IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
+                                IconButton(onClick = {
+                                    showConfirmPassword = !showConfirmPassword
+                                }) {
                                     Icon(
                                         if (showConfirmPassword) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
                                         contentDescription = if (showConfirmPassword) "Hide password" else "Show password"
@@ -292,7 +310,17 @@ fun RegisterScreen(
                             TextButton(onClick = { navController.navigateUp() }) {
                                 Text("Already have an account? Sign in")
                             }
-                            TextButton(onClick = { /* TODO: terms link if needed */ }) {
+                            TextButton(onClick = {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "No help for you..."
+                                    )
+                                    delay(200)
+                                    snackbarHostState.showSnackbar(
+                                        message = "Just kidding! You can contact support at support@chordbay.eu"
+                                    )
+                                }
+                            }) {
                                 Text("Help")
                             }
                         }

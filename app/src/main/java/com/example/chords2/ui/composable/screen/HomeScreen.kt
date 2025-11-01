@@ -52,6 +52,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.platform.LocalContext
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
@@ -338,6 +339,7 @@ fun HomeScreen(
                     }
                     if (selectedTab.value == MainTabs.MY_SONGS) {
                         HomeSearchbar(
+                            modifier = Modifier.fillMaxWidth(),
                             searchBarExpanded = searchBarExpanded,
                             searchQuery = searchQuery,
                             onQueryChange = { searchQuery = it },

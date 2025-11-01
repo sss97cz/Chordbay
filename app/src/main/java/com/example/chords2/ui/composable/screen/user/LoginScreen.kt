@@ -68,13 +68,16 @@ fun LoginScreen(
     val focusManager = LocalFocusManager.current
 
     var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable{ mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     var showPassword by rememberSaveable { mutableStateOf(false) }
     val isLoading = authViewModel.loading.collectAsState()
     var errorText by remember { mutableStateOf<String?>(null) }
 
     val isEmailValid = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    val isPasswordValid = password.length >= 9
+    val isPasswordValid = password.length >= 9 &&
+            password.any { it.isUpperCase() } &&
+            password.any { it.isDigit() } &&
+            password.any { it.isLowerCase() }
     val canSubmit = isEmailValid && isPasswordValid && !isLoading.value
     val canNavigateBack = navController.previousBackStackEntry != null
 
@@ -221,12 +224,19 @@ fun LoginScreen(
                             ),
                             isError = password.isNotBlank() && !isPasswordValid,
                             supportingText = {
-                                AnimatedVisibility(visible = password.isNotBlank() && !isPasswordValid) {
-                                    Text("Password must be at least 9 characters.")
+                                AnimatedVisibility(visible = !isPasswordValid) {
+                                    Text("""
+                                        Password must contain:
+                                        • At least 9 characters
+                                        • Uppercase and lowercase letters
+                                        • At least one digit
+                                    """.trimIndent()
+                                    )
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            modifier = Modifier.fillMaxWidth(),
+
+                            )
 
                         AnimatedVisibility(visible = errorText != null) {
                             Text(

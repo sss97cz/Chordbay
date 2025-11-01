@@ -96,7 +96,7 @@ fun AlphabeticalSongList(
                 ) { song ->
                     SongItem(
                         modifier = Modifier
-                            .padding(vertical = 4.dp)
+                            .padding(4.dp)
                             .fillMaxWidth(),
                         songTitle = song.title,
                         songArtist = song.artist,

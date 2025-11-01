@@ -119,7 +119,9 @@ fun RemoteSongItem(
         trailingContent = {
             IconButton(
                 onClick = {
-                    onDownloadClick()
+                    if (!isSynced) {
+                        onDownloadClick()
+                    }
                 },
                 modifier = Modifier.size(24.dp)
             ) {
