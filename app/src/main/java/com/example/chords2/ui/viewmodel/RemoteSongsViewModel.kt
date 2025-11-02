@@ -52,10 +52,14 @@ class RemoteSongsViewModel(
 
     private val _songsRaw = MutableStateFlow<List<Song>>(emptyList())
 
-    private val _searchOption = MutableStateFlow<ResultMode>(ResultMode.ARTISTS)
+    private val _searchOption = MutableStateFlow<ResultMode>(ResultMode.SONGS)
     val searchOption: StateFlow<ResultMode> = _searchOption.asStateFlow()
-    fun setSearchOption(newOption: ResultMode) {
+    fun onSearchOptionChange(newOption: ResultMode) {
         _searchOption.value = newOption
+        onQueryChanged(query.value)
+        if (newOption == ResultMode.ARTISTS) {
+            refreshArtists()
+        }
     }
 
     // Local set of remote IDs that already exist in your local DB
