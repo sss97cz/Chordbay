@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -28,6 +30,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.Song
+import com.example.chords2.ui.composable.component.alertdialog.EditInfoAlertDialog
 import com.example.chords2.ui.composable.component.textfield.SongContentEditor
 import com.example.chords2.ui.composable.component.textfield.SongTextField
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
@@ -47,6 +50,7 @@ fun EditSongScreen(
     val songArtist by songViewModel.songArtist.collectAsState()
     val songContent by songViewModel.songContent.collectAsState()
     val hasLoaded by songViewModel.hasLoadedEdit.collectAsState()
+    val showInfoAlertDialog = rememberSaveable { mutableStateOf(false) }
 
     // Load song only once per songId
     LaunchedEffect(songId) {
@@ -68,6 +72,11 @@ fun EditSongScreen(
                         songViewModel.clearSongStates()
                     }
                 } else null, actions = {
+                    IconButton(onClick = {
+                        showInfoAlertDialog.value = true
+                    }) {
+                        Icon(Icons.Outlined.Info, contentDescription = "Cancel")
+                    }
                     IconButton(onClick = {
                         songViewModel.saveEditedSong(songId)
                         navController.navigateUp()
@@ -115,6 +124,10 @@ fun EditSongScreen(
                     onValueChange = { songViewModel.setSongContent(it) },
                 )
             }
+            EditInfoAlertDialog(
+                showAlertDialog = showInfoAlertDialog.value,
+                onDismissRequest = { showInfoAlertDialog.value = false }
+            )
         }
     }
 }

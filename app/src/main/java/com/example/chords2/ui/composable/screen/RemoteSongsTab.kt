@@ -205,7 +205,7 @@ fun PortraitSearchBarHeader(
                 .padding(start = 8.dp, top = 8.dp, end = 8.dp)
         ) {
             Text(
-                text = "Filter by:",
+                text = "Filter options:",
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -409,7 +409,7 @@ fun LandscapeSearchBarHeader(
                 .padding(horizontal = 4.dp),
         ) {
             Text(
-                text = "Filter by",
+                text = "Filter options:",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
             )
@@ -465,11 +465,10 @@ fun GridResultList(
     ) {
         if (searchOption.value == ResultMode.ARTISTS) {
             if (artists.isEmpty()) {
-                item(span = { GridItemSpan(2) }) {
+                item(
+                    span = { GridItemSpan(2) }) {
                     NothingFoundPrompt(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(240.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         title = "No artists found",
                         message = "Try a different query"
                     )
@@ -489,7 +488,7 @@ fun GridResultList(
             }
         } else {
             if (query.isBlank()) {
-                item {
+                item(span = { GridItemSpan(2) }) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -693,7 +692,7 @@ fun NothingFoundPrompt(
     Box(
         modifier = modifier
             .fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

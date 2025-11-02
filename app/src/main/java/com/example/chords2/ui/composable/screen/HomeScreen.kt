@@ -93,7 +93,7 @@ fun HomeScreen(
     val isUserLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
 
 
-    var searchBarExpanded by remember { mutableStateOf(false) }
+    var searchBarExpanded by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var searchBarIsActive by rememberSaveable { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -387,54 +387,6 @@ fun HomeScreen(
                         }
 //-------------------------------- REMOTE SONGS-----------------------------------------------------
                         MainTabs.REMOTE_SONGS -> {
-//                            val artists = songViewModel.artists.collectAsState()
-//                            LaunchedEffect(Unit) {
-//                                songViewModel.fetchAllArtists()
-//                                Log.d("HomeScreen", "Fetched artists: ${artists.value}")
-//                            }
-//                            val isRefreshing = songViewModel.isLoading.collectAsState()
-//                            val pullToRefreshState = rememberPullToRefreshState()
-//
-//
-//                            PullToRefreshBox(
-//                                modifier = Modifier.fillMaxSize(),
-//                                isRefreshing = isRefreshing.value,
-//                                onRefresh = {
-//                                    scope.launch {
-//                                        songViewModel.fetchAllArtists()
-//                                    }
-//                                },
-//                                state = pullToRefreshState,
-//                                indicator = {
-//                                    PullToRefreshDefaults.Indicator(
-//                                        state = pullToRefreshState,
-//                                        modifier = Modifier.align(Alignment.TopCenter),
-//                                        isRefreshing = isRefreshing.value
-//                                    )
-//                                }
-//                            ) {
-//                                LazyColumn(
-//                                    modifier = Modifier.fillMaxSize(),
-//                                    contentPadding = PaddingValues(
-//                                        top = 4.dp,
-//                                        bottom = dynamicBottomPadding
-//                                    ),
-//                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-//                                ) {
-//                                    items(artists.value) { artist ->
-//                                        ArtistItem(
-//                                            artist = artist.name,
-//                                            songCount = artist.songCount,
-//                                            modifier = Modifier.fillMaxWidth(),
-//                                            onClick = {
-//                                                navController.navigate(
-//                                                    Paths.ArtistSongsPath.createRoute(artist.name)
-//                                                )
-//                                            }
-//                                        )
-//                                    }
-//                                }
-//                            }
                             RemoteSongsTab(
                                 remoteSongsViewModel = remoteSongsViewModel,
                                 songsViewModel = songViewModel,
