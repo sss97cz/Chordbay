@@ -58,7 +58,19 @@ fun EditSongScreen(
             songViewModel.loadEditSong(songId)
         }
     }
-
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            val route = destination.route.orEmpty()
+            if (!route.contains("editSong/$songId")) {
+                songViewModel.clearSongStates()
+            }
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose {
+            navController.removeOnDestinationChangedListener(listener)
+            songViewModel.clearSongStates()
+        }
+    }
     val canNavigateBack = navController.previousBackStackEntry != null
     Scaffold(
         topBar = {

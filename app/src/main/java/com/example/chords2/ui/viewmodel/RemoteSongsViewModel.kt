@@ -52,7 +52,7 @@ class RemoteSongsViewModel(
 
     private val _songsRaw = MutableStateFlow<List<Song>>(emptyList())
 
-    private val _searchOption = MutableStateFlow<ResultMode>(ResultMode.SONGS)
+    private val _searchOption = MutableStateFlow<ResultMode>(ResultMode.ARTISTS)
     val searchOption: StateFlow<ResultMode> = _searchOption.asStateFlow()
     fun onSearchOptionChange(newOption: ResultMode) {
         _searchOption.value = newOption

@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,11 +70,12 @@ import com.example.chords2.ui.theme.imagevector.Playlist_add
 fun MyDrawerContent(
     playlists: List<PlaylistEntity>,
     onPlaylistClick: (PlaylistEntity) -> Unit,
+    onCreatePlaylistClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onLoginClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
-    userEmail: String? = null
+    userEmail: String? = null,
 ) {
     var playlistsExpanded by remember { mutableStateOf(false) }
     val animatedRotation by animateFloatAsState(
@@ -120,19 +122,26 @@ fun MyDrawerContent(
                         ) {
                             Text("Playlists", style = MaterialTheme.typography.titleMedium)
                             Spacer(Modifier.weight(1f))
-                            Icon(
-                                Icons.Default.ArrowDropDown,
-                                contentDescription = null,
-                                modifier = Modifier.rotate(animatedRotation)
-                            )
+                            if (playlists.isNotEmpty()) {
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    modifier = Modifier.rotate(animatedRotation)
+                                )
+                            }
                         }
                     },
                     selected = false,
                     icon = { Icon(Icons.Default.LibraryMusic, null) },
-                    onClick = { playlistsExpanded = !playlistsExpanded },
+                    onClick = {
+                        if (playlists.isNotEmpty()) {
+                            playlistsExpanded = !playlistsExpanded
+                        } else {
+                            onCreatePlaylistClick()
+                        }
+                    },
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
-
                 AnimatedVisibility(visible = playlistsExpanded) {
                     Column {
                         playlists.forEachIndexed { i, playlist ->
@@ -174,6 +183,7 @@ fun MyDrawerContent(
         }
     }
 }
+
 @Composable
 private fun DrawerHeader() {
     Row(

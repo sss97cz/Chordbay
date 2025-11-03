@@ -179,7 +179,10 @@ fun HomeScreen(
                 onManageAccountClick = {
                     navController.navigate(Paths.ManageAccountPath.route)
                 },
-                onSignOutClick = { authViewModel.logoutUser() }
+                onSignOutClick = { authViewModel.logoutUser() },
+                onCreatePlaylistClick = {
+                    showAddPlaylistDialog = true
+                },
             )
         },
         drawerState = drawerState
@@ -382,7 +385,8 @@ fun HomeScreen(
                                         scaffoldState.bottomSheetState.expand()
                                     }
                                 },
-                                selectedSongs = selectedSongsList
+                                selectedSongs = selectedSongsList,
+                                searchQuery = searchQuery
                             )
                         }
 //-------------------------------- REMOTE SONGS-----------------------------------------------------

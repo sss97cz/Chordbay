@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.room.util.query
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.ui.composable.component.listitem.SongItem
@@ -53,7 +54,8 @@ fun AlphabeticalSongList(
     sortBy: SortBy,
     onSongClick: (Song) -> Unit,
     onSongLongClick: (Song) -> Unit,
-    bottomPadding: Dp
+    bottomPadding: Dp,
+    searchQuery: String = ""
 ) {
     val listState = rememberLazyListState()
 
@@ -80,6 +82,7 @@ fun AlphabeticalSongList(
             contentPadding = PaddingValues(top = 4.dp, bottom = bottomPadding)
         ) {
             if (songs.isEmpty()) {
+                val isSearching = searchQuery.isNotBlank()
                 item {
                     Column(
                         modifier = Modifier
@@ -90,20 +93,25 @@ fun AlphabeticalSongList(
                         Icon(
                             modifier = Modifier.size(56.dp),
                             imageVector = Icons.Default.MusicOff,
-                            contentDescription = "No Songs",
+                            contentDescription = if (isSearching) "No results" else "No songs",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "You have no songs yet",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = if (isSearching) "No songs found matching \"${searchQuery}\"" else "You have no songs yet",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "You can create songs by tapping the '+' button. or download songs from the browse tab.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = if (!isSearching) {
+                                "You can create songs by tapping the '+' button. or download songs from the browse tab."
+                            } else {
+                                "Maybe try searching in Browse tab to find new songs to download."
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center
                         )
                     }
