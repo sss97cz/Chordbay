@@ -11,6 +11,7 @@ import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.remote.model.ArtistDto
 import com.example.chords2.ui.composable.screen.FilterField
 import com.example.chords2.ui.composable.screen.ResultMode
+import com.example.chords2.ui.composable.screen.SortByArtist
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,7 +29,8 @@ class RemoteSongsViewModel(
     // UI state
     val query = MutableStateFlow("")
     val field = MutableStateFlow(FilterField.BOTH)
-    val sort = MutableStateFlow(SortBy.SONG_NAME)
+    val sortSongs = MutableStateFlow(SortBy.SONG_NAME)
+    val sortArtists = MutableStateFlow(SortByArtist.ALPHABETICAL)
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
@@ -37,16 +39,49 @@ class RemoteSongsViewModel(
 
     private val artistFilterQuery = MutableStateFlow("")
     private val _artists = MutableStateFlow<List<ArtistDto>>(emptyList())
+
+    val artistFirstLetters = _artists.map { artists ->
+        artists.mapNotNull { it.name.firstOrNull()?.uppercaseChar() }.toSet().sorted()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val artistFirstLetterFilterChipSelected = MutableStateFlow<Char?>(null)
+    fun onArtistFirstLetterFilterChange(letter: Char?) {
+        artistFirstLetterFilterChipSelected.value = letter
+        Log.d("RemoteSongsViewModel", "First letter filter changed to: $letter")
+    }
+
     val artists: StateFlow<List<ArtistDto>> = combine(
         _artists,
-        artistFilterQuery
-    ) { artists, filterQuery ->
-        if (filterQuery.isBlank()) {
+        artistFilterQuery,
+        artistFirstLetterFilterChipSelected,
+        sortArtists
+    ) { artists, filterQuery, charChip, sort ->
+        // first apply the chip (if any), then apply the text query (if any)
+        val chipFiltered = if (charChip == null) {
             artists
         } else {
+            val prefix = charChip.toString()
             artists.filter { artist ->
-                artist.name.contains(filterQuery, ignoreCase = true)
+                artist.name.startsWith(prefix, ignoreCase = true)
             }
+        }
+        if (filterQuery.isBlank()) {
+            chipFiltered.sortedWith(
+                when (sort) {
+                    SortByArtist.ALPHABETICAL -> compareBy { it.name.lowercase() }
+                    SortByArtist.MOST_SONGS -> compareByDescending<ArtistDto> { it.songCount }
+                        .thenBy { it.name.lowercase() }
+                }
+            )
+        } else {
+            chipFiltered.filter { artist ->
+                artist.name.contains(filterQuery, ignoreCase = true)
+            }.sortedWith(
+                when (sort) {
+                    SortByArtist.ALPHABETICAL -> compareBy { it.name.lowercase() }
+                    SortByArtist.MOST_SONGS -> compareByDescending<ArtistDto> { it.songCount }
+                        .thenBy { it.name.lowercase() }
+                }
+            )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -87,7 +122,7 @@ class RemoteSongsViewModel(
     val songs: StateFlow<List<Song>> =
         combine(
             songsMarked,
-            sort
+            sortSongs
         ) { songs, sortBy ->
             when (sortBy) {
                 SortBy.SONG_NAME -> songs.sortedBy { it.title.lowercase() }
@@ -121,8 +156,23 @@ class RemoteSongsViewModel(
         if (query.value.isNotBlank()) search()
     }
 
-    fun onSortChanged(newSort: SortBy) {
-        sort.value = newSort
+    fun onSortChanged(sortOption: ResultMode) {
+        when (sortOption) {
+            ResultMode.SONGS -> {
+                if (sortSongs.value == SortBy.SONG_NAME) {
+                    sortSongs.value = SortBy.ARTIST_NAME
+                } else {
+                    sortSongs.value = SortBy.SONG_NAME
+                }
+            }
+            ResultMode.ARTISTS -> {
+                if (sortArtists.value == SortByArtist.ALPHABETICAL) {
+                    sortArtists.value = SortByArtist.MOST_SONGS
+                } else {
+                    sortArtists.value = SortByArtist.ALPHABETICAL
+                }
+            }
+        }
     }
 
     fun refreshArtists() {
@@ -165,7 +215,7 @@ class RemoteSongsViewModel(
     fun saveSong(song: Song) {
         viewModelScope.launch {
             // Insert into local DB; the localRemoteIds flow will update and mark the item as synced
-            if (song.remoteId != null){
+            if (song.remoteId != null) {
                 val localIds = localRemoteIds.value
                 if (localIds.contains(song.remoteId)) {
                     _artistSongs.value.map {

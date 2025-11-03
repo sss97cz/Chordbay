@@ -1,6 +1,7 @@
 package com.example.chords2.ui.composable.screen
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +24,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -60,11 +62,12 @@ fun RemoteSongsTab(
 ) {
     val query by remoteSongsViewModel.query.collectAsState()
     val field by remoteSongsViewModel.field.collectAsState()
-    val sort by remoteSongsViewModel.sort.collectAsState()
+    val sort by remoteSongsViewModel.sortSongs.collectAsState()
     val artists by remoteSongsViewModel.artists.collectAsState()
     val songs by remoteSongsViewModel.songs.collectAsState()
     val loading by remoteSongsViewModel.loading.collectAsState()
     val error by remoteSongsViewModel.error.collectAsState()
+    val artistFirstLetters by remoteSongsViewModel.artistFirstLetters.collectAsState()
 
     var isMenuExpanded by rememberSaveable { mutableStateOf(false) }
     val searchOption = remoteSongsViewModel.searchOption.collectAsState()
@@ -99,6 +102,7 @@ fun RemoteSongsTab(
                 searchbarText = searchbarText,
                 isMenuExpanded = isMenuExpanded,
                 onMenuExpandedChange = { isMenuExpanded = !isMenuExpanded },
+                artistFirstLetters = artistFirstLetters
             )
         } else {
             // Landscape header: two columns – search on the left, filters on the right
@@ -167,6 +171,7 @@ fun PortraitSearchBarHeader(
     sort: SortBy,
     searchOption: State<ResultMode>,
     searchbarText: String,
+    artistFirstLetters: List<Char>,
     isMenuExpanded: Boolean,
     onMenuExpandedChange: () -> Unit,
 
@@ -186,6 +191,8 @@ fun PortraitSearchBarHeader(
         },
     )
     val isSongsSelected = searchOption.value == ResultMode.SONGS
+    val selectedLetter = remoteSongsViewModel.artistFirstLetterFilterChipSelected.collectAsState()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -213,28 +220,16 @@ fun PortraitSearchBarHeader(
                 modifier = Modifier.padding(bottom = 2.dp, start = 2.dp)
             )
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FilterChip(
-                    selected = field == FilterField.TITLE,
-                    onClick = { remoteSongsViewModel.onFieldChanged(FilterField.TITLE) },
-                    label = { Text("Title") }
-                )
-                FilterChip(
-                    selected = field == FilterField.ARTIST,
-                    onClick = { remoteSongsViewModel.onFieldChanged(FilterField.ARTIST) },
-                    label = { Text("Artist") }
-                )
-                FilterChip(
-                    selected = field == FilterField.BOTH,
-                    onClick = { remoteSongsViewModel.onFieldChanged(FilterField.BOTH) },
-                    label = { Text("Both") }
-                )
-            }
+            ChipRow(
+                onFilterSongClick = { remoteSongsViewModel.onFieldChanged(it) },
+                onFilterArtistClick = { remoteSongsViewModel.onArtistFirstLetterFilterChange(it) },
+                field = field,
+                isSongsSelected = isSongsSelected,
+                selectedLetter = selectedLetter,
+                artistFirstLetters = artistFirstLetters
+            )
         }
-
+        val sortByArtist = remoteSongsViewModel.sortArtists.collectAsState()
         Column(
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.SpaceBetween,
@@ -278,24 +273,30 @@ fun PortraitSearchBarHeader(
             }
             AssistChip(
                 onClick = {
-                    remoteSongsViewModel.onSortChanged(
-                        if (sort == SortBy.SONG_NAME) SortBy.ARTIST_NAME else SortBy.SONG_NAME
-                    )
+                    remoteSongsViewModel.onSortChanged(searchOption.value)
                 },
                 label = {
                     Text(
-                        text = if (sort == SortBy.SONG_NAME) "Sort: Title" else "Sort: Artist",
-                        style = MaterialTheme.typography.labelMedium
+                        text = if (searchOption.value == ResultMode.SONGS) {
+                            when (sort) {
+                                SortBy.SONG_NAME -> "Sort: Title"
+                                SortBy.ARTIST_NAME -> "Sort: Artist"
+                            }
+                        } else {
+                            when (sortByArtist.value) {
+                                SortByArtist.ALPHABETICAL -> "Sort: A-Z"
+                                SortByArtist.MOST_SONGS -> "Sort: Most Songs"
+                            }
+                        },
+                        style = MaterialTheme.typography.labelSmall
                     )
                 },
                 modifier = Modifier.height(32.dp)
             )
         }
     }
-
-    HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
+    HorizontalDivider(Modifier.padding(top = 4.dp))
 }
-
 @Composable
 fun LandscapeSearchBarHeader(
     remoteSongsViewModel: RemoteSongsViewModel,
@@ -417,28 +418,42 @@ fun LandscapeSearchBarHeader(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterChip(
-                    selected = field == FilterField.TITLE,
-                    onClick = { remoteSongsViewModel.onFieldChanged(FilterField.TITLE) },
-                    label = { Text("Title") }
-                )
-                FilterChip(
-                    selected = field == FilterField.ARTIST,
-                    onClick = { remoteSongsViewModel.onFieldChanged(FilterField.ARTIST) },
-                    label = { Text("Artist") }
-                )
-                FilterChip(
-                    selected = field == FilterField.BOTH,
-                    onClick = { remoteSongsViewModel.onFieldChanged(FilterField.BOTH) },
-                    label = { Text("Both") }
+                ChipRow(
+                    onFilterSongClick = { remoteSongsViewModel.onFieldChanged(it) },
+                    onFilterArtistClick = { remoteSongsViewModel.onArtistFirstLetterFilterChange(it) },
+                    field = field,
+                    isSongsSelected = searchOption.value == ResultMode.SONGS,
+                    selectedLetter = remoteSongsViewModel.artistFirstLetterFilterChipSelected.collectAsState(),
+                    artistFirstLetters = remoteSongsViewModel.artistFirstLetters.collectAsState().value
                 )
                 AssistChip(
                     onClick = {
                         remoteSongsViewModel.onSortChanged(
-                            if (sort == SortBy.SONG_NAME) SortBy.ARTIST_NAME else SortBy.SONG_NAME
+                            searchOption.value
                         )
                     },
-                    label = { Text(if (sort == SortBy.SONG_NAME) "Sort: Title" else "Sort: Artist") }
+                    label = {
+                        Text(
+                            text = when (searchOption.value) {
+                                ResultMode.SONGS -> {
+                                    when (sort) {
+                                        SortBy.SONG_NAME -> "Sort: Title"
+                                        SortBy.ARTIST_NAME -> "Sort: Artist"
+                                    }
+                                }
+
+                                ResultMode.ARTISTS -> {
+                                    val sortByArtist =
+                                        remoteSongsViewModel.sortArtists.collectAsState().value
+                                    when (sortByArtist) {
+                                        SortByArtist.ALPHABETICAL -> "Sort: A-Z"
+                                        SortByArtist.MOST_SONGS -> "Sort: Most Songs"
+                                    }
+                                }
+                            },
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
                 )
             }
         }
@@ -498,7 +513,7 @@ fun GridResultList(
                     }
                 }
             } else {
-                if (songs.isEmpty()){
+                if (songs.isEmpty()) {
                     item(span = { GridItemSpan(2) }) {
                         NothingFoundPrompt(
                             modifier = Modifier
@@ -581,7 +596,7 @@ fun NormalResultList(
                     }
                 }
             } else {
-                if (songs.isEmpty()){
+                if (songs.isEmpty()) {
                     item {
                         NothingFoundPrompt(
                             modifier = Modifier
@@ -612,8 +627,6 @@ fun NormalResultList(
         }
     }
 }
-
-enum class ResultMode { SONGS, ARTISTS }
 
 @Composable
 fun ResultHeader(mode: ResultMode, count: Int, query: String?, modifier: Modifier = Modifier) {
@@ -726,10 +739,51 @@ fun NothingFoundPrompt(
     }
 }
 
-data class FilterField(val value: String) {
-    companion object {
-        val TITLE = FilterField("title")
-        val ARTIST = FilterField("artist")
-        val BOTH = FilterField("both")
+@Composable
+fun ChipRow(
+    onFilterSongClick: (FilterField) -> Unit,
+    onFilterArtistClick: (Char?) -> Unit,
+    field: FilterField,
+    isSongsSelected: Boolean,
+    selectedLetter: State<Char?>,
+    artistFirstLetters: List<Char>,
+) {
+
+    LazyRow(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.widthIn(min = 200.dp, max = 235.dp)
+    ) {
+        if (isSongsSelected) {
+            for (selected in FilterField.entries) {
+                item {
+                    FilterChip(
+                        selected = field == selected,
+                        onClick = { onFilterSongClick(selected) },
+                        label = { Text(selected.title) }
+                    )
+                }
+            }
+        } else {
+            items(artistFirstLetters) {
+                FilterChip(
+                    selected = selectedLetter.value == it,
+                    onClick = {
+                        Log.d("RemoteSongsTab", "Artist first letter filter chip clicked: $it")
+                        onFilterArtistClick(
+                            if (selectedLetter.value == it) null else it
+                        )
+                    },
+                    label = { Text(it.toString()) }
+                )
+            }
+        }
     }
+}
+
+enum class FilterField(val title: String) { TITLE("Title"), ARTIST("Artist"), BOTH("Both") }
+enum class ResultMode { SONGS, ARTISTS }
+
+enum class SortByArtist(val title: String) {
+    ALPHABETICAL("A-Z"), MOST_SONGS("Most Songs")
 }
