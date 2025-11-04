@@ -192,4 +192,22 @@ class SongRemoteRepositoryImpl(
             Result.failure(e)
         }
     }
+
+    override suspend fun getSongsByViewedCount(): Result<List<Song>> {
+        return try {
+            val response = apiService.getSongsByViewedCount()
+            if (response.isSuccessful) {
+                val songs = response.body()
+                if (songs != null) {
+                    Result.success(songs.map { it.toSong() })
+                } else {
+                    Result.failure(IOException("Empty response body"))
+                }
+            } else {
+                Result.failure(IOException("Failed to fetch songs by viewed count, code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

@@ -20,4 +20,6 @@ interface SongRemoteRepository {
         offset: Int,
         limit: Int
     ): Result<List<Song>>
+
+    suspend fun getSongsByViewedCount(): Result<List<Song>>
 }

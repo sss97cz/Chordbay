@@ -85,6 +85,16 @@ class RemoteSongsViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val showMostViewed = MutableStateFlow(false)
+    fun onShowMostViewedClick() {
+        showMostViewed.value = !showMostViewed.value
+        if (showMostViewed.value) {
+            getMostViewedSongs()
+        } else {
+            onQueryChanged(query.value)
+        }
+    }
+
     private val _songsRaw = MutableStateFlow<List<Song>>(emptyList())
 
     private val _searchOption = MutableStateFlow<ResultMode>(ResultMode.ARTISTS)
@@ -145,7 +155,10 @@ class RemoteSongsViewModel(
             if (artists.value.isEmpty()) refreshArtists()
         } else {
             when (_searchOption.value) {
-                ResultMode.SONGS -> searchDebounced()
+                ResultMode.SONGS -> {
+                    onShowMostViewedClick()
+                    searchDebounced()
+                }
                 ResultMode.ARTISTS -> artistFilterQuery.value = newQuery
             }
         }
@@ -263,6 +276,17 @@ class RemoteSongsViewModel(
                         "Error fetching songs for artist $artist: ${exception.message}"
                     )
                 }
+        }
+    }
+
+    private fun getMostViewedSongs() {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            songRemoteRepository.getSongsByViewedCount()
+                .onSuccess { _songsRaw.value = it }
+                .onFailure { _error.value = it.message }
+            _loading.value = false
         }
     }
 

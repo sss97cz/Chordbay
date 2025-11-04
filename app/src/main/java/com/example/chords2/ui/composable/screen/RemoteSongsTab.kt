@@ -47,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import com.example.chords2.data.helper.pluralText
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.remote.model.ArtistDto
@@ -239,7 +240,7 @@ fun PortraitSearchBarHeader(
                 ResultMode.entries.forEachIndexed { index, result ->
                     SegmentedButton(
                         modifier = Modifier
-                            .size(65.dp, 36.dp)
+                            .size(75.dp, 36.dp)
                             .align(Alignment.Top),
                         shape = SegmentedButtonDefaults.itemShape(
                             index = index,
@@ -271,28 +272,53 @@ fun PortraitSearchBarHeader(
                     )
                 }
             }
-            AssistChip(
-                onClick = {
-                    remoteSongsViewModel.onSortChanged(searchOption.value)
-                },
-                label = {
-                    Text(
-                        text = if (searchOption.value == ResultMode.SONGS) {
-                            when (sort) {
-                                SortBy.SONG_NAME -> "Sort: Title"
-                                SortBy.ARTIST_NAME -> "Sort: Artist"
-                            }
-                        } else {
-                            when (sortByArtist.value) {
-                                SortByArtist.ALPHABETICAL -> "Sort: A-Z"
-                                SortByArtist.MOST_SONGS -> "Sort: Most Songs"
-                            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (isSongsSelected) {
+                    val showMostViewed = remoteSongsViewModel.showMostViewed.collectAsState()
+                    FilterChip(
+                        selected = showMostViewed.value,
+                        onClick = {
+                            remoteSongsViewModel.onShowMostViewedClick()
                         },
-                        style = MaterialTheme.typography.labelSmall
+                        label = {
+                            Text(
+                                text = "Popular",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        },
+                        modifier = Modifier.height(32.dp).widthIn(min = 72.dp)
                     )
-                },
-                modifier = Modifier.height(32.dp)
-            )
+                }
+                AssistChip(
+                    onClick = {
+                        remoteSongsViewModel.onSortChanged(searchOption.value)
+                    },
+                    label = {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = if (searchOption.value == ResultMode.SONGS) {
+                                    when (sort) {
+                                        SortBy.SONG_NAME -> "Sort: Title"
+                                        SortBy.ARTIST_NAME -> "Sort: Artist"
+                                    }
+                                } else {
+                                    when (sortByArtist.value) {
+                                        SortByArtist.ALPHABETICAL -> "Sort: A-Z"
+                                        SortByArtist.MOST_SONGS -> "Sort: Songs"
+                                    }
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Center,
+//                            modifier = Modifier.padding(horizontal = 4.dp)
+                            )
+                        }
+                    },
+                    modifier = Modifier.height(32.dp).width(95.dp)
+                )
+            }
         }
     }
     HorizontalDivider(Modifier.padding(top = 4.dp))
@@ -502,17 +528,17 @@ fun GridResultList(
                 )
             }
         } else {
-            if (query.isBlank()) {
-                item(span = { GridItemSpan(2) }) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(240.dp)
-                    ) {
-                        SongsQueryPrompt(modifier = Modifier.fillMaxSize())
-                    }
-                }
-            } else {
+//            if (query.isBlank()) {
+//                item(span = { GridItemSpan(2) }) {
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(240.dp)
+//                    ) {
+//                        SongsQueryPrompt(modifier = Modifier.fillMaxSize())
+//                    }
+//                }
+//            } else {
                 if (songs.isEmpty()) {
                     item(span = { GridItemSpan(2) }) {
                         NothingFoundPrompt(
@@ -540,7 +566,7 @@ fun GridResultList(
                         },
                     )
                 }
-            }
+//            }
         }
     }
 }
@@ -585,17 +611,17 @@ fun NormalResultList(
                 )
             }
         } else {
-            if (query.isBlank()) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(240.dp)
-                    ) {
-                        SongsQueryPrompt(modifier = Modifier.fillMaxSize())
-                    }
-                }
-            } else {
+//            if (query.isBlank()) {
+//                item {
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(240.dp)
+//                    ) {
+//                        SongsQueryPrompt(modifier = Modifier.fillMaxSize())
+//                    }
+//                }
+//            } else {
                 if (songs.isEmpty()) {
                     item {
                         NothingFoundPrompt(
@@ -622,7 +648,7 @@ fun NormalResultList(
                             remoteSongsViewModel.saveSong(song)
                         },
                     )
-                }
+//                }
             }
         }
     }
@@ -752,7 +778,7 @@ fun ChipRow(
     LazyRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.widthIn(min = 200.dp, max = 235.dp)
+        modifier = Modifier.widthIn(min = 200.dp, max = 224.dp)
     ) {
         if (isSongsSelected) {
             for (selected in FilterField.entries) {

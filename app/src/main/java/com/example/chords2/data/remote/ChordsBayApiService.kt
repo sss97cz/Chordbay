@@ -65,4 +65,7 @@ interface ChordsBayApiService {
         @Query("offset") offset: Int? = null,
         @Query("limit") limit: Int? = null,
     ): Response<List<SongDto>>
+
+    @GET("/api/songs/most-viewed")
+    suspend fun getSongsByViewedCount(): Response<List<SongDto>>
 }
