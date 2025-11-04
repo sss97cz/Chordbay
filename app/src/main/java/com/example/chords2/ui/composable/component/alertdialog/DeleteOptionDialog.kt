@@ -3,6 +3,7 @@ package com.example.chords2.ui.composable.component.alertdialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -138,31 +140,34 @@ fun DeleteOptionDialog(
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = buildString {
                                     append(song.artist.ifBlank { "Unknown Artist" })
                                     append(" - ")
                                     append(song.title.ifBlank { "Untitled" })
-                                    if (remoteEnabled) append(" • posted")
                                 },
                                 modifier = Modifier.weight(1f),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Spacer(Modifier.weight(0.1f))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
                                 FilterChip(
                                     selected = current.first,
                                     onClick = {
                                         deleteAction[key] = Pair(!current.first, current.second)
                                     },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    },
+//                                    leadingIcon = {
+//                                        Icon(
+//                                            imageVector = Icons.Default.Delete,
+//                                            contentDescription = null,
+//                                            tint = MaterialTheme.colorScheme.onSurface
+//                                        )
+//                                    },
                                     label = { Text("Local") }
                                 )
                                 FilterChip(
@@ -173,13 +178,13 @@ fun DeleteOptionDialog(
                                             deleteAction[key] = Pair(current.first, !current.second)
                                         }
                                     },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    },
+//                                    leadingIcon = {
+//                                        Icon(
+//                                            imageVector = Icons.Default.Delete,
+//                                            contentDescription = null,
+//                                            tint = MaterialTheme.colorScheme.onSurface
+//                                        )
+//                                    },
                                     label = { Text("Remote") }
                                 )
                             }
@@ -206,7 +211,7 @@ fun DeleteDialogPrev() {
             Song(
                 localId = 2,
                 remoteId = "",
-                title = "Song 2",
+                title = "Song 2sdjnvckjdsanvkjdsnkjdsnkjdsan",
                 artist = "Artist 2",
                 content = "Content 2"
             )

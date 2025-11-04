@@ -2,6 +2,10 @@ package com.example.chords2.ui.composable.screen
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -48,6 +52,11 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
@@ -64,7 +73,7 @@ import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -197,20 +206,6 @@ fun HomeScreen(
                             bottomPadding = bottomSystemPadding.calculateBottomPadding(),
                             selectedSongs = selectedSongsList,
                             onPostClick = {
-//                                songViewModel.postSongs(selectedSongsList)
-//                                scope.launch {
-//                                    scaffoldState.bottomSheetState.hide()
-//                                    songViewModel.clearSelectedSongs()
-//                                    if (error.value != null) {
-//                                        Log.d("HomeScreen", "Error posting songs: ${error.value}")
-//                                        Toast.makeText(
-//                                            context,
-//                                            "Error posting songs: ${error.value}",
-//                                            Toast.LENGTH_SHORT
-//                                        ).show()
-//                                        songViewModel.clearError()
-//                                    }
-//                                }
                                 showPrivacyBulkDialog = true
                             },
                             onEditClick = {
@@ -227,16 +222,6 @@ fun HomeScreen(
                                 }
                             },
                             onDeleteClick = {
-//                                for (song in selectedSongsList) {
-//                                 //   songViewModel.deleteSong(song)
-////                                    songViewModel.deleteSongRemoteLocal(song)
-//                                }
-//                                if (scaffoldState.bottomSheetState.currentValue != SheetValue.Hidden) {
-//                                    scope.launch {
-//                                        scaffoldState.bottomSheetState.hide()
-//                                        songViewModel.clearSelectedSongs()
-//                                    }
-//                                }
                                 showDeleteOptionDialog = true
                             },
                             onAddToPlaylistClick = {
@@ -349,7 +334,6 @@ fun HomeScreen(
                             onSearch = {
                                 keyboardController?.hide()
                                 searchQuery = it
-//                                searchBarExpanded = false
                             },
                             onSearchClick = {
 //                                searchBarExpanded = false
@@ -359,43 +343,58 @@ fun HomeScreen(
                             },
                         )
                     }
-                    when (selectedTab.value) {
-//-------------------------------- MY SONGS---------------------------------------------------------
-                        MainTabs.MY_SONGS -> {
-                            AlphabeticalSongList(
-                                songs = songs.value,
-                                bottomPadding = dynamicBottomPadding,
-                                sortBy = sortOption, // pass current sort option
-                                onSongClick = { song ->
-                                    if (selectedSongsList.isNotEmpty()) {
+                    AnimatedContent(
+                        targetState = selectedTab.value,
+                        transitionSpec = {
+                            val direction = if (targetState.index > initialState.index) 1 else -1
+                            val enter = slideInHorizontally(
+                                initialOffsetX = { fullWidth -> direction * fullWidth },
+                                animationSpec = tween(200)
+                            ) + fadeIn(animationSpec = tween(100))
+                            val exit = slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> -direction * fullWidth },
+                                animationSpec = tween(200)
+                            ) + fadeOut(animationSpec = tween(100))
+                            enter.with(exit)
+                        }
+                    ) { tab ->
+                        when (tab) {
+                            MainTabs.MY_SONGS -> {
+                                AlphabeticalSongList(
+                                    songs = songs.value,
+                                    bottomPadding = dynamicBottomPadding,
+                                    sortBy = sortOption, // pass current sort option
+                                    onSongClick = { song ->
+                                        if (selectedSongsList.isNotEmpty()) {
+                                            scope.launch {
+                                                songViewModel.selectSong(song)
+                                            }
+                                        } else {
+                                            navController.navigate(
+                                                Paths.SongPath.createRoute(
+                                                    song.localId.toString()
+                                                )
+                                            )
+                                        }
+                                    },
+                                    onSongLongClick = { song ->
                                         scope.launch {
                                             songViewModel.selectSong(song)
+                                            scaffoldState.bottomSheetState.expand()
                                         }
-                                    } else {
-                                        navController.navigate(
-                                            Paths.SongPath.createRoute(
-                                                song.localId.toString()
-                                            )
-                                        )
-                                    }
-                                },
-                                onSongLongClick = { song ->
-                                    scope.launch {
-                                        songViewModel.selectSong(song)
-                                        scaffoldState.bottomSheetState.expand()
-                                    }
-                                },
-                                selectedSongs = selectedSongsList,
-                                searchQuery = searchQuery
-                            )
-                        }
+                                    },
+                                    selectedSongs = selectedSongsList,
+                                    searchQuery = searchQuery
+                                )
+                            }
 //-------------------------------- REMOTE SONGS-----------------------------------------------------
-                        MainTabs.REMOTE_SONGS -> {
-                            RemoteSongsTab(
-                                remoteSongsViewModel = remoteSongsViewModel,
-                                songsViewModel = songViewModel,
-                                navController = navController,
-                            )
+                            MainTabs.REMOTE_SONGS -> {
+                                RemoteSongsTab(
+                                    remoteSongsViewModel = remoteSongsViewModel,
+                                    songsViewModel = songViewModel,
+                                    navController = navController,
+                                )
+                            }
                         }
                     }
                 }
