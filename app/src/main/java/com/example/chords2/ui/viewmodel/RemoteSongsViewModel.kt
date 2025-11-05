@@ -90,8 +90,8 @@ class RemoteSongsViewModel(
         showMostViewed.value = !showMostViewed.value
         if (showMostViewed.value) {
             getMostViewedSongs()
-        } else {
-            onQueryChanged(query.value)
+        }else{
+            searchDebounced()
         }
     }
 
@@ -156,8 +156,11 @@ class RemoteSongsViewModel(
         } else {
             when (_searchOption.value) {
                 ResultMode.SONGS -> {
-                    onShowMostViewedClick()
-                    searchDebounced()
+                    if (showMostViewed.value) {
+                        onShowMostViewedClick()
+                    } else {
+                        searchDebounced()
+                    }
                 }
                 ResultMode.ARTISTS -> artistFilterQuery.value = newQuery
             }
@@ -209,6 +212,10 @@ class RemoteSongsViewModel(
 
     fun search() {
         val q = query.value
+        if (q.isBlank() && !showMostViewed.value) {
+            _songsRaw.value = emptyList()
+            return
+        }
         if (q.isBlank()) return
         viewModelScope.launch {
             _loading.value = true
@@ -283,6 +290,7 @@ class RemoteSongsViewModel(
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+            _songsRaw.value = emptyList()
             songRemoteRepository.getSongsByViewedCount()
                 .onSuccess { _songsRaw.value = it }
                 .onFailure { _error.value = it.message }
