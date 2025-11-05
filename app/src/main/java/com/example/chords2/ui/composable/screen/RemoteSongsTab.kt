@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.State
@@ -45,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -452,34 +452,48 @@ fun LandscapeSearchBarHeader(
                     selectedLetter = remoteSongsViewModel.artistFirstLetterFilterChipSelected.collectAsState(),
                     artistFirstLetters = remoteSongsViewModel.artistFirstLetters.collectAsState().value
                 )
+                val showMostViewed = remoteSongsViewModel.showMostViewed.collectAsState()
+                val sortByArtist = remoteSongsViewModel.sortArtists.collectAsState()
+                if (searchOption.value == ResultMode.SONGS){
+                    FilterChip(
+                        selected = showMostViewed.value,
+                        onClick = {
+                            remoteSongsViewModel.onShowMostViewedClick()
+                        },
+                        label = {
+                            Text(
+                                text = "Popular",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        },
+                        modifier = Modifier.widthIn(min = 72.dp)
+                    )
+                }
                 AssistChip(
                     onClick = {
-                        remoteSongsViewModel.onSortChanged(
-                            searchOption.value
-                        )
+                        remoteSongsViewModel.onSortChanged(searchOption.value)
                     },
                     label = {
-                        Text(
-                            text = when (searchOption.value) {
-                                ResultMode.SONGS -> {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = if (searchOption.value == ResultMode.SONGS) {
                                     when (sort) {
                                         SortBy.SONG_NAME -> "Sort: Title"
                                         SortBy.ARTIST_NAME -> "Sort: Artist"
                                     }
-                                }
-
-                                ResultMode.ARTISTS -> {
-                                    val sortByArtist =
-                                        remoteSongsViewModel.sortArtists.collectAsState().value
-                                    when (sortByArtist) {
+                                } else {
+                                    when (sortByArtist.value) {
                                         SortByArtist.ALPHABETICAL -> "Sort: A-Z"
-                                        SortByArtist.MOST_SONGS -> "Sort: Most Songs"
+                                        SortByArtist.MOST_SONGS -> "Sort: Songs"
                                     }
-                                }
-                            },
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Center,
+//                            modifier = Modifier.padding(horizontal = 4.dp)
+                            )
+                        }
+                    },
+                    modifier = Modifier.width(95.dp)
                 )
             }
         }
