@@ -25,6 +25,21 @@ class MainActivity : ComponentActivity() {
         val songViewModel: SongViewModel by viewModel()
         val authViewModel: AuthViewModel by viewModel()
         val remoteSongsViewModel: RemoteSongsViewModel by viewModel()
+        /*
+        TODO: What needs to be done to finish the app?
+             - Properly sync the users songs (especially keep track of the IDs from songs/me endpoint
+               to not show songs downloaded from remote as your songs and that you have permission to edit them)
+             - Improve playlist functionality. **Working on**
+             - Fully polish the UI of the app (mainly the song editor and settings).
+             - All around code cleanup.
+             - Testing.
+             - Add app icon.
+             (Optional)
+             - Improve the chord detection algorithm.
+             - Possibility to add more features like TXT export/import.
+             - Properly host the MongoDB.
+             - Publishing the app to Play Store. (Remove all songs from remote, add privacy policy, kofi link, etc.)
+         */
         setContent {
             ChordsTheme(
                 themeMode = songViewModel.themeMode.collectAsState().value
