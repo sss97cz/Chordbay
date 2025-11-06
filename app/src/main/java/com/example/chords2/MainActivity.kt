@@ -28,9 +28,9 @@ class MainActivity : ComponentActivity() {
         /*
         TODO: What needs to be done to finish the app?
              - Properly sync the users songs (especially keep track of the IDs from songs/me endpoint
-               to not show songs downloaded from remote as your songs and that you have permission to edit them)
-             - Improve playlist functionality. **Working on**
-             - Fully polish the UI of the app (mainly the song editor and settings).
+               to not show songs downloaded from remote as your songs and that you have permission to edit them) **Working on**
+             - Improve playlist functionality.
+             - Fully polish the UI of the app (mainly the song editor and settings, error handling).
              - All around code cleanup.
              - Testing.
              - Add app icon.

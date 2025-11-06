@@ -40,7 +40,7 @@ class SongViewModel(
     init {
         Log.d("SongViewModel", "Initialized SongViewModel")
         viewModelScope.launch {
-            delay(500)
+            delay(100)
             fetchMyRemoteSongs()
         }
     }
@@ -406,65 +406,6 @@ class SongViewModel(
         songs.forEach { song ->
             postSong(song)
         }
-    }
-
-    val _selectedRemoteSongs = MutableStateFlow<List<Song>>(emptyList())
-    val selectedRemoteSongs: StateFlow<List<Song>> = _selectedRemoteSongs.asStateFlow()
-    fun selectRemoteSong(song: Song) {
-        val currentList = selectedRemoteSongs.value.toMutableList()
-        if (currentList.contains(song)) {
-            currentList.remove(song)
-        } else {
-            currentList.add(song)
-        }
-        _selectedRemoteSongs.value = currentList
-    }
-
-    fun clearSelectedRemoteSongs() {
-        _selectedRemoteSongs.value = emptyList()
-    }
-
-    fun saveSelectedRemoteSongsToDatabase() {
-        for (song in selectedRemoteSongs.value) {
-            saveSongToDatabase(song)
-        }
-    }
-
-    val _artists: MutableStateFlow<List<ArtistDto>> = MutableStateFlow(emptyList())
-    val artists = _artists.asStateFlow()
-    fun fetchAllArtists() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            songRemoteRepository.getAllArtists()
-                .onSuccess { fetchedArtists ->
-                    _artists.value = fetchedArtists
-                    _isLoading.value = false
-                }
-                .onFailure { exception ->
-                    _error.value = "Failed to fetch artists: ${exception.message}"
-                    _isLoading.value = false
-                }
-        }
-    }
-
-    fun getSongsByArtist(artist: String): StateFlow<List<Song>> {
-        Log.d("SongViewModel", "getSongsByArtist called with artist: $artist")
-        val artistSongs = MutableStateFlow<List<Song>>(emptyList())
-        viewModelScope.launch {
-            songRemoteRepository.getSongsByArtist(artist)
-                .onSuccess { fetchedSongs ->
-                    artistSongs.value = fetchedSongs
-                    Log.d("SongViewModel", "Fetched ${fetchedSongs.size} songs for artist: $artist")
-                }
-                .onFailure { exception ->
-                    _error.value = "Failed to fetch songs by artist: ${exception.message}"
-                    Log.e(
-                        "SongViewModel",
-                        "Error fetching songs for artist $artist: ${exception.message}"
-                    )
-                }
-        }
-        return artistSongs
     }
 
     fun fetchMyRemoteSongs() {

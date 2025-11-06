@@ -91,7 +91,6 @@ fun HomeScreen(
     var showFabMenu by remember { mutableStateOf(false) }
     val sortOption by songViewModel.sortOption.collectAsState()
     val selectedSongsList by songViewModel.selectedSongsList.collectAsState()
-    val selectedRemoteSongsList by songViewModel.selectedRemoteSongs.collectAsState()
     val playlists by songViewModel.playlists.collectAsState()
     var showAddPlaylistDialog by remember { mutableStateOf(false) }
     var showAddSongToPlaylistDialog by remember { mutableStateOf(false) }
@@ -132,7 +131,7 @@ fun HomeScreen(
     )
     val sheetPeekHeight by remember(
         selectedSongsList.isNotEmpty(),
-        selectedRemoteSongsList.isNotEmpty(),
+//        selectedRemoteSongsList.isNotEmpty(),
         scaffoldState.bottomSheetState.currentValue
     ) {
         derivedStateOf {
@@ -143,11 +142,11 @@ fun HomeScreen(
                     0.dp
                 }
             } else {
-                if (selectedRemoteSongsList.isNotEmpty()) {
-                    BottomSheetDefaults.SheetPeekHeight
-                } else {
+//                if (selectedRemoteSongsList.isNotEmpty()) {
+//                    BottomSheetDefaults.SheetPeekHeight
+//                } else {
                     0.dp
-                }
+//                }
             }
         }
     }
@@ -240,16 +239,16 @@ fun HomeScreen(
                     }
 
                     MainTabs.REMOTE_SONGS -> {
-                        BottomSheetContentRemote(
-                            selectedRemoteSongs = selectedRemoteSongsList,
-                            onSaveClick = {
-                                songViewModel.saveSelectedRemoteSongsToDatabase()
-                                scope.launch {
-                                    scaffoldState.bottomSheetState.hide()
-                                    songViewModel.clearSelectedRemoteSongs()
-                                }
-                            }
-                        )
+//                        BottomSheetContentRemote(
+//                            selectedRemoteSongs = selectedRemoteSongsList,
+//                            onSaveClick = {
+//                                songViewModel.saveSelectedRemoteSongsToDatabase()
+//                                scope.launch {
+//                                    scaffoldState.bottomSheetState.hide()
+//                                    songViewModel.clearSelectedRemoteSongs()
+//                                }
+//                            }
+//                        )
                     }
                 }
             },

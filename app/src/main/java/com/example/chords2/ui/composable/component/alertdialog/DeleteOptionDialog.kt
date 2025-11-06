@@ -136,7 +136,7 @@ fun DeleteOptionDialog(
                     items(songs, key = { it.localId ?: it.hashCode() }) { song ->
                         val key = song.localId ?: return@items
                         val current = deleteAction[key] ?: Pair(deleteLocal, deleteRemote)
-                        val remoteEnabled = !song.remoteId.isNullOrBlank()
+                        val remoteEnabled = song.markSynced
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
