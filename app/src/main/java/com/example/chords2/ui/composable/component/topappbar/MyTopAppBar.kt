@@ -113,6 +113,6 @@ fun MyTopAppBar(
             titleContentColor = MaterialTheme.colorScheme.primary,
             navigationIconContentColor = MaterialTheme.colorScheme.primary,
             actionIconContentColor = MaterialTheme.colorScheme.primary
-        )
+        ),
     )
 }

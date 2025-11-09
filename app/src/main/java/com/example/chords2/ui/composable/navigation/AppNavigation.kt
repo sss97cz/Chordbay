@@ -19,6 +19,7 @@ import com.example.chords2.ui.composable.screen.user.ManageAccountScreen
 import com.example.chords2.ui.composable.screen.user.RegisterScreen
 import com.example.chords2.ui.composable.screen.user.VerifyEmailScreen
 import com.example.chords2.ui.viewmodel.AuthViewModel
+import com.example.chords2.ui.viewmodel.EditViewModel
 import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 import com.example.chords2.ui.viewmodel.SongViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -29,6 +30,7 @@ fun AppNavigation(
     songViewModel: SongViewModel = koinViewModel(),
     authViewModel: AuthViewModel = koinViewModel(),
     remoteSongsViewModel: RemoteSongsViewModel = koinViewModel(),
+    editViewModel: EditViewModel = koinViewModel(),
 ) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
@@ -85,7 +87,7 @@ fun AppNavigation(
             val songId = it.arguments?.getString("songId")
             if (songId != null) {
                 EditSongScreen(
-                    songViewModel = songViewModel,
+                    viewModel = editViewModel,
                     navController = navController,
                     songId = songId,
                 )

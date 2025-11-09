@@ -155,16 +155,6 @@ class SongViewModel(
             initialValue = null
         )
 
-    fun insertSong(song: Song) {
-        viewModelScope.launch {
-            songRepository.insertSong(song)
-        }
-    }
-
-    suspend fun addNewSongAndGetId(): Long {
-        return songRepository.insertSong()
-    }
-
     fun deleteSong(song: Song) {
         viewModelScope.launch {
             songRepository.deleteSong(song)
@@ -194,56 +184,8 @@ class SongViewModel(
         }
     }
 
-    fun deleteSongRemoteLocal(song: Song) {
-        viewModelScope.launch {
-            if (song.remoteId != null) {
-                deleteRemoteSong(song)
-            } else {
-                deleteSong(song)
-            }
-        }
-    }
-
-    fun findKey(song: String): String? {
-        val openBracketIndex = song.indexOf('[')
-        if (openBracketIndex == -1) {
-            return null
-        }
-        val textAfterOpenBracket = song.substring(startIndex = openBracketIndex)
-        val closeBracketIndexInSubstring = textAfterOpenBracket.indexOf(']')
-        if (closeBracketIndexInSubstring == -1) {
-            return null
-        }
-        val firstChord = textAfterOpenBracket.substring(1)
-            .substringBefore(']')
-        if (firstChord.isEmpty()) {
-            return null
-        }
-        val baseChord = Chords.allBaseChords.firstOrNull {
-            firstChord.contains(it.value)
-        }
-        return baseChord?.value
-    }
-
     //------------------- Remote songs operations ------------------------------------------------
-    private val _remoteSongs = MutableStateFlow<List<Song>>(emptyList())
-    val remoteSongs: StateFlow<List<Song>> = combine(
-        sortOption,
-        _remoteSongs,
-        searchQuery
-    ) { sortOption, songs, searchQuery ->
-        when (sortOption) {
-            SortBy.SONG_NAME -> songs.sortedBy { it.title }
-            SortBy.ARTIST_NAME -> songs.sortedBy { it.artist }
-        }.filter {
-            it.title.contains(searchQuery, ignoreCase = true) ||
-                    it.artist.contains(searchQuery, ignoreCase = true)
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+
 
 
     private val _isLoading = MutableStateFlow(false)
@@ -255,12 +197,9 @@ class SongViewModel(
         _error.value = null
     }
 
-    fun saveSongToDatabase(song: Song) =
-        viewModelScope.launch {
-            songRepository.insertRemoteSong(song)
-        }
 
     private val _remoteSongById = MutableStateFlow<Song?>(null)
+    //TODO("delete this and change the implementation to use function from remoteSongViewModel")
     val remoteSongById: StateFlow<Song?> = _remoteSongById.asStateFlow()
 
     fun getRemoteSongById(id: String) {
@@ -293,6 +232,7 @@ class SongViewModel(
         }
     }
 
+    //TODO("move this function to remoteSongsViewModel")
     fun postSong(song: Song) {
         val song = song.copy(
             title = song.title.ifBlank { "Untitled" }.trim(),
@@ -401,13 +341,13 @@ class SongViewModel(
         }
     }
 
-
+    //TODO(Move this function to remoteSongsViewModel)
     fun postSongs(songs: List<Song>) {
         songs.forEach { song ->
             postSong(song)
         }
     }
-
+    //TODO(Move this function to remoteSongsViewModel)
     fun fetchMyRemoteSongs() {
         viewModelScope.launch {
             val token = authRepository.getAccessToken()
@@ -458,7 +398,7 @@ class SongViewModel(
             }
         }
     }
-
+    //TODO(Move this function to remoteSongsViewModel)
     fun applyPrivacyAndPost(
         songs: List<Song>,
         defaultIsPublic: Boolean,
@@ -563,6 +503,7 @@ class SongViewModel(
 
 
     //------------------- Edit Song Screen states ------------------------------------------------
+    //TODO(Move this function into separate VM)
     private val _songName = MutableStateFlow<String?>(null)
     val songName = _songName.asStateFlow()
     fun setSongName(name: String) {
@@ -588,7 +529,7 @@ class SongViewModel(
         _songContent.value = TextFieldValue("")
         _remoteId.value = null
         setHasLoadedEdit(false)
-        Log.d("SongViewModel", "song states resert")
+        Log.d("SongViewModel", "song states reset")
     }
 
     private val _hasLoadedEdit = MutableStateFlow(false)

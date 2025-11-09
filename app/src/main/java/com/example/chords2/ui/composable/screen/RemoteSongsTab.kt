@@ -259,13 +259,16 @@ fun PortraitSearchBarHeader(
                                 ResultMode.ARTISTS -> Icon(
                                     Artist,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.fillMaxHeight()
                                 )
 
                                 ResultMode.SONGS -> Icon(
                                     Icons.Default.MusicNote,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.fillMaxHeight()
+
                                 )
                             }
                         }
