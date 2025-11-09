@@ -265,7 +265,7 @@ fun AccountRow(
                     )
                     if (!isSignedIn) {
                         TextButton(onClick = onLoginClick) {
-                            Icon(Icons.Outlined.Login, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Outlined.Login, contentDescription = null)
                             Spacer(Modifier.width(4.dp))
                             Text("Sign in")
                         }

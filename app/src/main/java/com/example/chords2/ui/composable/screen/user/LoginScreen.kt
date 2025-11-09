@@ -25,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -291,12 +292,12 @@ fun LoginScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Divider(Modifier.weight(1f))
+                            HorizontalDivider(Modifier.weight(1f))
                             Text(
                                 "  or  ",
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Divider(Modifier.weight(1f))
+                            HorizontalDivider(Modifier.weight(1f))
                         }
                         TextButton(
                             onClick = { navController.popBackStack() },

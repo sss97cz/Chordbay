@@ -1,9 +1,6 @@
 package com.example.chords2.data.helper
 
-import androidx.annotation.FloatRange
 import com.example.chords2.data.model.util.Chords
-import okhttp3.internal.checkOffsetAndCount
-import java.awt.font.NumericShaper
 import kotlin.math.roundToInt
 
 fun pluralText(msg: String, count: Int): String {

@@ -176,7 +176,6 @@ class SongRemoteRepositoryImpl(
                     FilterField.TITLE -> "title"
                     FilterField.ARTIST -> "artist"
                     FilterField.BOTH -> "both"
-                    else -> {"both"}
                 },
                 offset = offset,
                 limit = limit

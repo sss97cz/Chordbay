@@ -56,6 +56,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.with
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -354,7 +355,7 @@ fun HomeScreen(
                                 targetOffsetX = { fullWidth -> -direction * fullWidth },
                                 animationSpec = tween(200)
                             ) + fadeOut(animationSpec = tween(100))
-                            enter.with(exit)
+                            enter.togetherWith(exit)
                         }
                     ) { tab ->
                         when (tab) {

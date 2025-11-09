@@ -187,7 +187,6 @@ class SongViewModel(
     //------------------- Remote songs operations ------------------------------------------------
 
 
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -199,6 +198,7 @@ class SongViewModel(
 
 
     private val _remoteSongById = MutableStateFlow<Song?>(null)
+
     //TODO("delete this and change the implementation to use function from remoteSongViewModel")
     val remoteSongById: StateFlow<Song?> = _remoteSongById.asStateFlow()
 
@@ -207,7 +207,8 @@ class SongViewModel(
         viewModelScope.launch {
             val token = authRepository.getAccessToken()
 
-            var result = runCatching { songRemoteRepository.getSongById(id, token) } // having token nullable
+            var result =
+                runCatching { songRemoteRepository.getSongById(id, token) } // having token nullable
 
             if (result.isFailure) {
                 val message = result.exceptionOrNull()?.message ?: ""
@@ -287,7 +288,10 @@ class SongViewModel(
                             if (newToken != null) {
                                 result = songRemoteRepository.updateSong(song, newToken)
                                 result.onFailure {
-                                    if (it.message?.contains("403") == true || it.message?.contains("404") == true) {
+                                    if (it.message?.contains("403") == true || it.message?.contains(
+                                            "404"
+                                        ) == true
+                                    ) {
                                         val result = songRemoteRepository.createSong(
                                             token = newToken,
                                             song = song.copy(remoteId = null)
@@ -347,6 +351,7 @@ class SongViewModel(
             postSong(song)
         }
     }
+
     //TODO(Move this function to remoteSongsViewModel)
     fun fetchMyRemoteSongs() {
         viewModelScope.launch {
@@ -366,8 +371,12 @@ class SongViewModel(
                             val retryResult = songRemoteRepository.getMySongs(newToken)
                             retryResult.onSuccess { remoteSongs ->
                                 syncToLocalDb(remoteSongs)
-                                _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
-                                Log.d("SongViewModel", "Synced ${remoteSongs.size} songs to local DB")
+                                _myRemoteSongsIds.value =
+                                    remoteSongs.mapNotNull { it.remoteId }.toSet()
+                                Log.d(
+                                    "SongViewModel",
+                                    "Synced ${remoteSongs.size} songs to local DB"
+                                )
                             }.onFailure { exception ->
                                 _error.value = "Failed to fetch my songs: ${exception.message}"
                             }
@@ -398,6 +407,7 @@ class SongViewModel(
             }
         }
     }
+
     //TODO(Move this function to remoteSongsViewModel)
     fun applyPrivacyAndPost(
         songs: List<Song>,
@@ -500,89 +510,5 @@ class SongViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
         )
-
-
-    //------------------- Edit Song Screen states ------------------------------------------------
-    //TODO(Move this function into separate VM)
-    private val _songName = MutableStateFlow<String?>(null)
-    val songName = _songName.asStateFlow()
-    fun setSongName(name: String) {
-        _songName.value = name
-        Log.d("SongViewModel", name)
-    }
-
-    private val _songArtist = MutableStateFlow<String>("")
-    val songArtist = _songArtist.asStateFlow()
-    fun setSongArtist(artist: String) {
-        _songArtist.value = artist
-    }
-
-    private val _songContent = MutableStateFlow<TextFieldValue>(TextFieldValue(""))
-    val songContent = _songContent.asStateFlow()
-    fun setSongContent(content: TextFieldValue) {
-        _songContent.value = content
-    }
-
-    fun clearSongStates() {
-        _songName.value = null
-        _songArtist.value = ""
-        _songContent.value = TextFieldValue("")
-        _remoteId.value = null
-        setHasLoadedEdit(false)
-        Log.d("SongViewModel", "song states reset")
-    }
-
-    private val _hasLoadedEdit = MutableStateFlow(false)
-    val hasLoadedEdit = _hasLoadedEdit.asStateFlow()
-    fun setHasLoadedEdit(loaded: Boolean) {
-        _hasLoadedEdit.value = loaded
-        Log.d("SongViewModel", "hasLoadedEdit set to $loaded")
-    }
-
-    private val _remoteId = MutableStateFlow<String?>(null)
-    fun saveEditedSong(songId: String) {
-        viewModelScope.launch {
-            if (songId == "new") {
-                songRepository.insertSong(
-                    Song(
-                        localId = null,
-                        remoteId = null,
-                        title = songName.value ?: "",
-                        artist = songArtist.value,
-                        content = songContent.value.text
-                    )
-                )
-            } else {
-                songRepository.updateSong(
-                    Song(
-                        localId = songId.toInt(),
-                        remoteId = _remoteId.value,
-                        title = songName.value ?: "",
-                        artist = songArtist.value,
-                        content = songContent.value.text
-                    ).also { Log.d("SongViewModel", "$it") }
-                )
-            }
-        }
-    }
-
-    fun loadEditSong(songId: String) {
-        viewModelScope.launch {
-            if (songId != "new") {
-                val song = songRepository.getSongById(songId.toInt()).first()
-                if (song != null) {
-                    _songName.value = song.title
-                    _songArtist.value = song.artist
-                    _songContent.value = TextFieldValue(song.content)
-                    _remoteId.value = song.remoteId
-                    Log.d("SongViewModel", "Loaded song: $song")
-                } else {
-                    Log.e("SongViewModel", "No song found with ID: $songId")
-                }
-            }
-            setHasLoadedEdit(true)
-        }
-    }
-
 
 }

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -31,8 +33,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+        }
     }
     buildFeatures {
         compose = true
@@ -63,34 +68,33 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
 
 
-    implementation("androidx.navigation:navigation-compose:2.9.3")
-    implementation("androidx.room:room-runtime:2.7.2")
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.room.runtime)
 
-    implementation("io.insert-koin:koin-android:4.1.0")
-    implementation("io.insert-koin:koin-androidx-compose:4.1.0")
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
     // Retrofit for networking
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation(libs.retrofit)
     // Gson converter for Retrofit (or use Moshi)
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation("com.squareup.retrofit2:converter-moshi:3.0.0") // For Moshi
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // Optional: For logging network requests
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.2") // Check for the latest version
-    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation(libs.converter.gson)
+    implementation(libs.converter.moshi) // For Moshi
+    implementation(libs.logging.interceptor) // Optional: For logging network requests
+    implementation(libs.moshi.kotlin) // Check for the latest version
+    implementation(libs.converter.scalars)
 
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
-    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.2")
+    implementation(libs.androidx.datastore.preferences)
+    ksp(libs.moshi.kotlin.codegen)
     // ... other dependencies
-    val room_version = "2.7.2"
 
-    implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version") // For Java projects or if still using kapt for Room
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler) // For Java projects or if still using kapt for Room
     // To use KSP, you should have:
-    ksp("androidx.room:room-compiler:$room_version") // For Kotlin projects using KSP
+    ksp(libs.androidx.room.compiler) // For Kotlin projects using KSP
 
-    implementation("androidx.room:room-ktx:$room_version") // Optional - Kotlin Extensions and Coroutines support
+    implementation(libs.androidx.room.ktx) // Optional - Kotlin Extensions and Coroutines support
     // ...
 }
