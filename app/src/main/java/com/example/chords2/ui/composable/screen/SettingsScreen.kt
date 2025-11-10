@@ -40,20 +40,20 @@ import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    songViewModel: SongViewModel,
+    mainViewModel: MainViewModel,
     navController: NavController
 ) {
     val canNavigateBack = navController.previousBackStackEntry != null
-    val fontSize = songViewModel.songTextFontSize.collectAsState().value
+    val fontSize = mainViewModel.songTextFontSize.collectAsState().value
     var isSortMenuExpanded by remember { mutableStateOf(false) }
     var defaultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
     var isFontSizeMenuExpanded by remember { mutableStateOf(false) }
-    val themeMode = songViewModel.themeMode.collectAsState().value
+    val themeMode = mainViewModel.themeMode.collectAsState().value
 
 
     Scaffold(
@@ -124,7 +124,7 @@ fun SettingsScreen(
                             ThemeMode.entries.forEach { mode ->
                                 RadioButton(
                                     selected = themeMode == mode,
-                                    onClick = { songViewModel.saveThemeMode(mode) }
+                                    onClick = { mainViewModel.saveThemeMode(mode) }
                                 )
                                 Text(
                                     text = mode.name.lowercase()
@@ -176,7 +176,7 @@ fun SettingsScreen(
                                                 }
                                             },
                                             onClick = {
-                                                songViewModel.setSongTextFontSize(sizeOption)
+                                                mainViewModel.setSongTextFontSize(sizeOption)
                                                 isFontSizeMenuExpanded = false
                                             }
                                         )

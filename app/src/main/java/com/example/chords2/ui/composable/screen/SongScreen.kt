@@ -1,17 +1,13 @@
 package com.example.chords2.ui.composable.screen
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,13 +16,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,7 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.util.toRange
 import androidx.navigation.NavController
 import com.example.chords2.data.helper.calculatePercentage
 import com.example.chords2.data.helper.findKey
@@ -60,26 +53,26 @@ import com.example.chords2.ui.composable.component.text.SongText
 import com.example.chords2.ui.composable.component.button.TransposeButton
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
-    songViewModel: SongViewModel = koinViewModel(),
+    mainViewModel: MainViewModel = koinViewModel(),
     songId: String,
     navController: NavController,
     isRemote: Boolean = false,
 ) {
     val songData by produceState<Song?>(initialValue = null, key1 = songId) {
         value = if (!isRemote && songId.toIntOrNull() != null) {
-            songViewModel.getSongById(songId.toInt()).collect { songValue ->
+            mainViewModel.getSongById(songId.toInt()).collect { songValue ->
                 value = songValue
             }
         } else if (isRemote) {
-            songViewModel.getRemoteSongById(songId)
-            songViewModel.remoteSongById.collect { value = it }
+            mainViewModel.getRemoteSongById(songId)
+            mainViewModel.remoteSongById.collect { value = it }
         } else {
             null
         }
@@ -87,7 +80,7 @@ fun SongScreen(
     val song = songData
     val canNavigateBack = remember { navController.previousBackStackEntry != null }
     var semitones by remember { mutableIntStateOf(0) }
-    val fontSize = songViewModel.songTextFontSize.collectAsState()
+    val fontSize = mainViewModel.songTextFontSize.collectAsState()
     val sliderState = remember { mutableFloatStateOf(fontSize.value.toFloat()) }
     var showSlider by rememberSaveable { mutableStateOf(false) }
 
@@ -249,7 +242,7 @@ fun SongScreen(
                         valueRange = 10f..30f,
                         steps = 19,
                         onValueChangeFinished = {
-                            songViewModel.setSongTextFontSize(sliderState.floatValue.toInt())
+                            mainViewModel.setSongTextFontSize(sliderState.floatValue.toInt())
                         },
                         thumb = {
                             Box(

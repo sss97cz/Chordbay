@@ -2,7 +2,6 @@ package com.example.chords2.ui.composable.screen.user
 
 
 import android.util.Patterns
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -53,7 +51,7 @@ import androidx.navigation.NavController
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.AuthViewModel
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -61,7 +59,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    songViewModel: SongViewModel,
+    mainViewModel: MainViewModel,
     authViewModel: AuthViewModel
 ) {
     val scope = rememberCoroutineScope()

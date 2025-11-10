@@ -9,12 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.example.chords2.ui.viewmodel.AuthViewModel
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 
 @Composable
 fun ManageAccountScreen(
     navController: NavController,
-    songViewModel: SongViewModel,
+    mainViewModel: MainViewModel,
     authViewModel: AuthViewModel
 ){
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {

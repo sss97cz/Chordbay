@@ -12,31 +12,25 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -56,14 +50,14 @@ import androidx.navigation.NavController
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.AuthViewModel
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
-    songViewModel: SongViewModel,
+    mainViewModel: MainViewModel,
     authViewModel: AuthViewModel
 ) {
     val scope = rememberCoroutineScope()
@@ -96,7 +90,7 @@ fun LoginScreen(
                         inclusive = true
                     }
                 }
-                songViewModel.fetchMyRemoteSongs()
+                mainViewModel.fetchMyRemoteSongs()
             } else if (errorMessage.value != null) {
                 scope.launch {
                     snackbarHostState.showSnackbar(errorMessage.value!!)

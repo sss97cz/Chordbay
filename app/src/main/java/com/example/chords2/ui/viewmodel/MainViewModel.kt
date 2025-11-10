@@ -1,19 +1,16 @@
 package com.example.chords2.ui.viewmodel
 
 import android.util.Log
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.playlist.PlaylistEntity
 import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.datastore.UserDataStore
 import com.example.chords2.data.model.Song
-import com.example.chords2.data.model.util.Chords
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
-import com.example.chords2.data.remote.model.ArtistDto
 import com.example.chords2.data.repository.auth.AuthRepository
 import com.example.chords2.data.repository.playlist.PlaylistRepository
 import com.example.chords2.data.repository.remote.SongRemoteRepository
@@ -28,7 +25,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SongViewModel(
+class MainViewModel(
     private val songRepository: SongRepository,
     private val songRemoteRepository: SongRemoteRepository,
     private val settingsDataStore: SettingsDataStore,

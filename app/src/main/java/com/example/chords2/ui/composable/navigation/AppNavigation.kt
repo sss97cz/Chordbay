@@ -21,13 +21,13 @@ import com.example.chords2.ui.composable.screen.user.VerifyEmailScreen
 import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.EditViewModel
 import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation(
     // modifier: Modifier = Modifier,
-    songViewModel: SongViewModel = koinViewModel(),
+    mainViewModel: MainViewModel = koinViewModel(),
     authViewModel: AuthViewModel = koinViewModel(),
     remoteSongsViewModel: RemoteSongsViewModel = koinViewModel(),
     editViewModel: EditViewModel = koinViewModel(),
@@ -44,7 +44,7 @@ fun AppNavigation(
         ) {
             HomeScreen(
                // modifier = Modifier.padding(innerPadding),
-                songViewModel = songViewModel,
+                mainViewModel = mainViewModel,
                 authViewModel = authViewModel,
                 navController = navController,
                 remoteSongsViewModel = remoteSongsViewModel,
@@ -64,7 +64,7 @@ fun AppNavigation(
             val songId = backStackEntry.arguments?.getString("songId")
             if (songId != null) {
                 SongScreen(
-                    songViewModel = songViewModel,
+                    mainViewModel = mainViewModel,
                     navController = navController,
                     songId = songId
                 )
@@ -109,7 +109,7 @@ fun AppNavigation(
             if (remoteId != null) {
                 Log.d("AppNavigation", "remoteId: $remoteId")
                 SongScreen(
-                    songViewModel = songViewModel,
+                    mainViewModel = mainViewModel,
                     navController = navController,
                     songId = remoteId,
                     isRemote = true
@@ -123,7 +123,7 @@ fun AppNavigation(
             route = Paths.SettingsPath.route
         ) {
             SettingsScreen(
-                songViewModel = songViewModel,
+                mainViewModel = mainViewModel,
                 navController = navController
             )
         }
@@ -142,7 +142,7 @@ fun AppNavigation(
             if (playlistId != null) {
                 PlaylistScreen(
                     // modifier = Modifier.padding(innerPadding),
-                    songViewModel = songViewModel,
+                    mainViewModel = mainViewModel,
                     navController = navController,
                     playlistId = playlistId
                 )
@@ -179,7 +179,7 @@ fun AppNavigation(
             Log.d("AppNavigation", "Navigated to LoginPath")
             LoginScreen(
                 navController = navController,
-                songViewModel = songViewModel,
+                mainViewModel = mainViewModel,
                 authViewModel = authViewModel,
             )
         }
@@ -189,7 +189,7 @@ fun AppNavigation(
         ) {
              RegisterScreen(
                  navController = navController,
-                 songViewModel = songViewModel,
+                 mainViewModel = mainViewModel,
                  authViewModel = authViewModel,
              )
         }
@@ -198,7 +198,7 @@ fun AppNavigation(
         ) {
               ManageAccountScreen(
                   navController = navController,
-                  songViewModel = songViewModel,
+                  mainViewModel = mainViewModel,
                   authViewModel = authViewModel,
               )
         }

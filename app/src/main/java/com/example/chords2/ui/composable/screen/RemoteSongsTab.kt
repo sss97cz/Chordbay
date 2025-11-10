@@ -19,7 +19,7 @@ import com.example.chords2.ui.composable.component.listitem.RemoteSongItem
 import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,7 +58,7 @@ import com.example.chords2.ui.theme.imagevector.Artist
 @Composable
 fun RemoteSongsTab(
     remoteSongsViewModel: RemoteSongsViewModel,
-    songsViewModel: SongViewModel,
+    songsViewModel: MainViewModel,
     navController: NavController
 ) {
     val query by remoteSongsViewModel.query.collectAsState()

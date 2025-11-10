@@ -3,8 +3,6 @@ package com.example.chords2.ui.composable.screen
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +45,7 @@ import com.example.chords2.ui.composable.component.navdrawer.MyDrawerContent
 import com.example.chords2.ui.composable.component.searchbar.HomeSearchbar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.component.topappbar.HomeTopAppBar
-import com.example.chords2.ui.viewmodel.SongViewModel
+import com.example.chords2.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.animation.core.animateDpAsState
@@ -57,19 +55,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.platform.LocalContext
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.DeleteOptionDialog
 import com.example.chords2.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.example.chords2.ui.composable.component.list.AlphabeticalSongList
-import com.example.chords2.ui.composable.component.menu.BottomSheetContentRemote
 import com.example.chords2.ui.viewmodel.AuthViewModel
 import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 
@@ -78,21 +73,21 @@ import com.example.chords2.ui.viewmodel.RemoteSongsViewModel
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    songViewModel: SongViewModel = koinViewModel(),
+    mainViewModel: MainViewModel = koinViewModel(),
     authViewModel: AuthViewModel = koinViewModel(),
     remoteSongsViewModel: RemoteSongsViewModel = koinViewModel(),
     navController: NavController,
 ) {
-    val songs = songViewModel.songs.collectAsState()
+    val songs = mainViewModel.songs.collectAsState()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    val selectedTab = songViewModel.selectedTab.collectAsState()
+    val selectedTab = mainViewModel.selectedTab.collectAsState()
     var showOptionsMenu by remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
-    val sortOption by songViewModel.sortOption.collectAsState()
-    val selectedSongsList by songViewModel.selectedSongsList.collectAsState()
-    val playlists by songViewModel.playlists.collectAsState()
+    val sortOption by mainViewModel.sortOption.collectAsState()
+    val selectedSongsList by mainViewModel.selectedSongsList.collectAsState()
+    val playlists by mainViewModel.playlists.collectAsState()
     var showAddPlaylistDialog by remember { mutableStateOf(false) }
     var showAddSongToPlaylistDialog by remember { mutableStateOf(false) }
     var showPrivacyBulkDialog by remember { mutableStateOf(false) }
@@ -152,11 +147,11 @@ fun HomeScreen(
         }
     }
     val context = LocalContext.current
-    val error = songViewModel.error.collectAsState()
+    val error = mainViewModel.error.collectAsState()
 
 
     LaunchedEffect(searchQuery) {
-        songViewModel.setSearchQuery(searchQuery)
+        mainViewModel.setSearchQuery(searchQuery)
     }
     LaunchedEffect(email.value) {
     }
@@ -217,7 +212,7 @@ fun HomeScreen(
                                     )
                                     scope.launch {
                                         scaffoldState.bottomSheetState.hide()
-                                        songViewModel.clearSelectedSongs()
+                                        mainViewModel.clearSelectedSongs()
                                     }
                                 }
                             },
@@ -233,7 +228,7 @@ fun HomeScreen(
                             onCloseClick = {
                                 scope.launch {
                                     scaffoldState.bottomSheetState.hide()
-                                    songViewModel.clearSelectedSongs()
+                                    mainViewModel.clearSelectedSongs()
                                 }
                             }
                         )
@@ -284,7 +279,7 @@ fun HomeScreen(
                     onSyncClick = {
                         showOptionsMenu = false
                         scope.launch {
-                            songViewModel.fetchMyRemoteSongs()
+                            mainViewModel.fetchMyRemoteSongs()
                         }
                     }
                 )
@@ -308,7 +303,7 @@ fun HomeScreen(
                     ) {
                         Tab(
                             onClick = {
-                                songViewModel.selectTab(MainTabs.MY_SONGS)
+                                mainViewModel.selectTab(MainTabs.MY_SONGS)
                             },
                             selected = MainTabs.MY_SONGS.index == selectedTab.value.index,
                             text = {
@@ -317,7 +312,7 @@ fun HomeScreen(
                         )
                         Tab(
                             onClick = {
-                                songViewModel.selectTab(MainTabs.REMOTE_SONGS)
+                                mainViewModel.selectTab(MainTabs.REMOTE_SONGS)
                             },
                             selected = MainTabs.REMOTE_SONGS.index == selectedTab.value.index,
                             text = {
@@ -367,7 +362,7 @@ fun HomeScreen(
                                     onSongClick = { song ->
                                         if (selectedSongsList.isNotEmpty()) {
                                             scope.launch {
-                                                songViewModel.selectSong(song)
+                                                mainViewModel.selectSong(song)
                                             }
                                         } else {
                                             navController.navigate(
@@ -379,7 +374,7 @@ fun HomeScreen(
                                     },
                                     onSongLongClick = { song ->
                                         scope.launch {
-                                            songViewModel.selectSong(song)
+                                            mainViewModel.selectSong(song)
                                             scaffoldState.bottomSheetState.expand()
                                         }
                                     },
@@ -391,7 +386,7 @@ fun HomeScreen(
                             MainTabs.REMOTE_SONGS -> {
                                 RemoteSongsTab(
                                     remoteSongsViewModel = remoteSongsViewModel,
-                                    songsViewModel = songViewModel,
+                                    songsViewModel = mainViewModel,
                                     navController = navController,
                                 )
                             }
@@ -414,7 +409,7 @@ fun HomeScreen(
                             onMenuToggle = { showFabMenu = !showFabMenu },
                             sortBy = sortOption,
                             onSortSelected = { selected ->
-                                songViewModel.setSortOption(selected)
+                                mainViewModel.setSortOption(selected)
                             }
                         )
                     }
@@ -424,7 +419,7 @@ fun HomeScreen(
                     CreatePlaylistDialog(
                         onDismissRequest = { showAddPlaylistDialog = false },
                         onCreatePlaylist = { playlistName ->
-                            songViewModel.createPlaylist(playlistName)
+                            mainViewModel.createPlaylist(playlistName)
                             showAddPlaylistDialog = false
                         },
                     )
@@ -439,12 +434,12 @@ fun HomeScreen(
                                     "HomeScreen",
                                     "Adding song ${song.title} to playlist $playlistId"
                                 )
-                                songViewModel.addSongToPlaylist(
+                                mainViewModel.addSongToPlaylist(
                                     song = song,
                                     playlistId = playlistId
                                 )
                             }
-                            songViewModel.clearSelectedSongs()
+                            mainViewModel.clearSelectedSongs()
                             showAddSongToPlaylistDialog = false
                         }
                     )
@@ -456,7 +451,7 @@ fun HomeScreen(
                         onDismiss = { showPrivacyBulkDialog = false },
                         onApply = { defaultIsPublic, overrides ->
                             // Apply privacy and post
-                            songViewModel.applyPrivacyAndPost(
+                            mainViewModel.applyPrivacyAndPost(
                                 songs = selectedSongsList,
                                 defaultIsPublic = defaultIsPublic,
                                 overrides = overrides
@@ -464,7 +459,7 @@ fun HomeScreen(
                             showPrivacyBulkDialog = false
                             scope.launch {
                                 scaffoldState.bottomSheetState.hide()
-                                songViewModel.clearSelectedSongs()
+                                mainViewModel.clearSelectedSongs()
                             }
                         }
                     )
@@ -476,14 +471,14 @@ fun HomeScreen(
                         onDismiss = { showDeleteOptionDialog = false },
                         onDelete = { deleteAction ->
                             // Delete songs based on deleteAction
-                            songViewModel.deleteSongWithOptions(
+                            mainViewModel.deleteSongWithOptions(
                                 songs = selectedSongsList,
                                 deleteAction = deleteAction
                             )
                             showDeleteOptionDialog = false
                             scope.launch {
                                 scaffoldState.bottomSheetState.hide()
-                                songViewModel.clearSelectedSongs()
+                                mainViewModel.clearSelectedSongs()
                             }
                         }
                     )
