@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -198,12 +199,12 @@ fun SongScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-//                        .border(
-//                            width = 1.dp,
-//                            color = MaterialTheme.colorScheme.primary,
-//                            shape = MaterialTheme.shapes.medium
-//                        )
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = MaterialTheme.shapes.medium
+                        )
                         .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -213,7 +214,7 @@ fun SongScreen(
                     ) {
                         Text(
                             text = "Font Size",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(start = 16.dp),

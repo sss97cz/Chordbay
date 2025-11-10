@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val authRepository: AuthRepository,
-    private val userDataStore: UserDataStore
+    private val userDataStore: UserDataStore,
+    private val mainViewModel: MainViewModel
 ) : ViewModel() {
     //-------------------- User Authentication states ----------------------------------------------
     init {
@@ -67,6 +68,7 @@ class AuthViewModel(
             authRepository.logout()
                 .onSuccess {
                     setUserEmail(null)
+                    mainViewModel.fetchMyRemoteSongs()
                     userDataStore.saveUsername("")
                 }
                 .onFailure { exception ->

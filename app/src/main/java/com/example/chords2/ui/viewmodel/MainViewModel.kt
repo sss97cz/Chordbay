@@ -355,6 +355,7 @@ class MainViewModel(
             val token = authRepository.getAccessToken()
             if (token == null) {
                 _error.value = "User not authenticated. Please log in."
+                _myRemoteSongsIds.value = emptySet()
                 return@launch
             }
             val result = songRemoteRepository.getMySongs(token)
@@ -375,6 +376,7 @@ class MainViewModel(
                                     "Synced ${remoteSongs.size} songs to local DB"
                                 )
                             }.onFailure { exception ->
+                                _myRemoteSongsIds.value = emptySet()
                                 _error.value = "Failed to fetch my songs: ${exception.message}"
                             }
                         }
@@ -387,6 +389,7 @@ class MainViewModel(
                 Log.d("SongViewModel", "Synced ${remoteSongs.size} songs to local DB")
             }
                 .onFailure { exception ->
+                    _myRemoteSongsIds.value = emptySet()
                     _error.value = "Failed to fetch my songs: ${exception.message}"
 
                 }
