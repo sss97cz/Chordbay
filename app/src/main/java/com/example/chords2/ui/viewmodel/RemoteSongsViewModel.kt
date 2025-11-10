@@ -104,6 +104,10 @@ class RemoteSongsViewModel(
         onQueryChanged(query.value)
         if (newOption == ResultMode.ARTISTS) {
             refreshArtists()
+        } else if (newOption == ResultMode.SONGS && query.value.isNotBlank()) {
+            searchDebounced()
+        } else if (newOption == ResultMode.SONGS && showMostViewed.value == true) {
+            getMostViewedSongs()
         }
     }
 
