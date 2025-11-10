@@ -77,24 +77,18 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    // Retrofit for networking
     implementation(libs.retrofit)
-    // Gson converter for Retrofit (or use Moshi)
     implementation(libs.converter.gson)
-    implementation(libs.converter.moshi) // For Moshi
-    implementation(libs.logging.interceptor) // Optional: For logging network requests
-    implementation(libs.moshi.kotlin) // Check for the latest version
+    implementation(libs.converter.moshi)
+    implementation(libs.logging.interceptor)
+    implementation(libs.moshi.kotlin)
     implementation(libs.converter.scalars)
 
     implementation(libs.androidx.datastore.preferences)
     ksp(libs.moshi.kotlin.codegen)
-    // ... other dependencies
 
     implementation(libs.androidx.room.runtime)
-    annotationProcessor(libs.androidx.room.compiler) // For Java projects or if still using kapt for Room
-    // To use KSP, you should have:
-    ksp(libs.androidx.room.compiler) // For Kotlin projects using KSP
-
-    implementation(libs.androidx.room.ktx) // Optional - Kotlin Extensions and Coroutines support
-    // ...
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 }

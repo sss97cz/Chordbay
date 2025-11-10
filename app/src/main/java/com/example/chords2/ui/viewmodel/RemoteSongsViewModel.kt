@@ -301,8 +301,4 @@ class RemoteSongsViewModel(
             _loading.value = false
         }
     }
-
-    private fun filterArtists(query: String) {
-        artistFilterQuery.value = query
-    }
 }

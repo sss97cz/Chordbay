@@ -26,14 +26,12 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation(
-    // modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = koinViewModel(),
     authViewModel: AuthViewModel = koinViewModel(),
     remoteSongsViewModel: RemoteSongsViewModel = koinViewModel(),
     editViewModel: EditViewModel = koinViewModel(),
 ) {
     val navController = rememberNavController()
-    val scope = rememberCoroutineScope()
 
     NavHost(
         navController = navController,
@@ -43,7 +41,6 @@ fun AppNavigation(
             route = Paths.HomePath.route
         ) {
             HomeScreen(
-               // modifier = Modifier.padding(innerPadding),
                 mainViewModel = mainViewModel,
                 authViewModel = authViewModel,
                 navController = navController,
@@ -189,7 +186,6 @@ fun AppNavigation(
         ) {
              RegisterScreen(
                  navController = navController,
-                 mainViewModel = mainViewModel,
                  authViewModel = authViewModel,
              )
         }
@@ -198,7 +194,6 @@ fun AppNavigation(
         ) {
               ManageAccountScreen(
                   navController = navController,
-                  mainViewModel = mainViewModel,
                   authViewModel = authViewModel,
               )
         }

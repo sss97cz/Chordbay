@@ -355,6 +355,7 @@ class MainViewModel(
             val token = authRepository.getAccessToken()
             if (token == null) {
                 _error.value = "User not authenticated. Please log in."
+                Log.d("SongViewModel", "No access token found, cannot fetch my songs")
                 _myRemoteSongsIds.value = emptySet()
                 return@launch
             }
@@ -377,6 +378,10 @@ class MainViewModel(
                                 )
                             }.onFailure { exception ->
                                 _myRemoteSongsIds.value = emptySet()
+                                Log.d(
+                                    "SongViewModel",
+                                    "Failed to fetch my songs after refresh: ${exception.message}"
+                                )
                                 _error.value = "Failed to fetch my songs: ${exception.message}"
                             }
                         }
@@ -391,7 +396,10 @@ class MainViewModel(
                 .onFailure { exception ->
                     _myRemoteSongsIds.value = emptySet()
                     _error.value = "Failed to fetch my songs: ${exception.message}"
-
+                    Log.d(
+                        "SongViewModel",
+                        "Failed to fetch my songs: ${exception.message}"
+                    )
                 }
         }
     }

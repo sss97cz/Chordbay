@@ -59,7 +59,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    mainViewModel: MainViewModel,
     authViewModel: AuthViewModel
 ) {
     val scope = rememberCoroutineScope()

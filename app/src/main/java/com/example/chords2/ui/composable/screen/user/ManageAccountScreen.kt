@@ -14,7 +14,6 @@ import com.example.chords2.ui.viewmodel.MainViewModel
 @Composable
 fun ManageAccountScreen(
     navController: NavController,
-    mainViewModel: MainViewModel,
     authViewModel: AuthViewModel
 ){
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
