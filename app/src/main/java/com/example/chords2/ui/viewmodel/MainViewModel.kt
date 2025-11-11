@@ -34,6 +34,18 @@ class MainViewModel(
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
+    init {
+        Log.d("MainViewModel", "Initialized MainViewModel")
+        viewModelScope.launch {
+            delay(1000)
+            authRepository.isUserLoggedIn.collect { token ->
+                if (!token) {
+                    _myRemoteSongsIds.value = emptySet()
+                }
+            }
+        }
+    }
+
     //----------------------- Settings states - Persistent storage -------------------------------------
     // sort
     val sortOption: StateFlow<SortBy> = settingsDataStore.getSetting(Settings.SortBySetting)
@@ -108,21 +120,20 @@ class MainViewModel(
 
 
     //-------------------local song CRUD operations ------------------------------------------------
-    val _myRemoteSongsIds = MutableStateFlow<Set<String>>(emptySet())
+    private val _myRemoteSongsIds = MutableStateFlow<Set<String>>(emptySet())
+    val myRemoteSongsIds: StateFlow<Set<String>> = _myRemoteSongsIds.asStateFlow()
+
 
     val songs: StateFlow<List<Song>> = combine(
         songRepository.getAllSongs(),
         sortOption,
         searchQuery,
-        _myRemoteSongsIds
+        myRemoteSongsIds
     ) { songs, sortOption, searchQuery, myRemoteSongsIds ->
-        val markedSongs = songs.map {
-            Log.d("SongViewModel", "Checking song: ${it.title} with remoteId: ${it.remoteId}")
-            if (it.remoteId != null && myRemoteSongsIds.contains(it.remoteId)) {
-                Log.d("SongViewModel", "Marking song as synced: ${it.title}")
-                it.copy(markSynced = true)
-            } else
-                it
+        Log.d("MainViewModel", "Combining songs with sortOption: $sortOption, searchQuery: '$searchQuery', myRemoteSongsIds size: ${myRemoteSongsIds.size}")
+        val markedSongs = songs.map { s ->
+            val isSynced = s.remoteId != null && myRemoteSongsIds.contains(s.remoteId)
+            s.copy(markSynced = isSynced)
         }
         when (sortOption) {
             SortBy.SONG_NAME -> markedSongs.sortedBy { it.title }
@@ -255,7 +266,8 @@ class MainViewModel(
                 }
                 result.onSuccess {
                     Log.d("SongViewModel", "Song posted successfully with ID: $it")
-                    updateSong(song.copy(remoteId = it)).also {
+                    updateSong(song.copy(remoteId = it)).also { _ ->
+                        _myRemoteSongsIds.value += it
                         Log.d("SongViewModel", "Local song updated with remote ID: $it")
                     }
                 }.onFailure { exception ->
@@ -290,11 +302,12 @@ class MainViewModel(
                                                 "SongViewModel",
                                                 "Song posted successfully with ID: $it"
                                             )
-                                            updateSong(song.copy(remoteId = it)).also {
+                                            updateSong(song.copy(remoteId = it)).also { _ ->
                                                 Log.d(
                                                     "SongViewModel",
                                                     "Local song updated with remote ID: $it"
                                                 )
+                                                _myRemoteSongsIds.value += it
                                             }
                                         }.onFailure { exception ->
                                             _error.value =
@@ -343,8 +356,10 @@ class MainViewModel(
 
     //TODO(Move this function to remoteSongsViewModel)
     fun fetchMyRemoteSongs() {
+        Log.d("SongViewModel", "fetchMyRemoteSongs called")
         viewModelScope.launch {
             val token = authRepository.getAccessToken() ?: run {
+                Log.d("SongViewModel", "No access token available")
                 _error.value = "User not authenticated. Please log in."
                 _myRemoteSongsIds.value = emptySet()
                 return@launch
@@ -371,17 +386,18 @@ class MainViewModel(
                         }
                     }
                     // refresh failed
+                    Log.d("SongViewModel", "Token refresh failed")
                     _error.value = "Refresh failed: $message"
                     _myRemoteSongsIds.value = emptySet()
                     return@launch
                 }
             }
-
             // Success path (or non-401 failure)
             firstResult.onSuccess { remoteSongs ->
                 syncToLocalDb(remoteSongs)
                 _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
             }.onFailure { e ->
+                Log.d("SongViewModel", "Failed to fetch my songs: ${e.message}")
                 _myRemoteSongsIds.value = emptySet()
                 _error.value = "Failed to fetch my songs: ${e.message}"
             }

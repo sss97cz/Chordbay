@@ -6,15 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.datastore.UserDataStore
 import com.example.chords2.data.remote.model.AuthRequest
 import com.example.chords2.data.repository.auth.AuthRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val authRepository: AuthRepository,
     private val userDataStore: UserDataStore,
-    private val mainViewModel: MainViewModel
 ) : ViewModel() {
     //-------------------- User Authentication states ----------------------------------------------
     init {
@@ -29,6 +30,8 @@ class AuthViewModel(
             }
         }
     }
+    private val _logoutEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val logoutEvents = _logoutEvents.asSharedFlow()
 
     val isUserLoggedIn: StateFlow<Boolean> = authRepository.isUserLoggedIn
     private val _userEmail = MutableStateFlow<String?>(null)
@@ -68,8 +71,10 @@ class AuthViewModel(
             authRepository.logout()
                 .onSuccess {
                     setUserEmail(null)
-                    mainViewModel.fetchMyRemoteSongs()
                     userDataStore.saveUsername("")
+                    Log.d("AuthViewModel", "Cleared saved username on logout")
+                    _logoutEvents.tryEmit(Unit)
+                    Log.d("AuthViewModel", "User logged out successfully")
                 }
                 .onFailure { exception ->
                     _error.value = "Logout failed: ${exception.message}"
