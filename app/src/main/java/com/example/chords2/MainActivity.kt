@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
         val authViewModel: AuthViewModel by viewModel()
         val remoteSongsViewModel: RemoteSongsViewModel by viewModel()
         val editViewModel: EditViewModel by viewModel()
+        mainViewModel.fetchMyRemoteSongs()
         /*
         TODO: What needs to be done to finish the app?
              - Properly sync the users songs (especially keep track of the IDs from songs/me endpoint

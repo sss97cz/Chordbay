@@ -34,14 +34,6 @@ class MainViewModel(
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
-    init {
-        Log.d("SongViewModel", "Initialized SongViewModel")
-        viewModelScope.launch {
-            delay(100)
-            fetchMyRemoteSongs()
-        }
-    }
-
     //----------------------- Settings states - Persistent storage -------------------------------------
     // sort
     val sortOption: StateFlow<SortBy> = settingsDataStore.getSetting(Settings.SortBySetting)
@@ -352,58 +344,49 @@ class MainViewModel(
     //TODO(Move this function to remoteSongsViewModel)
     fun fetchMyRemoteSongs() {
         viewModelScope.launch {
-            val token = authRepository.getAccessToken()
-            if (token == null) {
+            val token = authRepository.getAccessToken() ?: run {
                 _error.value = "User not authenticated. Please log in."
-                Log.d("SongViewModel", "No access token found, cannot fetch my songs")
                 _myRemoteSongsIds.value = emptySet()
                 return@launch
             }
-            val result = songRemoteRepository.getMySongs(token)
-            if (result.isFailure) {
-                val message = result.exceptionOrNull()?.message ?: ""
+
+            val firstResult = songRemoteRepository.getMySongs(token)
+            if (firstResult.isFailure) {
+                val message = firstResult.exceptionOrNull()?.message.orEmpty()
                 if (message.contains("401")) {
-                    val refreshResult = authRepository.refresh()
-                    if (refreshResult.isSuccess) {
+                    val refreshed = authRepository.refresh()
+                    if (refreshed.isSuccess) {
                         val newToken = authRepository.getAccessToken()
                         if (newToken != null) {
-                            val retryResult = songRemoteRepository.getMySongs(newToken)
-                            retryResult.onSuccess { remoteSongs ->
+                            val retry = songRemoteRepository.getMySongs(newToken)
+                            retry.onSuccess { remoteSongs ->
                                 syncToLocalDb(remoteSongs)
-                                _myRemoteSongsIds.value =
-                                    remoteSongs.mapNotNull { it.remoteId }.toSet()
-                                Log.d(
-                                    "SongViewModel",
-                                    "Synced ${remoteSongs.size} songs to local DB"
-                                )
-                            }.onFailure { exception ->
+                                _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
+                                return@launch // done
+                            }.onFailure { e ->
                                 _myRemoteSongsIds.value = emptySet()
-                                Log.d(
-                                    "SongViewModel",
-                                    "Failed to fetch my songs after refresh: ${exception.message}"
-                                )
-                                _error.value = "Failed to fetch my songs: ${exception.message}"
+                                _error.value = "Failed after refresh: ${e.message}"
+                                return@launch
                             }
                         }
                     }
+                    // refresh failed
+                    _error.value = "Refresh failed: $message"
+                    _myRemoteSongsIds.value = emptySet()
+                    return@launch
                 }
             }
-            result.onSuccess { remoteSongs ->
+
+            // Success path (or non-401 failure)
+            firstResult.onSuccess { remoteSongs ->
                 syncToLocalDb(remoteSongs)
                 _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
-                Log.d("SongViewModel", "Synced ${remoteSongs.size} songs to local DB")
+            }.onFailure { e ->
+                _myRemoteSongsIds.value = emptySet()
+                _error.value = "Failed to fetch my songs: ${e.message}"
             }
-                .onFailure { exception ->
-                    _myRemoteSongsIds.value = emptySet()
-                    _error.value = "Failed to fetch my songs: ${exception.message}"
-                    Log.d(
-                        "SongViewModel",
-                        "Failed to fetch my songs: ${exception.message}"
-                    )
-                }
         }
     }
-
 
     private suspend fun syncToLocalDb(remoteSongs: List<Song>) {
         val localSongs = songRepository.getAllSongs().first()

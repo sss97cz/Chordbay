@@ -279,6 +279,7 @@ fun HomeScreen(
                     onSyncClick = {
                         showOptionsMenu = false
                         scope.launch {
+                            Log.d("HomeScreen", "Syncing songs...")
                             mainViewModel.fetchMyRemoteSongs()
                         }
                     }
