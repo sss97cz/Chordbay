@@ -13,10 +13,13 @@ import kotlinx.coroutines.flow.asStateFlow
 class AuthRepositoryImpl(
     private val authApiService: AuthApiService,
     private val credentialManager: CredentialManager,
-): AuthRepository {
+) : AuthRepository {
 
     private val _isUserLoggedIn = MutableStateFlow(false)
     override val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
+    override fun setIsUserLoggedIn(loggedIn: Boolean) {
+        _isUserLoggedIn.value = loggedIn
+    }
 
     override suspend fun login(authRequest: AuthRequest): Result<Unit> {
         return try {
@@ -90,7 +93,8 @@ class AuthRepositoryImpl(
             Result.failure(e)
         }
     }
-    override suspend fun resensdVerificationEmail(email: String): Result<Unit> {
+
+    override suspend fun resendVerificationEmail(email: String): Result<Unit> {
         return try {
             val response = authApiService.resendVerificationEmail(
                 com.example.chords2.data.remote.model.ResendRequest(email)

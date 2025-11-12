@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
              - Add app icon.
              (Optional)
              - Improve the chord detection algorithm.
+             - Paging for the song list.
              - Possibility to add more features like TXT export/import.
              - Properly host the MongoDB.
              - Publishing the app to Play Store. (Remove all songs from remote, add privacy policy, kofi link, etc.)

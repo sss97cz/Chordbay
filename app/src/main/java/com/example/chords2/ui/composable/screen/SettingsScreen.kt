@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -62,7 +66,7 @@ fun SettingsScreen(
                 title = "Settings",
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 onNavigationIconClick = {
-                    navController.navigate(Paths.HomePath.route)
+                    navController.popBackStack()
                 }
             )
         }
@@ -95,7 +99,7 @@ fun SettingsScreen(
                                 ) {
                                     Text(
                                         text = defaultSortOption.displayName,
-                                        Modifier.padding(start = 8.dp)
+                                        Modifier.padding(start = 18.dp)
                                     )
                                     IconButton(onClick = { isSortMenuExpanded = true }) {
                                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
@@ -198,20 +202,24 @@ private fun SettingsRow(
     settingName: String,
     content: @Composable () -> Unit
 ) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp),
+    OutlinedCard(
+        modifier = modifier.padding(vertical = 4.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Row(
-            Modifier.fillMaxWidth(),
+            Modifier.fillMaxWidth()
+                .heightIn(min = 60.dp)
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = settingName)
             Spacer(modifier = Modifier.weight(1f))
             content()
-            Spacer(Modifier.padding(bottom = 2.dp))
         }
     }
-    HorizontalDivider()
 }

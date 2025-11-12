@@ -12,6 +12,9 @@ interface AuthRepository {
     suspend fun logout(): Result<Unit>
     suspend fun getAccessToken(): String?
 
-    suspend fun resensdVerificationEmail(email: String): Result<Unit>
+    suspend fun resendVerificationEmail(email: String): Result<Unit>
+
+    fun setIsUserLoggedIn(loggedIn: Boolean)
+
 
 }

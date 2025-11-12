@@ -62,6 +62,7 @@ fun EditSongScreen(
     navController: NavController,
     viewModel: EditViewModel,
 ) {
+    //TODO(Add an dialog for saving empty song)
     val songName by viewModel.songName.collectAsState()
     val songArtist by viewModel.songArtist.collectAsState()
     val songContent by viewModel.songContent.collectAsState()

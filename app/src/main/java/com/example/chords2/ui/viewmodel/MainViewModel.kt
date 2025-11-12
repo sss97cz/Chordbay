@@ -38,8 +38,8 @@ class MainViewModel(
         Log.d("MainViewModel", "Initialized MainViewModel")
         viewModelScope.launch {
             delay(1000)
-            authRepository.isUserLoggedIn.collect { token ->
-                if (!token) {
+            authRepository.isUserLoggedIn.collect {
+                if (!it) {
                     _myRemoteSongsIds.value = emptySet()
                 }
             }
@@ -338,6 +338,7 @@ class MainViewModel(
                             updateSong(song.copy(remoteId = it)).also {
                                 Log.d("SongViewModel", "Local song updated with remote ID: $it")
                             }
+                            _myRemoteSongsIds.value += it
                         }.onFailure { exception ->
                             _error.value = "Failed to post song: ${exception.message}"
                         }

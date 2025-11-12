@@ -55,7 +55,8 @@ fun AlphabeticalSongList(
     onSongClick: (Song) -> Unit,
     onSongLongClick: (Song) -> Unit,
     bottomPadding: Dp,
-    searchQuery: String = ""
+    searchQuery: String = "",
+    isPlaylist: Boolean = false,
 ) {
     val listState = rememberLazyListState()
 
@@ -98,17 +99,26 @@ fun AlphabeticalSongList(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = if (isSearching) "No songs found matching \"${searchQuery}\"" else "You have no songs yet",
+                            text = when (isPlaylist) {
+                                false -> if (isSearching) "No songs found matching \"${searchQuery}\"" else "You have no songs yet"
+                                true -> "This playlist is empty"
+                            },
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = if (!isSearching) {
-                                "You can create songs by tapping the '+' button. or download songs from the browse tab."
-                            } else {
-                                "Maybe try searching in Browse tab to find new songs to download."
+                            text = when (isPlaylist) {
+                                false -> {
+                                    if (!isSearching) {
+                                        "You can create songs by tapping the '+' button. or download songs from the browse tab."
+                                    } else {
+                                        "Maybe try searching in Browse tab to find new songs to download."
+                                    }
+                                }
+
+                                true -> "You can add songs in the Library tab."
                             },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),

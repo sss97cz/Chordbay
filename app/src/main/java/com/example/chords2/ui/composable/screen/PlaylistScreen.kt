@@ -78,6 +78,7 @@ fun PlaylistScreen(
                         },
                         onSongLongClick = {},
                         bottomPadding = 0.dp,
+                        isPlaylist = true
                     )
                 }
             }

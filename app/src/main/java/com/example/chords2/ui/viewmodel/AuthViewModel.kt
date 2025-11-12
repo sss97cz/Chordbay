@@ -6,10 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.datastore.UserDataStore
 import com.example.chords2.data.remote.model.AuthRequest
 import com.example.chords2.data.repository.auth.AuthRepository
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -20,9 +19,11 @@ class AuthViewModel(
     //-------------------- User Authentication states ----------------------------------------------
     init {
         viewModelScope.launch {
+            delay(100) // Small delay to ensure DataStore is ready
             userDataStore.getUsername().collect { email ->
                 if (email.isNotEmpty()) {
                     setUserEmail(email)
+                    authRepository.setIsUserLoggedIn(true)
                     Log.d("AuthViewModel", "Loaded saved username: $email")
                 } else {
                     setUserEmail(null)
@@ -30,8 +31,6 @@ class AuthViewModel(
             }
         }
     }
-    private val _logoutEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    val logoutEvents = _logoutEvents.asSharedFlow()
 
     val isUserLoggedIn: StateFlow<Boolean> = authRepository.isUserLoggedIn
     private val _userEmail = MutableStateFlow<String?>(null)
@@ -72,8 +71,6 @@ class AuthViewModel(
                 .onSuccess {
                     setUserEmail(null)
                     userDataStore.saveUsername("")
-                    Log.d("AuthViewModel", "Cleared saved username on logout")
-                    _logoutEvents.tryEmit(Unit)
                     Log.d("AuthViewModel", "User logged out successfully")
                 }
                 .onFailure { exception ->
@@ -119,7 +116,7 @@ class AuthViewModel(
     fun resendVerificationEmail(email: String) {
         _loading.value = true
         viewModelScope.launch {
-            authRepository.resensdVerificationEmail(email)
+            authRepository.resendVerificationEmail(email)
                 .onSuccess {
                     // Verification email resent successfully
                     _loading.value = false
