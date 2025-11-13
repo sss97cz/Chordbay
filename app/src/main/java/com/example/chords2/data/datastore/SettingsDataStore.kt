@@ -2,6 +2,7 @@ package com.example.chords2.data.datastore
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import com.example.chords2.data.model.util.ColorMode
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
@@ -18,6 +19,7 @@ class SettingsDataStore(context: Context) {
                 is Settings.SortBySetting -> SortBy.valueOf(rawValue ?: setting.defaultValue.name)
                 is Settings.ThemeSetting -> ThemeMode.valueOf(rawValue ?: setting.defaultValue.name)
                 is Settings.FontSize -> (rawValue ?: setting.defaultValue.toString()).toInt()
+                is Settings.ColorModeSetting -> ColorMode.valueOf(rawValue ?: setting.defaultValue.name)
             } as T
         }
     }

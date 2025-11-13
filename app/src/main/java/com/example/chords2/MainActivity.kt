@@ -44,7 +44,8 @@ class MainActivity : ComponentActivity() {
          */
         setContent {
             ChordsTheme(
-                themeMode = mainViewModel.themeMode.collectAsState().value
+                themeMode = mainViewModel.themeMode.collectAsState().value,
+                color = mainViewModel.colorMode.collectAsState().value
             ) {
                 AppNavigation(
                     mainViewModel = mainViewModel,

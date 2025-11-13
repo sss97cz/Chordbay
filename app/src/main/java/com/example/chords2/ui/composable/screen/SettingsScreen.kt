@@ -1,5 +1,6 @@
 package com.example.chords2.ui.composable.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,11 +40,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chords2.data.model.util.ColorMode
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
+import com.example.chords2.ui.theme.Purple40
+import com.example.chords2.ui.theme.primaryDark
 import com.example.chords2.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -190,6 +194,18 @@ fun SettingsScreen(
                             }
                         }
                     }
+                    is Settings.ColorModeSetting -> {
+                        SettingsRow(
+                            settingName = setting.title
+                        ) {
+                            ColorSchemePicker(
+                                selectedColorMode = mainViewModel.colorMode.collectAsState().value,
+                                onColorModeSelected = { selectedMode ->
+                                    mainViewModel.saveColorMode(selectedMode)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -220,6 +236,40 @@ private fun SettingsRow(
             Text(text = settingName)
             Spacer(modifier = Modifier.weight(1f))
             content()
+        }
+    }
+}
+
+@Composable
+private fun ColorSchemePicker(
+    selectedColorMode: ColorMode,
+    onColorModeSelected: (ColorMode) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        for (colorMode in ColorMode.entries) {
+            Card(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable { onColorModeSelected(colorMode) },
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = when (colorMode) {
+                        ColorMode.BLUE -> primaryDark
+                        ColorMode.PURPLE -> Purple40
+                    }
+                ),
+                border = if (selectedColorMode == colorMode) {
+                    BorderStroke(
+                        width = 3.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    null
+                }
+            ) {}
         }
     }
 }

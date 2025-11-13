@@ -7,6 +7,7 @@ import com.example.chords2.data.database.playlist.PlaylistEntity
 import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.datastore.UserDataStore
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.util.ColorMode
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
@@ -86,6 +87,18 @@ class MainViewModel(
     fun saveThemeMode(themeMode: ThemeMode) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.ThemeSetting, themeMode)
+        }
+    }
+    // color mode
+    val colorMode: StateFlow<ColorMode> = settingsDataStore.getSetting(Settings.ColorModeSetting)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = Settings.ColorModeSetting.defaultValue
+        )
+    fun saveColorMode(colorMode: ColorMode) {
+        viewModelScope.launch {
+            settingsDataStore.setSetting(Settings.ColorModeSetting, colorMode)
         }
     }
 
@@ -199,7 +212,6 @@ class MainViewModel(
 
     private val _remoteSongById = MutableStateFlow<Song?>(null)
 
-    //TODO("delete this and change the implementation to use function from remoteSongViewModel")
     val remoteSongById: StateFlow<Song?> = _remoteSongById.asStateFlow()
 
     fun getRemoteSongById(id: String) {
@@ -233,7 +245,6 @@ class MainViewModel(
         }
     }
 
-    //TODO("move this function to remoteSongsViewModel")
     fun postSong(song: Song) {
         val song = song.copy(
             title = song.title.ifBlank { "Untitled" }.trim(),
@@ -348,14 +359,12 @@ class MainViewModel(
         }
     }
 
-    //TODO(Move this function to remoteSongsViewModel)
     fun postSongs(songs: List<Song>) {
         songs.forEach { song ->
             postSong(song)
         }
     }
 
-    //TODO(Move this function to remoteSongsViewModel)
     fun fetchMyRemoteSongs() {
         Log.d("SongViewModel", "fetchMyRemoteSongs called")
         viewModelScope.launch {
@@ -416,7 +425,6 @@ class MainViewModel(
         }
     }
 
-    //TODO(Move this function to remoteSongsViewModel)
     fun applyPrivacyAndPost(
         songs: List<Song>,
         defaultIsPublic: Boolean,

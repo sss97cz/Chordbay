@@ -118,14 +118,14 @@ private fun SongOverrideRow(
                 onClick = { onChange(true) },
                 label = { Text("Public") },
                 colors = AssistChipDefaults.assistChipColors(
-                    containerColor = if (isPublic) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = if (isPublic) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
                 )
             )
             AssistChip(
                 onClick = { onChange(false) },
                 label = { Text("Private") },
                 colors = AssistChipDefaults.assistChipColors(
-                    containerColor = if (!isPublic) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = if (!isPublic) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
                 )
             )
         }

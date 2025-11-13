@@ -12,7 +12,7 @@ sealed class Settings<T>(
 ) {
     companion object{
         val all = listOf(
-            SortBySetting, ThemeSetting, FontSize
+            SortBySetting, ThemeSetting, FontSize,  ColorModeSetting
         )
     }
     object SortBySetting : Settings<SortBy>(
@@ -29,5 +29,10 @@ sealed class Settings<T>(
         title = "Font size",
         defaultValue = 16,
         preferencesKey = stringPreferencesKey("font_size")
+    )
+    object ColorModeSetting : Settings<ColorMode>(
+        title = "Color Scheme",
+        defaultValue = ColorMode.BLUE,
+        preferencesKey = stringPreferencesKey("color_mode")
     )
 }

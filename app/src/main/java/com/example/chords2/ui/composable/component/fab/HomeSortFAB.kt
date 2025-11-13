@@ -51,7 +51,8 @@ fun HomeSortFAB(
         Icon(
             imageVector = Sort,
             contentDescription = "Sort",
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.onSurface
         )
     }
     DropdownMenu(

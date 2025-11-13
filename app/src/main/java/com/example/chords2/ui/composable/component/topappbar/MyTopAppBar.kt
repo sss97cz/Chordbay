@@ -87,12 +87,49 @@ fun MyTopAppBar(
                     )
                 }
                 if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    var isSubtitleOverflowing by remember { mutableStateOf(false) }
+                    if (isSubtitleOverflowing) {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Below,
+                            ),
+                            state = rememberTooltipState(),
+                            tooltip = {
+                                Box(
+                                    Modifier
+                                        .clip(MaterialTheme.shapes.medium)
+                                        .background(MaterialTheme.colorScheme.tertiaryContainer)
+                                        .padding(4.dp)
+                                ) {
+                                    Text(text = subtitle)
+                                }
+                            },
+                        ) {
+                            Text(
+                                text = subtitle,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                onTextLayout = { result ->
+                                    val overflow = result.hasVisualOverflow
+                                    if (isSubtitleOverflowing != overflow) isSubtitleOverflowing =
+                                        overflow
+                                }
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            onTextLayout = { result ->
+                                val overflow = result.hasVisualOverflow
+                                if (isSubtitleOverflowing != overflow) isSubtitleOverflowing =
+                                    overflow
+                            }
+                        )
+                    }
                 }
             }
         },
