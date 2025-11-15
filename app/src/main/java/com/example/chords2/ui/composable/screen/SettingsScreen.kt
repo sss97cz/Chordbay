@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.util.ColorMode
@@ -47,7 +48,10 @@ import com.example.chords2.data.model.util.ThemeMode
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.theme.Purple40
+import com.example.chords2.ui.theme.PurpleGrey40
 import com.example.chords2.ui.theme.primaryDark
+import com.example.chords2.ui.theme.secondaryContainerDark
+import com.example.chords2.ui.theme.secondaryDark
 import com.example.chords2.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +61,7 @@ fun SettingsScreen(
     navController: NavController
 ) {
     val canNavigateBack = navController.previousBackStackEntry != null
-    val fontSize = mainViewModel.songTextFontSize.collectAsState().value
+//    val fontSize = mainViewModel.songTextFontSize.collectAsState().value
     var isSortMenuExpanded by remember { mutableStateOf(false) }
     var defaultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
     var isFontSizeMenuExpanded by remember { mutableStateOf(false) }
@@ -82,50 +86,51 @@ fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             for (setting in Settings.all) {
+                if (!setting.dilplayInSettings) continue
                 when (setting) {
-                    is Settings.SortBySetting -> {
-                        SettingsRow(
-                            Modifier.fillMaxWidth(),
-                            settingName = setting.title,
-                        ) {
-                            Box(
-                                Modifier
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                            ) {
-                                Row(
-                                    Modifier.clickable(
-                                        onClick = {
-                                            isSortMenuExpanded = true
-                                        }),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = defaultSortOption.displayName,
-                                        Modifier.padding(start = 18.dp)
-                                    )
-                                    IconButton(onClick = { isSortMenuExpanded = true }) {
-                                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                                    }
-                                    DropdownMenu(
-                                        expanded = isSortMenuExpanded,
-                                        onDismissRequest = { isSortMenuExpanded = false }
-                                    ) {
-                                        for (sortOption in SortBy.entries) {
-                                            DropdownMenuItem(
-                                                text = { Text(sortOption.displayName) },
-                                                onClick = {
-                                                    defaultSortOption = sortOption
-                                                    isSortMenuExpanded = false
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+//                    is Settings.SortBySetting -> {
+//                        SettingsRow(
+//                            Modifier.fillMaxWidth(),
+//                            settingName = setting.title,
+//                        ) {
+//                            Box(
+//                                Modifier
+//                                    .clip(CircleShape)
+//                                    .background(MaterialTheme.colorScheme.secondaryContainer)
+//                            ) {
+//                                Row(
+//                                    Modifier.clickable(
+//                                        onClick = {
+//                                            isSortMenuExpanded = true
+//                                        }),
+//                                    horizontalArrangement = Arrangement.SpaceBetween,
+//                                    verticalAlignment = Alignment.CenterVertically
+//                                ) {
+//                                    Text(
+//                                        text = defaultSortOption.displayName,
+//                                        Modifier.padding(start = 18.dp)
+//                                    )
+//                                    IconButton(onClick = { isSortMenuExpanded = true }) {
+//                                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+//                                    }
+//                                    DropdownMenu(
+//                                        expanded = isSortMenuExpanded,
+//                                        onDismissRequest = { isSortMenuExpanded = false }
+//                                    ) {
+//                                        for (sortOption in SortBy.entries) {
+//                                            DropdownMenuItem(
+//                                                text = { Text(sortOption.displayName) },
+//                                                onClick = {
+//                                                    defaultSortOption = sortOption
+//                                                    isSortMenuExpanded = false
+//                                                }
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
 
                     is Settings.ThemeSetting -> {
                         SettingsRow(settingName = setting.title) {
@@ -143,57 +148,57 @@ fun SettingsScreen(
                         }
                     }
 
-                    is Settings.FontSize -> {
-                        SettingsRow(
-                            settingName = setting.title
-                        ) {
-                            Box(contentAlignment = Alignment.BottomEnd) {
-                                Row(
-                                    Modifier
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                                        .clickable { isFontSizeMenuExpanded = true }
-                                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = fontSize.toString(),
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                                }
-
-                                DropdownMenu(
-                                    modifier = Modifier
-                                        .size(40.dp, 300.dp)
-                                        .align(Alignment.BottomEnd),
-                                    expanded = isFontSizeMenuExpanded,
-                                    onDismissRequest = { isFontSizeMenuExpanded = false }
-                                ) {
-                                    HorizontalDivider()
-                                    (10..30 step 2).forEach { sizeOption ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Box(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(
-                                                        sizeOption.toString(),
-                                                    )
-                                                }
-                                            },
-                                            onClick = {
-                                                mainViewModel.setSongTextFontSize(sizeOption)
-                                                isFontSizeMenuExpanded = false
-                                            }
-                                        )
-                                        HorizontalDivider()
-                                    }
-                                }
-                            }
-                        }
-                    }
+//                    is Settings.FontSize -> {
+//                        SettingsRow(
+//                            settingName = setting.title
+//                        ) {
+//                            Box(contentAlignment = Alignment.BottomEnd) {
+//                                Row(
+//                                    Modifier
+//                                        .clip(CircleShape)
+//                                        .background(MaterialTheme.colorScheme.secondaryContainer)
+//                                        .clickable { isFontSizeMenuExpanded = true }
+//                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+//                                    verticalAlignment = Alignment.CenterVertically
+//                                ) {
+//                                    Text(
+//                                        text = fontSize.toString(),
+//                                        modifier = Modifier.padding(start = 8.dp)
+//                                    )
+//                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+//                                }
+//
+//                                DropdownMenu(
+//                                    modifier = Modifier
+//                                        .size(40.dp, 300.dp)
+//                                        .align(Alignment.BottomEnd),
+//                                    expanded = isFontSizeMenuExpanded,
+//                                    onDismissRequest = { isFontSizeMenuExpanded = false }
+//                                ) {
+//                                    HorizontalDivider()
+//                                    (10..30 step 2).forEach { sizeOption ->
+//                                        DropdownMenuItem(
+//                                            text = {
+//                                                Box(
+//                                                    modifier = Modifier.fillMaxWidth(),
+//                                                    contentAlignment = Alignment.Center
+//                                                ) {
+//                                                    Text(
+//                                                        sizeOption.toString(),
+//                                                    )
+//                                                }
+//                                            },
+//                                            onClick = {
+//                                                mainViewModel.setSongTextFontSize(sizeOption)
+//                                                isFontSizeMenuExpanded = false
+//                                            }
+//                                        )
+//                                        HorizontalDivider()
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
                     is Settings.ColorModeSetting -> {
                         SettingsRow(
                             settingName = setting.title
@@ -206,6 +211,7 @@ fun SettingsScreen(
                             )
                         }
                     }
+                    else -> {}
                 }
             }
         }
@@ -253,18 +259,19 @@ private fun ColorSchemePicker(
             Card(
                 modifier = Modifier
                     .size(40.dp)
+                    .clip(CircleShape)
                     .clickable { onColorModeSelected(colorMode) },
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
                     containerColor = when (colorMode) {
-                        ColorMode.BLUE -> primaryDark
-                        ColorMode.PURPLE -> Purple40
+                        ColorMode.BLUE -> Color.Blue.copy(0.5f)
+                        ColorMode.PURPLE -> Color.Magenta.copy(0.5f)
                     }
                 ),
                 border = if (selectedColorMode == colorMode) {
                     BorderStroke(
-                        width = 3.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 } else {
                     null

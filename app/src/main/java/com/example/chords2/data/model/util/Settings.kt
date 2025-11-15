@@ -8,7 +8,8 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 sealed class Settings<T>(
     val title: String,
     val defaultValue: T,
-    val preferencesKey: Preferences.Key<String>
+    val preferencesKey: Preferences.Key<String>,
+    val dilplayInSettings: Boolean = true
 ) {
     companion object{
         val all = listOf(
@@ -18,7 +19,8 @@ sealed class Settings<T>(
     object SortBySetting : Settings<SortBy>(
         title = "Sort by",
         defaultValue = SortBy.SONG_NAME,
-        preferencesKey = stringPreferencesKey("sort_by")
+        preferencesKey = stringPreferencesKey("sort_by"),
+        false,
     )
     object ThemeSetting : Settings<ThemeMode>(
         title = "Theme",
@@ -28,7 +30,8 @@ sealed class Settings<T>(
     object FontSize : Settings<Int>(
         title = "Font size",
         defaultValue = 16,
-        preferencesKey = stringPreferencesKey("font_size")
+        preferencesKey = stringPreferencesKey("font_size"),
+        false,
     )
     object ColorModeSetting : Settings<ColorMode>(
         title = "Color Scheme",
