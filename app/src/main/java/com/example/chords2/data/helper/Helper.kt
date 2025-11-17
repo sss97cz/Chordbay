@@ -27,8 +27,10 @@ fun findKey(song: String): String? {
     if (firstChord.isEmpty()) {
         return null
     }
-    val baseChord = Chords.allBaseChords.firstOrNull {
-        firstChord.contains(it.value)
-    }
+    // kotlin
+    val baseChord = Chords.allBaseChords
+        .sortedByDescending { it.value.length }
+        .firstOrNull { firstChord.startsWith(it.value) }
+
     return baseChord?.value
 }

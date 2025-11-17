@@ -66,9 +66,13 @@ private fun String.highlightChords(
                                 baselineShift = BaselineShift(0.5f),
                             )
                         ) {
-                            val baseChord = Chords.allBaseChords.firstOrNull {
-                                chordContent.contains(it.value)
-                            }
+                            Log.d("SongText", "Transposing chord: $chordContent")
+                            // kotlin
+                            val baseChord = Chords.allBaseChords
+                                .sortedByDescending { it.value.length }
+                                .firstOrNull { chordContent.startsWith(it.value) }
+
+                            Log.d("SongText", "Base chord: ${baseChord?.value}")
                             val suffix = chordContent.substringAfter(baseChord?.value ?: "")
                             val transposedBaseChord =
                                 baseChord?.transpose(semitones)?.value ?: "error"
