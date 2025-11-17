@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
              - Properly sync the users songs (especially keep track of the IDs from songs/me endpoint
                to not show songs downloaded from remote as your songs and that you have permission to edit them) **DONE**
              - Improve playlist functionality.
-             - Fully polish the UI of the app (mainly the song editor and settings, error handling).
+             - Fully polish the UI of the app (mainly the song editor and settings, error handling). **Working on**
              - All around code cleanup. **Working on**
              - Testing.
              - Add app icon.
@@ -41,6 +41,12 @@ class MainActivity : ComponentActivity() {
              - Possibility to add more features like TXT export/import.
              - Properly host the MongoDB.
              - Publishing the app to Play Store. (Remove all songs from remote, add privacy policy, kofi link, etc.)
+         Bugs:
+             - Chords like F# are not properly detected.
+             - when are the chords written in one line above the lyrics, the offset up looks wierd
+                (maybe fix for later. not really my problem that the user has written the chords in incorrect format)
+             - User unable to resend verification email after closing VerifyEmailScreen.
+                (need to implement prompt to verify email again if backend detects non verified email)
          */
         setContent {
             ChordsTheme(

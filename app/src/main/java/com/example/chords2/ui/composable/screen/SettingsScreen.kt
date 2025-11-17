@@ -1,10 +1,8 @@
 package com.example.chords2.ui.composable.screen
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,15 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
@@ -45,13 +37,7 @@ import com.example.chords2.data.model.util.ColorMode
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
-import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
-import com.example.chords2.ui.theme.Purple40
-import com.example.chords2.ui.theme.PurpleGrey40
-import com.example.chords2.ui.theme.primaryDark
-import com.example.chords2.ui.theme.secondaryContainerDark
-import com.example.chords2.ui.theme.secondaryDark
 import com.example.chords2.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,7 +72,7 @@ fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             for (setting in Settings.all) {
-                if (!setting.dilplayInSettings) continue
+                if (!setting.displayInSettings) continue
                 when (setting) {
 //                    is Settings.SortBySetting -> {
 //                        SettingsRow(

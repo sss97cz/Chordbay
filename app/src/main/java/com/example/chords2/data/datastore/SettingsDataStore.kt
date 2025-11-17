@@ -11,16 +11,9 @@ import kotlinx.coroutines.flow.map
 
 class SettingsDataStore(context: Context) {
     private val dataStore = context.dataStoreSettings
-    @Suppress("UNCHECKED_CAST")
     fun <T> getSetting(setting: Settings<T>): Flow<T> {
         return dataStore.data.map { preferences ->
-            val rawValue = preferences[setting.preferencesKey]
-            when (setting) {
-                is Settings.SortBySetting -> SortBy.valueOf(rawValue ?: setting.defaultValue.name)
-                is Settings.ThemeSetting -> ThemeMode.valueOf(rawValue ?: setting.defaultValue.name)
-                is Settings.FontSize -> (rawValue ?: setting.defaultValue.toString()).toInt()
-                is Settings.ColorModeSetting -> ColorMode.valueOf(rawValue ?: setting.defaultValue.name)
-            } as T
+            setting.parse(raw = preferences[setting.preferencesKey])
         }
     }
 
@@ -29,5 +22,4 @@ class SettingsDataStore(context: Context) {
             preferences[setting.preferencesKey] = value.toString()
         }
     }
-
 }
