@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
              - Properly host the MongoDB.
              - Publishing the app to Play Store. (Remove all songs from remote, add privacy policy, kofi link, etc.)
          Bugs:
-             - Chords like F# are not properly detected.
+             - Chords like F# are not properly detected. **Fixed**
              - when are the chords written in one line above the lyrics, the offset up looks wierd
                 (maybe fix for later. not really my problem that the user has written the chords in incorrect format)
              - User unable to resend verification email after closing VerifyEmailScreen.

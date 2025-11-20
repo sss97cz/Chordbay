@@ -102,22 +102,23 @@ fun VerifyEmailScreen(
                     .fillMaxSize()
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
+                verticalArrangement = Arrangement.spacedBy(30.dp, Alignment.Top)
             ) {
                 Spacer(Modifier.height(12.dp))
 
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("📧", style = MaterialTheme.typography.headlineMedium)
-                }
+//                Box(
+//                    modifier = Modifier
+//                        .size(72.dp)
+//                        .clip(CircleShape)
+//                        .background(MaterialTheme.colorScheme.primaryContainer),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text("📧", style = MaterialTheme.typography.headlineMedium)
+//                }
                 Text(
                     text = "Verify your email",
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = "We sent a verification link to your email: $email. Open it and tap verify to continue.",

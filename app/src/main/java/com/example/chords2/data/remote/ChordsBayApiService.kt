@@ -67,5 +67,7 @@ interface ChordsBayApiService {
     ): Response<List<SongDto>>
 
     @GET("/api/songs/most-viewed")
-    suspend fun getSongsByViewedCount(): Response<List<SongDto>>
+    suspend fun getSongsByViewedCount(
+        @Query("limit") limit: Int = 25
+    ): Response<List<SongDto>>
 }

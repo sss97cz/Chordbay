@@ -127,4 +127,45 @@ class AuthViewModel(
                 }
         }
     }
+
+    fun deleteAccount() {
+        _loading.value = true
+        viewModelScope.launch {
+            authRepository.deleteAccount()
+                .onSuccess {
+                    setUserEmail(null)
+                    userDataStore.saveUsername("")
+                    Log.d("AuthViewModel", "Account deleted successfully")
+                    _loading.value = false
+                }
+                .onFailure { exception ->
+//                    _error.value = "Account deletion failed: ${exception.message}"
+//                    _loading.value = false
+                    if (exception.message?.contains("401") == true) {
+                        // Token might be expired, try refreshing
+                        val result = authRepository.refresh()
+                        result.onSuccess {
+                            // Retry account deletion after successful token refresh
+                            authRepository.deleteAccount()
+                                .onSuccess {
+                                    setUserEmail(null)
+                                    userDataStore.saveUsername("")
+                                    Log.d("AuthViewModel", "Account deleted successfully after token refresh")
+                                    _loading.value = false
+                                }
+                                .onFailure { deleteException ->
+                                    _error.value = "Account deletion failed: ${deleteException.message}"
+                                    _loading.value = false
+                                }
+                        }.onFailure { refreshException ->
+                            _error.value = "Token refresh failed: ${refreshException.message}"
+                            _loading.value = false
+                        }
+                    } else {
+                        _error.value = "Account deletion failed: ${exception.message}"
+                        _loading.value = false
+                    }
+                }
+        }
+    }
 }

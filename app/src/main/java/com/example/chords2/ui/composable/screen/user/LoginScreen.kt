@@ -137,26 +137,27 @@ fun LoginScreen(
                     .fillMaxSize()
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
+                verticalArrangement = Arrangement.spacedBy(30.dp, Alignment.Top)
             ) {
                 Spacer(Modifier.height(12.dp))
 
                 // Header
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "🔐",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
+//                Box(
+//                    modifier = Modifier
+//                        .size(72.dp)
+//                        .clip(CircleShape)
+//                        .background(MaterialTheme.colorScheme.primaryContainer),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text(
+//                        "🔐",
+//                        style = MaterialTheme.typography.headlineMedium
+//                    )
+//                }
                 Text(
                     text = "Welcome back",
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = "Sign in to access all app features.",
@@ -167,7 +168,7 @@ fun LoginScreen(
 
                 // Card with inputs
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     shape = RoundedCornerShape(16.dp)
@@ -302,7 +303,6 @@ fun LoginScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
             }
 
             if (isLoading.value) {

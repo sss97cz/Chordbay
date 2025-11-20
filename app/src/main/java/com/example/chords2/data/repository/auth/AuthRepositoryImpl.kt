@@ -109,6 +109,24 @@ class AuthRepositoryImpl(
         }
     }
 
+    override suspend fun deleteAccount(): Result<Unit> {
+        return try {
+            val accessToken = credentialManager.getAccessToken()
+                ?: return Result.failure(Exception("No access token available"))
+            val response = authApiService.deleteAccount("Bearer $accessToken")
+            if (response.isSuccessful) {
+                // Clear tokens from CredentialManager
+                credentialManager.clearTokens()
+                _isUserLoggedIn.value = false
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Delete account failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun getAccessToken(): String? =
         credentialManager.getAccessToken()
 

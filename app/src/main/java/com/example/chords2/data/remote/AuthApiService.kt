@@ -6,6 +6,8 @@ import com.example.chords2.data.remote.model.RefreshRequest
 import com.example.chords2.data.remote.model.ResendRequest
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthApiService {
@@ -23,4 +25,10 @@ interface AuthApiService {
 
     @POST("/api/auth/verify/resend")
     suspend fun resendVerificationEmail(@Body body: ResendRequest): Response<Unit>
+
+    @DELETE("/api/auth/me")
+    suspend fun deleteAccount(
+        @Header("Authorization")
+        token: String
+    ): Response<Unit>
 }

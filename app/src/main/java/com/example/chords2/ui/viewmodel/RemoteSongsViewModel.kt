@@ -85,7 +85,7 @@ class RemoteSongsViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val showMostViewed = MutableStateFlow(false)
+    val showMostViewed = MutableStateFlow(true)
     fun onShowMostViewedClick() {
         showMostViewed.value = !showMostViewed.value
         if (showMostViewed.value) {
