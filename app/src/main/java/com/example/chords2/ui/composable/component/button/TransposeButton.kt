@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +37,8 @@ fun TransposeButton(
     onUpClick: () -> Unit,
     onDownClick: () -> Unit
 ) {
-    var currentChordString by remember { mutableStateOf(initialChord) }
-    var currentSemitones by remember { mutableIntStateOf(initialSemitones) }
-//    LaunchedEffect(initialChord, initialSemitones) {
-//        currentSemitones = initialSemitones
-//        currentChordString = initialChord.transposeChord(currentSemitones)
-//    }
+    var currentChordString by rememberSaveable { mutableStateOf(initialChord) }
+    var currentSemitones by rememberSaveable { mutableIntStateOf(initialSemitones) }
     Box(
         modifier = modifier
             .clip(CircleShape)

@@ -292,7 +292,9 @@ fun PortraitSearchBarHeader(
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
-                        modifier = Modifier.height(32.dp).widthIn(min = 72.dp)
+                        modifier = Modifier
+                            .height(32.dp)
+                            .widthIn(min = 72.dp)
                     )
                 }
                 AssistChip(
@@ -319,13 +321,16 @@ fun PortraitSearchBarHeader(
                             )
                         }
                     },
-                    modifier = Modifier.height(32.dp).width(95.dp)
+                    modifier = Modifier
+                        .height(32.dp)
+                        .width(95.dp)
                 )
             }
         }
     }
     HorizontalDivider(Modifier.padding(top = 4.dp))
 }
+
 @Composable
 fun LandscapeSearchBarHeader(
     remoteSongsViewModel: RemoteSongsViewModel,
@@ -457,7 +462,7 @@ fun LandscapeSearchBarHeader(
                 )
                 val showMostViewed = remoteSongsViewModel.showMostViewed.collectAsState()
                 val sortByArtist = remoteSongsViewModel.sortArtists.collectAsState()
-                if (searchOption.value == ResultMode.SONGS){
+                if (searchOption.value == ResultMode.SONGS) {
                     FilterChip(
                         selected = showMostViewed.value,
                         onClick = {
@@ -513,6 +518,7 @@ fun GridResultList(
     navController: NavController,
     remoteSongsViewModel: RemoteSongsViewModel,
 ) {
+    val mostViewed = remoteSongsViewModel.showMostViewed.collectAsState()
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
@@ -545,18 +551,8 @@ fun GridResultList(
                 )
             }
         } else {
-//            if (query.isBlank()) {
-//                item(span = { GridItemSpan(2) }) {
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(240.dp)
-//                    ) {
-//                        SongsQueryPrompt(modifier = Modifier.fillMaxSize())
-//                    }
-//                }
-//            } else {
-                if (songs.isEmpty()) {
+            if (songs.isEmpty()) {
+                if (query.isNotBlank()) {
                     item(span = { GridItemSpan(2) }) {
                         NothingFoundPrompt(
                             modifier = Modifier
@@ -566,25 +562,35 @@ fun GridResultList(
                             message = "Try a different query"
                         )
                     }
+                } else {
+                    item(span = { GridItemSpan(2) }) {
+                        SongsQueryPrompt(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(240.dp)
+                        )
+                    }
                 }
-                items(songs) { song ->
-                    RemoteSongItem(
-                        songTitle = song.title,
-                        songArtist = song.artist,
-                        isSynced = song.markSynced,
-                        onSongClick = {
-                            navController.navigate(
-                                Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
-                            )
-                        },
-                        onLongClick = { },
-                        onDownloadClick = {
-                            remoteSongsViewModel.saveSong(song)
-                        },
-                    )
-                }
-//            }
+            }
+
         }
+        items(songs) { song ->
+            RemoteSongItem(
+                songTitle = song.title,
+                songArtist = song.artist,
+                isSynced = song.markSynced,
+                onSongClick = {
+                    navController.navigate(
+                        Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
+                    )
+                },
+                onLongClick = { },
+                onDownloadClick = {
+                    remoteSongsViewModel.saveSong(song)
+                },
+            )
+        }
+//            }
     }
 }
 
@@ -628,18 +634,16 @@ fun NormalResultList(
                 )
             }
         } else {
-//            if (query.isBlank()) {
-//                item {
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(240.dp)
-//                    ) {
-//                        SongsQueryPrompt(modifier = Modifier.fillMaxSize())
-//                    }
-//                }
-//            } else {
-                if (songs.isEmpty()) {
+            if (songs.isEmpty()) {
+                if (query.isBlank()) {
+                    item {
+                        SongsQueryPrompt(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(240.dp)
+                        )
+                    }
+                } else {
                     item {
                         NothingFoundPrompt(
                             modifier = Modifier
@@ -650,21 +654,22 @@ fun NormalResultList(
                         )
                     }
                 }
-                items(songs) { song ->
-                    RemoteSongItem(
-                        songTitle = song.title,
-                        songArtist = song.artist,
-                        isSynced = song.markSynced,
-                        onSongClick = {
-                            navController.navigate(
-                                Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
-                            )
-                        },
-                        onLongClick = { },
-                        onDownloadClick = {
-                            remoteSongsViewModel.saveSong(song)
-                        },
-                    )
+            }
+            items(songs) { song ->
+                RemoteSongItem(
+                    songTitle = song.title,
+                    songArtist = song.artist,
+                    isSynced = song.markSynced,
+                    onSongClick = {
+                        navController.navigate(
+                            Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
+                        )
+                    },
+                    onLongClick = { },
+                    onDownloadClick = {
+                        remoteSongsViewModel.saveSong(song)
+                    },
+                )
 //                }
             }
         }
@@ -726,14 +731,14 @@ fun SongsQueryPrompt(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = "Try a title or artist name",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
         }
     }

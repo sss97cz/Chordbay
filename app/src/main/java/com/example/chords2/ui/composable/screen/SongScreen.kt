@@ -80,7 +80,7 @@ fun SongScreen(
     }
     val song = songData
     val canNavigateBack = remember { navController.previousBackStackEntry != null }
-    var semitones by remember { mutableIntStateOf(0) }
+    var semitones by rememberSaveable { mutableIntStateOf(0) }
     val fontSize = mainViewModel.songTextFontSize.collectAsState()
     val sliderState = remember { mutableFloatStateOf(fontSize.value.toFloat()) }
     var showSlider by rememberSaveable { mutableStateOf(false) }
@@ -109,10 +109,10 @@ fun SongScreen(
                 },
                 actions = {
                     if (song != null) {
-                        val key = findKey(song.content)
+                        val key = findKey(song.content, semitones = semitones)
                         if (key != null) {
                             TransposeButton(
-                                initialSemitones = 0,
+                                initialSemitones = semitones,
                                 initialChord = key,
                                 onUpClick = {
                                     semitones += 1
