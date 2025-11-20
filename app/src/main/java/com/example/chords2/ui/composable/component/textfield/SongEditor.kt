@@ -35,14 +35,17 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -58,12 +61,14 @@ fun SongEditor(
     val focusRequester = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
+    var isFocused by remember { mutableStateOf(false) }
 
-    // Track caret rect
-    var caretRect by remember { mutableStateOf<Rect?>(null) }
-
-    // IME visibility (Compose 1.6+)
-    val imeVisible = WindowInsets.isImeVisible
+    val borderColor = if (isFocused) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outline
+    }
+    val boarderWidth = if (isFocused) 2.dp else 1.dp
 
     Surface(
         modifier = modifier
@@ -72,36 +77,39 @@ fun SongEditor(
         color = MaterialTheme.colorScheme.surface
     ) {
         Column(Modifier.fillMaxSize()) {
+            // Attach the bringIntoViewRequester to the scrollable container.
             Box(
                 Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outline,
-                        RoundedCornerShape(12.dp)
+                        boarderWidth,
+                        borderColor,
+                        MaterialTheme.shapes.extraSmall
                     )
                     .background(
                         MaterialTheme.colorScheme.surface,
-                        RoundedCornerShape(12.dp)
+                        MaterialTheme.shapes.extraSmall
                     )
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
                     ) {
-                        focusRequester.requestFocus()
-                        // Initial attempt (may be before IME appears)
-                        scope.launch { bringIntoViewRequester.bringIntoView() }
+                        // request focus from a coroutine
+                        scope.launch {
+                            focusRequester.requestFocus()
+                        }
                     }
                     .verticalScroll(scrollState)
+                    .bringIntoViewRequester(bringIntoViewRequester) // <-- requester on scroll container
             ) {
                 BasicTextField(
                     value = value,
                     onValueChange = onValueChange,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 16.sp,
-                        lineHeight = 22.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontFamily = FontFamily.Monospace
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     keyboardOptions = KeyboardOptions(
@@ -113,10 +121,22 @@ fun SongEditor(
                         .padding(16.dp)
                         .heightIn(min = 200.dp)
                         .focusRequester(focusRequester)
-                        .bringIntoViewRequester(bringIntoViewRequester),
+                        .onFocusChanged {
+                            isFocused = it.isFocused
+                        },
                     onTextLayout = { layoutResult ->
                         val idx = value.selection.end.coerceIn(0, value.text.length)
-                        caretRect = layoutResult.getCursorRect(idx)
+                        val caret = layoutResult.getCursorRect(idx)
+                        val extra = with(density) { 24.dp.toPx() }  // use captured density
+                        val inflated = Rect(
+                            caret.left,
+                            caret.top,
+                            caret.right,
+                            caret.bottom + extra
+                        )
+                        scope.launch {
+                            bringIntoViewRequester.bringIntoView(inflated)
+                        }
                     }
                 ) { inner ->
                     if (value.text.isEmpty()) {
@@ -124,29 +144,13 @@ fun SongEditor(
                             "Type your song here...",
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            ),
+                            fontFamily = FontFamily.Monospace
                         )
                     }
                     inner()
                 }
             }
-        }
-    }
-
-    // React after IME becomes visible or selection changes.
-    // This ensures we run AFTER inset changes & layout pass.
-    LaunchedEffect(imeVisible, value.selection, caretRect) {
-        if (imeVisible && caretRect != null) {
-            val extraBottom = with(density) { 24.dp.toPx() }
-            val inflated = Rect(
-                caretRect!!.left,
-                caretRect!!.top,
-                caretRect!!.right,
-                caretRect!!.bottom + extraBottom
-            )
-            // Delay one frame to ensure post-inset layout is stable.
-            withFrameNanos { }
-            bringIntoViewRequester.bringIntoView(inflated)
         }
     }
 }
