@@ -32,6 +32,7 @@ class AuthViewModel(
         }
     }
 
+
     val isUserLoggedIn: StateFlow<Boolean> = authRepository.isUserLoggedIn
     private val _userEmail = MutableStateFlow<String?>(null)
     val userEmail: StateFlow<String?> = _userEmail.asStateFlow()

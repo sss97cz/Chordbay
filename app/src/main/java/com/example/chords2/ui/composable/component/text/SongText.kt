@@ -1,7 +1,6 @@
 package com.example.chords2.ui.composable.component.text
 
 import android.util.Log
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,7 +15,9 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.example.chords2.data.model.util.Chords
+import com.example.chords2.data.model.util.Chords.A.mapBaseChord
 import com.example.chords2.data.model.util.Chords.Companion.transpose
+import com.example.chords2.data.model.util.HBFormat
 
 @Composable
 fun SongText(
@@ -24,13 +25,17 @@ fun SongText(
     text: String,
     fontSize: Int,
     semitones: Int,
-    chordsColor: Color = Color.Unspecified
+    chordsColor: Color = Color.Unspecified,
+    hBFormat: HBFormat = HBFormat.GER,
+    hbFormatSong: HBFormat = HBFormat.GER,
 ) {
     Text(
         text = text.highlightChords(
             semitones = semitones,
             chordsColor = chordsColor,
             fontSize = fontSize,
+            hBFormat = hBFormat,
+            hbFormatSong = hbFormatSong,
         ),
         modifier = modifier,
         fontFamily = FontFamily.Monospace,
@@ -42,9 +47,11 @@ fun SongText(
 private fun String.highlightChords(
     semitones: Int,
     fontSize: Int,
-    chordsColor: Color = Color.Unspecified
+    chordsColor: Color = Color.Unspecified,
+    hBFormat: HBFormat,
+    hbFormatSong: HBFormat,
 ): AnnotatedString {
-    val allChords = Chords.allChordsToString()
+    val allChords = Chords.allChordsToString(hbFormatSong)
     Log.d("SongText", "highlightChords: $allChords")
 
     var isBuildingChord = false
@@ -70,12 +77,15 @@ private fun String.highlightChords(
                                 baselineShift = BaselineShift(0.5f),
                             )
                         ) {
-                            val baseChord = Chords.allBaseChords
+                            val baseChord = Chords.getBaseChordsList(hbFormatSong)
                                 .sortedByDescending { it.value.length }
                                 .firstOrNull { chordContent.startsWith(it.value) }
                             val suffix = chordContent.substringAfter(baseChord?.value ?: "")
                             val transposedBaseChord =
-                                baseChord?.transpose(semitones)?.value ?: "error"
+                                baseChord?.transpose(semitones, hBFormat)?.mapBaseChord(
+                                    userFormat = hBFormat,
+                                    songFormat = hbFormatSong
+                                ) ?: "error"
                             append(transposedBaseChord + suffix)
                         }
                         withStyle(

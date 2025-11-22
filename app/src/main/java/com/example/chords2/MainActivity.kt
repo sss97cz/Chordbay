@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
              - Improve playlist functionality.
              - Fully polish the UI of the app (mainly the song editor and settings, error handling). **Working on**
              - All around code cleanup. **Working on**
+             - manage the B,H/A#,B
              - Testing.
              - Add app icon.
              (Optional)

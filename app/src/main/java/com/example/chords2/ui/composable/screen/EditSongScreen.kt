@@ -1,11 +1,13 @@
 package com.example.chords2.ui.composable.screen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -25,16 +27,24 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -42,12 +52,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
+import com.example.chords2.data.model.util.HBFormat
 import com.example.chords2.ui.composable.component.alertdialog.EditInfoAlertDialog
 import com.example.chords2.ui.composable.component.textfield.SongEditor
 import com.example.chords2.ui.composable.component.textfield.SongTextField
@@ -67,7 +80,9 @@ fun EditSongScreen(
     val songArtist by viewModel.songArtist.collectAsState()
     val songContent by viewModel.songContent.collectAsState()
     val hasLoaded by viewModel.hasLoadedEdit.collectAsState()
+    val currentHBFormat by viewModel.hbFormat.collectAsState()
     val showInfoAlertDialog = rememberSaveable { mutableStateOf(false) }
+    val showMetadataDialog = rememberSaveable { mutableStateOf(false) }
 
     // Load song only once per songId
     LaunchedEffect(songId) {
@@ -113,6 +128,13 @@ fun EditSongScreen(
                     }) {
                         Icon(Icons.Outlined.Info, contentDescription = "Cancel")
                     }
+                    IconButton(
+                        onClick = {
+                            showMetadataDialog.value = true
+                        }
+                    ) {
+                        Icon(Icons.Outlined.Settings, contentDescription = "Edit Info")
+                    }
                     IconButton(onClick = {
                         viewModel.saveEditedSong(songId)
                         navController.navigateUp()
@@ -129,12 +151,27 @@ fun EditSongScreen(
             val layoutDirection = LocalLayoutDirection.current
             val navPadding = WindowInsets.navigationBars.asPaddingValues()
 
-            val start = max(0.dp, innerPadding.calculateStartPadding(layoutDirection) - navPadding.calculateStartPadding(layoutDirection))
-            val end = max(0.dp, innerPadding.calculateEndPadding(layoutDirection) - navPadding.calculateEndPadding(layoutDirection))
-            val top = max(0.dp, innerPadding.calculateTopPadding() - navPadding.calculateTopPadding())
-            val bottom = max(0.dp, innerPadding.calculateBottomPadding() - navPadding.calculateBottomPadding())
+            val start = max(
+                0.dp,
+                innerPadding.calculateStartPadding(layoutDirection) - navPadding.calculateStartPadding(
+                    layoutDirection
+                )
+            )
+            val end = max(
+                0.dp,
+                innerPadding.calculateEndPadding(layoutDirection) - navPadding.calculateEndPadding(
+                    layoutDirection
+                )
+            )
+            val top =
+                max(0.dp, innerPadding.calculateTopPadding() - navPadding.calculateTopPadding())
+            val bottom = max(
+                0.dp,
+                innerPadding.calculateBottomPadding() - navPadding.calculateBottomPadding()
+            )
 
-            val adjustedInnerPadding = PaddingValues(start = start, top = top, end = end, bottom = bottom)
+            val adjustedInnerPadding =
+                PaddingValues(start = start, top = top, end = end, bottom = bottom)
             val imeVisible = WindowInsets.isImeVisible
             Row(
                 modifier = modifier
@@ -154,27 +191,27 @@ fun EditSongScreen(
                     elevation = CardDefaults.cardElevation(4.dp),
                     border = CardDefaults.outlinedCardBorder(true)
                 ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    SongTextField(
-                        value = songName ?: "",
-                        onValueChange = { viewModel.setSongName(it) },
-                        singleLine = true,
-                        label = "Song Title"
-                    )
-                    SongTextField(
-                        value = songArtist,
-                        onValueChange = { viewModel.setSongArtist(it) },
-                        singleLine = true,
-                        label = "Artist"
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState())
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        SongTextField(
+                            value = songName ?: "",
+                            onValueChange = { viewModel.setSongName(it) },
+                            singleLine = true,
+                            label = "Song Title"
+                        )
+                        SongTextField(
+                            value = songArtist,
+                            onValueChange = { viewModel.setSongArtist(it) },
+                            singleLine = true,
+                            label = "Artist"
+                        )
+                    }
                 }
-              }
                 SongEditor(
                     modifier = Modifier
                         .weight(2f)
@@ -223,7 +260,95 @@ fun EditSongScreen(
                     showAlertDialog = showInfoAlertDialog.value,
                     onDismissRequest = { showInfoAlertDialog.value = false }
                 )
+                MetadataDialog(
+                    showDialog = showMetadataDialog.value,
+                    onDismissRequest = { showMetadataDialog.value = false },
+                    currentHBFormat = currentHBFormat,
+                    onHBFormatChange = { viewModel.setHbFormat(it) }
+                )
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MetadataDialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    currentHBFormat: HBFormat,
+    onHBFormatChange: (HBFormat) -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = {
+                Text(text = "Metadata")
+            },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    HBFormatSelection(
+                        selectedHBFormat = currentHBFormat,
+                        onHBFormatSelected = { onHBFormatChange(it) }
+                    )
+                }
+            },
+            confirmButton = {
+                IconButton(
+                    onClick = onDismissRequest
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Done,
+                        contentDescription = "Done"
+                    )
+                }
+            },
+            dismissButton = {
+                IconButton(
+                    onClick = onDismissRequest
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Cancel"
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun HBFormatSelection(
+    selectedHBFormat: HBFormat,
+    onHBFormatSelected: (HBFormat) -> Unit
+) {
+    HorizontalDivider()
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ){
+        Text(text = "Chord Format:")
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            HBFormat.entries.forEach {
+                FilterChip(
+                    selected = it == selectedHBFormat,
+                    onClick = { onHBFormatSelected(it) },
+                    label = { Text(text = it.value) },
+                    colors = if (it == selectedHBFormat) {
+                        FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            labelColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        FilterChipDefaults.filterChipColors()
+                    }
+                )
+            }
+        }
+    }
+    HorizontalDivider()
 }

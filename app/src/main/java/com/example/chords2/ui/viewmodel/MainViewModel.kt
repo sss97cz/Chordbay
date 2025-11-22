@@ -8,6 +8,7 @@ import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.datastore.UserDataStore
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.util.ColorMode
+import com.example.chords2.data.model.util.HBFormat
 import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
@@ -99,6 +100,18 @@ class MainViewModel(
     fun saveColorMode(colorMode: ColorMode) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.ColorModeSetting, colorMode)
+        }
+    }
+    // HB Format
+    val hbFormat: StateFlow<HBFormat> = settingsDataStore.getSetting(Settings.HBFormatSetting)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = Settings.HBFormatSetting.defaultValue
+        )
+    fun saveHBFormat(format: HBFormat) {
+        viewModelScope.launch {
+            settingsDataStore.setSetting(Settings.HBFormatSetting, format)
         }
     }
 

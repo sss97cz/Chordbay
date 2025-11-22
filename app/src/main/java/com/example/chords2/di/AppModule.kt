@@ -50,6 +50,7 @@ val appModule = module {
     viewModel {
         EditViewModel(
             get(),
+            get()
         )
     }
     single<CoroutineScope> { CoroutineScope(Dispatchers.IO) }

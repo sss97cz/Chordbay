@@ -2,15 +2,9 @@ package com.example.chords2.data.mappers
 
 import com.example.chords2.data.database.song.SongEntity
 import com.example.chords2.data.model.Song
-import com.example.chords2.data.model.SongUi
+import com.example.chords2.data.model.util.HBFormat
 import com.example.chords2.data.remote.model.SongDto
 
-fun Song.toSongUi(): SongUi =
-    SongUi(
-        title = title,
-        artist = artist,
-        content = content,
-    )
 fun SongEntity.toSong(): Song =
     Song(
         localId = id,
@@ -18,6 +12,7 @@ fun SongEntity.toSong(): Song =
         title = title,
         artist = artist,
         content = content,
+        hBFormat = hBFormat
     )
 fun SongDto.toSong(): Song =
     Song(
@@ -25,7 +20,8 @@ fun SongDto.toSong(): Song =
         title = title,
         artist = artist,
         content = content,
-        isPublic = isPublic
+        isPublic = isPublic,
+        hBFormat = if(germanNotation) HBFormat.GER else HBFormat.ENG
     )
 fun Song.toDto(isRequest: Boolean = true): SongDto =
     SongDto(
@@ -33,7 +29,8 @@ fun Song.toDto(isRequest: Boolean = true): SongDto =
         title = title,
         artist = artist,
         content = content,
-        isPublic = isPublic
+        isPublic = isPublic,
+        germanNotation = hBFormat == HBFormat.GER
     )
 fun Song.toSongEntity(): SongEntity =
     SongEntity(
@@ -42,11 +39,5 @@ fun Song.toSongEntity(): SongEntity =
         title = title,
         artist = artist,
         content = content,
-    )
-
-fun SongUi.toSong(): Song =
-    Song(
-        title = title,
-        artist = artist,
-        content = content,
+        hBFormat = hBFormat
     )

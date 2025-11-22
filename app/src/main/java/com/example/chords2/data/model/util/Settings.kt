@@ -44,10 +44,19 @@ sealed class Settings<T>(
         override fun parse(raw: String?): ColorMode =
             ColorMode.valueOf(raw ?: defaultValue.name)
     }
+    object HBFormatSetting : Settings<HBFormat>(
+        title = "Chord Format",
+        defaultValue = HBFormat.GER,
+        preferencesKey = stringPreferencesKey("hb_format"),
+        true,
+    ){
+        override fun parse(raw: String?): HBFormat =
+            HBFormat.valueOf(raw ?: defaultValue.name)
+    }
 
     companion object{
         val all = listOf(
-            SortBySetting, ThemeSetting, FontSize,  ColorModeSetting
+            SortBySetting, ThemeSetting, FontSize, ColorModeSetting, HBFormatSetting
         )
     }
 }

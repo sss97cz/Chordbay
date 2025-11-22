@@ -1,7 +1,9 @@
 package com.example.chords2.data.helper
 
 import com.example.chords2.data.model.util.Chords
+import com.example.chords2.data.model.util.Chords.Companion.toCanonical
 import com.example.chords2.data.model.util.Chords.Companion.transpose
+import com.example.chords2.data.model.util.HBFormat
 import kotlin.math.roundToInt
 
 fun pluralText(msg: String, count: Int): String {
@@ -13,7 +15,7 @@ fun calculatePercentage(range: IntRange, value: Float): Int {
     return percentage.roundToInt()
 }
 
-fun findKey(song: String, semitones: Int = 0): String? {
+fun findKey(song: String, hbFormat: HBFormat, songHBFormat: HBFormat): String? {
     val openBracketIndex = song.indexOf('[')
     if (openBracketIndex == -1) {
         return null
@@ -28,11 +30,10 @@ fun findKey(song: String, semitones: Int = 0): String? {
     if (firstChord.isEmpty()) {
         return null
     }
-    // kotlin
-    val baseChord = Chords.allBaseChords
+    val formatsMatch = hbFormat == songHBFormat
+    val baseChord = Chords.getBaseChordsList(songHBFormat)
         .sortedByDescending { it.value.length }
         .firstOrNull { firstChord.startsWith(it.value) }
 
-    val transposed = baseChord?.transpose(semitones)
     return baseChord?.value
 }

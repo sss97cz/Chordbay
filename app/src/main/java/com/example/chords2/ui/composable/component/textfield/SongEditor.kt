@@ -101,7 +101,7 @@ fun SongEditor(
                         }
                     }
                     .verticalScroll(scrollState)
-                    .bringIntoViewRequester(bringIntoViewRequester) // <-- requester on scroll container
+                    .bringIntoViewRequester(bringIntoViewRequester)
             ) {
                 BasicTextField(
                     value = value,

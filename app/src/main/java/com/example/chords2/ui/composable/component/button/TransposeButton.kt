@@ -26,7 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.example.chords2.data.model.util.Chords
 import com.example.chords2.data.model.util.Chords.Companion.transposeChord
+import com.example.chords2.data.model.util.HBFormat
 import com.example.chords2.ui.theme.imagevector.Check_indeterminate_small
 
 @Composable
@@ -35,10 +37,14 @@ fun TransposeButton(
     initialSemitones: Int,
     initialChord: String,
     onUpClick: () -> Unit,
-    onDownClick: () -> Unit
+    onDownClick: () -> Unit,
+    hBFormat: HBFormat = HBFormat.ENG,
+    songHBFormat: HBFormat
 ) {
-    var currentChordString by rememberSaveable { mutableStateOf(initialChord) }
-    var currentSemitones by rememberSaveable { mutableIntStateOf(initialSemitones) }
+    var currentSemitones by rememberSaveable(initialSemitones) { mutableIntStateOf(initialSemitones) }
+    var currentChordString by rememberSaveable(initialChord, initialSemitones, hBFormat, songHBFormat) {
+        mutableStateOf(initialChord.transposeChord(initialSemitones, hBFormat, songHBFormat))
+    }
     Box(
         modifier = modifier
             .clip(CircleShape)
@@ -58,7 +64,7 @@ fun TransposeButton(
                 onClick = {
                     currentSemitones--
                     onDownClick()
-                    currentChordString = initialChord.transposeChord(currentSemitones)
+                    currentChordString = initialChord.transposeChord(currentSemitones, hBFormat, songHBFormat)
 
                 },
                 modifier = Modifier.size(25.dp)
@@ -76,7 +82,7 @@ fun TransposeButton(
                 onClick = {
                     currentSemitones++
                     onUpClick()
-                    currentChordString = initialChord.transposeChord(currentSemitones)
+                    currentChordString = initialChord.transposeChord(currentSemitones, hBFormat, songHBFormat)
                 },
                 modifier = Modifier.size(25.dp)
             ) {

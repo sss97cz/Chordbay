@@ -5,15 +5,22 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewModelScope
+import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.util.HBFormat
+import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.repository.song.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class EditViewModel(
-    private val songRepository: SongRepository
+    private val songRepository: SongRepository,
+    private val settingsDataStore: SettingsDataStore
 ): ViewModel() {
     private val _songName = MutableStateFlow<String?>(null)
     val songName = _songName.asStateFlow()
@@ -21,6 +28,21 @@ class EditViewModel(
         _songName.value = name
         Log.d("SongViewModel", name)
     }
+
+   private val savedHbFormat: StateFlow<HBFormat> = settingsDataStore.getSetting(Settings.HBFormatSetting)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = HBFormat.ENG
+        )
+    private val _hbFormat: MutableStateFlow<HBFormat> = MutableStateFlow(
+        savedHbFormat.value
+    )
+    val hbFormat: StateFlow<HBFormat> = _hbFormat.asStateFlow()
+    fun setHbFormat(format: HBFormat) {
+        _hbFormat.value = format
+    }
+
 
     private val _songArtist = MutableStateFlow<String>("")
     val songArtist = _songArtist.asStateFlow()
@@ -53,6 +75,7 @@ class EditViewModel(
     private val _remoteId = MutableStateFlow<String?>(null)
     fun saveEditedSong(songId: String) {
         viewModelScope.launch {
+            Log.d("SongViewModel", "Saving song with HBFormat: $hbFormat")
             if (songId == "new") {
                 songRepository.insertSong(
                     Song(
@@ -60,7 +83,8 @@ class EditViewModel(
                         remoteId = null,
                         title = songName.value ?: "",
                         artist = songArtist.value,
-                        content = songContent.value.text
+                        content = songContent.value.text,
+                        hBFormat = hbFormat.value
                     )
                 )
             } else {
@@ -70,7 +94,8 @@ class EditViewModel(
                         remoteId = _remoteId.value,
                         title = songName.value ?: "",
                         artist = songArtist.value,
-                        content = songContent.value.text
+                        content = songContent.value.text,
+                        hBFormat = hbFormat.value
                     ).also { Log.d("SongViewModel", "$it") }
                 )
             }
@@ -86,6 +111,7 @@ class EditViewModel(
                     _songArtist.value = song.artist
                     _songContent.value = TextFieldValue(song.content)
                     _remoteId.value = song.remoteId
+                    _hbFormat.value = song.hBFormat
                     Log.d("SongViewModel", "Loaded song: $song")
                 } else {
                     Log.e("SongViewModel", "No song found with ID: $songId")

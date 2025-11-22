@@ -5,6 +5,7 @@ import com.example.chords2.data.database.song.SongEntity
 import com.example.chords2.data.mappers.toSong
 import com.example.chords2.data.mappers.toSongEntity
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.util.HBFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -21,7 +22,7 @@ class SongRepositoryImpl(
         songDao.insertSong(song.toSongEntity())
 
     override suspend fun insertSong(): Long =
-        songDao.insertSong(SongEntity())
+        songDao.insertSong(SongEntity(hBFormat = HBFormat.GER))
 
     override suspend fun updateSong(song: Song) {
         songDao.updateSong(song.toSongEntity())

@@ -42,7 +42,8 @@ object TestData {
                 to mladí lidi s báglama z domu odcházej.
 
                 Jó, ulice...
-            """.trimIndent()
+            """.trimIndent(),
+            hBFormat = com.example.chords2.data.model.util.HBFormat.ENG
         ),
         SongEntity(
             title = "Antos",
@@ -98,7 +99,8 @@ object TestData {
 
                 3x Ref.
 
-            """.trimIndent()
+            """.trimIndent(),
+            hBFormat = com.example.chords2.data.model.util.HBFormat.GER
         )
     )
 }

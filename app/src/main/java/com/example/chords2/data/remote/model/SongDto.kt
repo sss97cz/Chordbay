@@ -14,5 +14,8 @@ data class SongDto(
     @Json(name = "content")
     val content: String,
     @Json(name = "isPublic")
-    val isPublic: Boolean = true
+    val isPublic: Boolean = true,
+    @Json(name = "germanNotation")
+    val germanNotation: Boolean,
+
 )

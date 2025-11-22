@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chords2.data.helper.pluralText
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.util.HBFormat
 
 @Composable
 fun DeleteOptionDialog(
@@ -206,14 +207,16 @@ fun DeleteDialogPrev() {
                 remoteId = "abc",
                 title = "Song 1",
                 artist = "Artist 1",
-                content = "Content 1"
+                content = "Content 1",
+                hBFormat = HBFormat.GER
             ),
             Song(
                 localId = 2,
                 remoteId = "",
                 title = "Song 2sdjnvckjdsanvkjdsnkjdsnkjdsan",
                 artist = "Artist 2",
-                content = "Content 2"
+                content = "Content 2",
+                hBFormat = HBFormat.ENG
             )
         ),
         onDismiss = {},

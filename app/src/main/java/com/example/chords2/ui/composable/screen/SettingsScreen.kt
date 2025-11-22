@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chords2.data.model.util.ColorMode
+import com.example.chords2.data.model.util.HBFormat
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
@@ -51,6 +52,8 @@ fun SettingsScreen(
     var isSortMenuExpanded by remember { mutableStateOf(false) }
     var defaultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
     var isFontSizeMenuExpanded by remember { mutableStateOf(false) }
+    val hbFormat = mainViewModel.hbFormat.collectAsState()
+
     val themeMode = mainViewModel.themeMode.collectAsState().value
 
 
@@ -195,6 +198,20 @@ fun SettingsScreen(
                                     mainViewModel.saveColorMode(selectedMode)
                                 }
                             )
+                        }
+                    }
+                    is Settings.HBFormatSetting -> {
+                        SettingsRow(settingName = setting.title) {
+                            HBFormat.entries.forEach { format ->
+                                RadioButton(
+                                    selected = hbFormat.value == format,
+                                    onClick = { mainViewModel.saveHBFormat(format) }
+                                )
+                                Text(
+                                    text = format.value,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                         }
                     }
                     else -> {}

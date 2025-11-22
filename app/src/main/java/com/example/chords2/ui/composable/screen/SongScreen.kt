@@ -50,6 +50,7 @@ import androidx.navigation.NavController
 import com.example.chords2.data.helper.calculatePercentage
 import com.example.chords2.data.helper.findKey
 import com.example.chords2.data.model.Song
+import com.example.chords2.data.model.util.HBFormat
 import com.example.chords2.ui.composable.component.text.SongText
 import com.example.chords2.ui.composable.component.button.TransposeButton
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
@@ -84,6 +85,7 @@ fun SongScreen(
     val fontSize = mainViewModel.songTextFontSize.collectAsState()
     val sliderState = remember { mutableFloatStateOf(fontSize.value.toFloat()) }
     var showSlider by rememberSaveable { mutableStateOf(false) }
+    val hbFormat = mainViewModel.hbFormat.collectAsState()
 
     val isDropdownMenuExpanded = remember { mutableStateOf(false) }
 
@@ -109,7 +111,7 @@ fun SongScreen(
                 },
                 actions = {
                     if (song != null) {
-                        val key = findKey(song.content, semitones = semitones)
+                        val key = findKey(song.content, hbFormat = hbFormat.value, songHBFormat = song.hBFormat)
                         if (key != null) {
                             TransposeButton(
                                 initialSemitones = semitones,
@@ -119,7 +121,9 @@ fun SongScreen(
                                 },
                                 onDownClick = {
                                     semitones -= 1
-                                }
+                                },
+                                hBFormat = hbFormat.value,
+                                songHBFormat = song.hBFormat
                             )
                         }
                     }
@@ -180,12 +184,15 @@ fun SongScreen(
                             .verticalScroll(rememberScrollState())
                             .padding(8.dp)
                     ) {
+                        Log.d("SongScreen", "song.hBFormat: ${song.hBFormat}")
                         SongText(
                             modifier = Modifier.fillMaxSize(),
                             text = song.content,
                             semitones = semitones,
                             chordsColor = MaterialTheme.colorScheme.primary,
-                            fontSize = sliderState.floatValue.toInt()
+                            fontSize = sliderState.floatValue.toInt(),
+                            hBFormat = hbFormat.value,
+                            hbFormatSong = song.hBFormat,
                         )
                     }
                 }
