@@ -1,7 +1,9 @@
 package com.example.chords2.ui.composable.screen.user
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +47,9 @@ import androidx.navigation.NavController
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +80,6 @@ fun VerifyEmailScreen(
         topBar = {
             MyTopAppBar(
                 title = "Verify email",
-//                navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 navigationIconContentDescription = if (canNavigateBack) "Back" else null,
                 onNavigationIconClick = if (canNavigateBack) { { navController.navigateUp() } } else null,
                 actions = {}
@@ -106,15 +111,6 @@ fun VerifyEmailScreen(
             ) {
                 Spacer(Modifier.height(12.dp))
 
-//                Box(
-//                    modifier = Modifier
-//                        .size(72.dp)
-//                        .clip(CircleShape)
-//                        .background(MaterialTheme.colorScheme.primaryContainer),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text("📧", style = MaterialTheme.typography.headlineMedium)
-//                }
                 Text(
                     text = "Verify your email",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
@@ -164,6 +160,15 @@ fun VerifyEmailScreen(
 
                         TextButton(
                             onClick = {
+                                openEmailClient(context, snackbarHostState, scope)
+                            },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Text("Open email app")
+                        }
+
+                        TextButton(
+                            onClick = {
                                 authViewModel.resendVerificationEmail(email)
                                 scope.launch { snackbarHostState.showSnackbar("Verification email re-sent.") }
                             },
@@ -193,5 +198,15 @@ fun VerifyEmailScreen(
                 )
             }
         }
+    }
+}
+
+private fun openEmailClient(context: Context, snackbarHostState: SnackbarHostState, scope: CoroutineScope) {
+    val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_EMAIL)
+        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+    try {
+        context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        scope.launch { snackbarHostState.showSnackbar("No email client found") }
     }
 }

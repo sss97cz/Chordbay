@@ -44,6 +44,8 @@ class MainViewModel(
             authRepository.isUserLoggedIn.collect {
                 if (!it) {
                     _myRemoteSongsIds.value = emptySet()
+                } else {
+                    fetchMyRemoteSongs()
                 }
             }
         }
