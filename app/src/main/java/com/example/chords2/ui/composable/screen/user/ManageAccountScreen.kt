@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,8 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +51,7 @@ fun ManageAccountScreen(
     val emailText = emailState.value ?: "Not logged in"
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val showDeleteAccountDialog = rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -178,8 +182,9 @@ fun ManageAccountScreen(
 
                             TextButton(
                                 onClick = {
-                                    authViewModel.deleteAccount()
-                                    navController.popBackStack()
+//                                    authViewModel.deleteAccount()
+//                                    navController.popBackStack()
+                                    showDeleteAccountDialog.value = true
                                 },
                                 enabled = emailState.value != null
                             ) {
@@ -188,9 +193,56 @@ fun ManageAccountScreen(
                         }
                     }
                 }
-
                 Spacer(Modifier.height(8.dp))
             }
+            DeleteAccountDialog(
+                showDialog = showDeleteAccountDialog.value,
+                onDismiss = { showDeleteAccountDialog.value = false },
+                onConfirm = {
+                    showDeleteAccountDialog.value = false
+                    authViewModel.deleteAccount()
+                    navController.popBackStack()
+                }
+            )
         }
+    }
+}
+
+@Composable
+private fun DeleteAccountDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Delete Account") },
+            text = { Text(
+                """
+                Are you sure you want to delete your account?
+                This action cannot be undone.
+                All your uploaded songs will be permanently deleted.
+                """.trimIndent()
+            ) },
+            confirmButton = {
+                TextButton(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismiss
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

@@ -74,7 +74,7 @@ fun VerifyEmailScreen(
         topBar = {
             MyTopAppBar(
                 title = "Verify email",
-                navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
+//                navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 navigationIconContentDescription = if (canNavigateBack) "Back" else null,
                 onNavigationIconClick = if (canNavigateBack) { { navController.navigateUp() } } else null,
                 actions = {}

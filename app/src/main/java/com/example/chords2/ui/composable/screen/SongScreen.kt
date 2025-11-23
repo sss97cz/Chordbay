@@ -8,6 +8,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -56,9 +58,12 @@ import com.example.chords2.ui.composable.component.button.TransposeButton
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.MainViewModel
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
@@ -95,6 +100,14 @@ fun SongScreen(
         activeTrackColor = MaterialTheme.colorScheme.primary,
         inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
     )
+    LaunchedEffect(mainViewModel) {
+        snapshotFlow { sliderState.floatValue }
+            .debounce(300) // wait 300ms after last change
+            .distinctUntilChanged()
+            .collect { value ->
+                mainViewModel.setSongTextFontSize(value.toInt())
+            }
+    }
 
     Scaffold(
         topBar = {
@@ -171,7 +184,14 @@ fun SongScreen(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, _, zoom, _ ->
+                            if (zoom != 1f) {
+                                sliderState.floatValue = (sliderState.floatValue * zoom).coerceIn(10f, 30f)
+                            }
+                        }
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 if (song == null) {

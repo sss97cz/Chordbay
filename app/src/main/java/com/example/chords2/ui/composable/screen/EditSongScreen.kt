@@ -45,6 +45,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -75,7 +76,6 @@ fun EditSongScreen(
     navController: NavController,
     viewModel: EditViewModel,
 ) {
-    //TODO(Add an dialog for saving empty song)
     val songName by viewModel.songName.collectAsState()
     val songArtist by viewModel.songArtist.collectAsState()
     val songContent by viewModel.songContent.collectAsState()
@@ -83,6 +83,7 @@ fun EditSongScreen(
     val currentHBFormat by viewModel.hbFormat.collectAsState()
     val showInfoAlertDialog = rememberSaveable { mutableStateOf(false) }
     val showMetadataDialog = rememberSaveable { mutableStateOf(false) }
+    val showEmptySongDialog = rememberSaveable { mutableStateOf(false) }
 
     // Load song only once per songId
     LaunchedEffect(songId) {
@@ -136,6 +137,10 @@ fun EditSongScreen(
                         Icon(Icons.Outlined.Settings, contentDescription = "Edit Info")
                     }
                     IconButton(onClick = {
+                        if (songName?.isBlank() ?: true && songArtist.isBlank() && songContent.text.isBlank()) {
+                            showEmptySongDialog.value = true
+                            return@IconButton
+                        }
                         viewModel.saveEditedSong(songId)
                         navController.navigateUp()
                         viewModel.clearSongStates()
@@ -266,6 +271,15 @@ fun EditSongScreen(
                     currentHBFormat = currentHBFormat,
                     onHBFormatChange = { viewModel.setHbFormat(it) }
                 )
+                EmptySongDialog(
+                    showDialog = showEmptySongDialog.value,
+                    onDismissRequest = { showEmptySongDialog.value = false },
+                    onConfirm = {
+                        showEmptySongDialog.value = false
+                        navController.navigateUp()
+                        viewModel.clearSongStates()
+                    }
+                )
             }
         }
     }
@@ -351,4 +365,37 @@ private fun HBFormatSelection(
         }
     }
     HorizontalDivider()
+}
+
+@Composable
+private fun EmptySongDialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = {
+                Text(text = "Empty Song")
+            },
+            text = {
+                Text(text = "Are you sure you want to save an empty song?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = onConfirm
+                ) {
+                    Text(text = "Save Anyway")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismissRequest
+                ) {
+                    Text(text = "Continue Editing")
+                }
+            }
+        )
+    }
 }
