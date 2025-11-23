@@ -229,9 +229,7 @@ private fun DeleteAccountDialog(
                 TextButton(
                     onClick = onConfirm,
                     modifier = Modifier
-                        .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }

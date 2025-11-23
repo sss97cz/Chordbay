@@ -159,31 +159,35 @@ fun HomeScreen(
 
     val hbFormatState = mainViewModel.hbFormat.collectAsState()
 
-    // NEW: Import launcher
+// NEW: Import launcher (multiple files)
     val importLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
+        contract = ActivityResultContracts.OpenMultipleDocuments()
+    ) { uris ->
+        if (uris.isNotEmpty()) {
             scope.launch {
-                val fileName = context.contentResolver.getFileName(uri) ?: "Imported.txt"
-                val raw = context.contentResolver.openInputStream(uri)
-                    ?.bufferedReader(Charsets.UTF_8)
-                    ?.readText()
-                if (raw != null) {
-                    val (artist, title) = TxtSongIO.parseArtistTitleFromFileName(fileName)
-                    val song = Song(
-                        title = title,
-                        artist = artist,
-                        content = raw.replace("\r\n", "\n").replace("\r", "\n"),
-                        hBFormat = hbFormatState.value
-                    )
-                    mainViewModel.insertSong(song)
-                    // Provide feedback if you have a snackbar
-                    Log.d("HomeScreen", "Imported TXT as song: $title by $artist")
+                uris.forEach { uri ->
+                    try {
+                        val fileName = context.contentResolver.getFileName(uri) ?: "Imported.txt"
+                        val raw = context.contentResolver.openInputStream(uri)
+                            ?.bufferedReader(Charsets.UTF_8)
+                            ?.readText()
+                        if (!raw.isNullOrEmpty()) {
+                            val song = TxtSongIO.txtToSong(
+                                rawContent = raw,
+                                fileName = fileName,
+                                userHBFormat = hbFormatState.value
+                            )
+                            mainViewModel.insertSong(song)
+                            Log.d("HomeScreen", "Imported TXT as song: ${song.title} by ${song.artist}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("HomeScreen", "Failed to import $uri", e)
+                    }
                 }
             }
         }
     }
+
 
 
 

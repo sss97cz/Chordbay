@@ -13,23 +13,12 @@ class Encryptor() {
     private val secretKey: SecretKey by lazy { getOrCreateSecretKey() }
 
     companion object {
-        // Alias for the secret key stored in Android Keystore.
         private const val KEY_ALIAS = "MyAppCredentialKey"
-        // Transformation algorithm for AES encryption/decryption.
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
-        // Initialization Vector (IV) size in bytes for GCM mode.
         private const val IV_SIZE = 12
-        // Authentication Tag size in bits for GCM mode.
         private const val TAG_SIZE = 128
     }
 
-    /**
-     * Retrieves an existing SecretKey from Android Keystore or creates a new one if not present.
-     * The key is used for encrypting and decrypting credentials.
-     *
-     * @return The [SecretKey] for cryptographic operations.
-     * @throws Exception if Keystore or cryptographic operations fail.
-     */
     private fun getOrCreateSecretKey(): SecretKey {
         val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
 
@@ -46,14 +35,6 @@ class Encryptor() {
         return keyGenerator.generateKey()
     }
 
-    /**
-     * Encrypts the given plain text string using AES/GCM.
-     * The Initialization Vector (IV) is prepended to the ciphertext.
-     *
-     * @param plainText The string to encrypt.
-     * @return A Base64 encoded string of the IV combined with the encrypted data.
-     * @throws Exception if encryption fails.
-     */
     fun encrypt(plainText: String): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, secretKey)
@@ -68,14 +49,6 @@ class Encryptor() {
         return Base64.encodeToString(combined, Base64.NO_WRAP)
     }
 
-    /**
-     * Decrypts the given Base64 encoded encrypted data using AES/GCM.
-     * It expects the IV to be prepended to the ciphertext.
-     *
-     * @param encryptedData A Base64 encoded string containing the IV and ciphertext.
-     * @return The original plain text string.
-     * @throws Exception if decryption fails (e.g., wrong key, corrupted data).
-     */
     fun decrypt(encryptedData: String): String {
         val combined = Base64.decode(encryptedData, Base64.NO_WRAP)
 
