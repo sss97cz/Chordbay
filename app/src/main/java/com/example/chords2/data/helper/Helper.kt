@@ -1,5 +1,6 @@
 package com.example.chords2.data.helper
 
+import android.content.ContentResolver
 import com.example.chords2.data.model.util.Chords
 import com.example.chords2.data.model.util.Chords.Companion.toCanonical
 import com.example.chords2.data.model.util.Chords.Companion.transpose
@@ -36,4 +37,11 @@ fun findKey(song: String, hbFormat: HBFormat, songHBFormat: HBFormat): String? {
         .firstOrNull { firstChord.startsWith(it.value) }
 
     return baseChord?.value
+}
+
+fun ContentResolver.getFileName(uri: android.net.Uri): String? {
+    return query(uri, null, null, null, null)?.use { cursor ->
+        val index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+        if (index >= 0 && cursor.moveToFirst()) cursor.getString(index) else null
+    }
 }

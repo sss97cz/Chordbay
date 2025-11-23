@@ -1,6 +1,8 @@
 package com.example.chords2.ui.composable.screen
 
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -44,11 +46,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.chords2.data.helper.TxtSongIO
 import com.example.chords2.data.helper.calculatePercentage
 import com.example.chords2.data.helper.findKey
 import com.example.chords2.data.model.Song
@@ -91,6 +95,22 @@ fun SongScreen(
     val sliderState = remember { mutableFloatStateOf(fontSize.value.toFloat()) }
     var showSlider by rememberSaveable { mutableStateOf(false) }
     val hbFormat = mainViewModel.hbFormat.collectAsState()
+
+    val context = LocalContext.current
+
+    // NEW: Export launcher for creating a TXT document
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri ->
+        if (uri != null && song != null) {
+            val content = TxtSongIO.songToTxtContent(song)
+            context.contentResolver.openOutputStream(uri)?.use { out ->
+                out.write(content.toByteArray(Charsets.UTF_8))
+            }
+            // Optionally show a snackbar or toast (requires ScaffoldState / etc.)
+            Log.d("SongScreen", "Exported song to TXT: $uri")
+        }
+    }
 
     val isDropdownMenuExpanded = remember { mutableStateOf(false) }
 
@@ -169,6 +189,15 @@ fun SongScreen(
                                     }
                                 }
                             )
+                            if (song != null) {
+                                DropdownMenuItem(
+                                    text = { Text("Export as TXT") },
+                                    onClick = {
+                                        val suggestedFileName = TxtSongIO.buildFileName(song)
+                                        exportLauncher.launch(suggestedFileName)
+                                    }
+                                )
+                            }
                         }
                     }
                 }

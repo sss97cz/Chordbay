@@ -2,6 +2,8 @@ package com.example.chords2.ui.composable.screen
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
@@ -59,7 +61,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.platform.LocalContext
+import com.example.chords2.data.helper.TxtSongIO
+import com.example.chords2.data.helper.getFileName
+import com.example.chords2.data.model.Song
 import com.example.chords2.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.example.chords2.ui.composable.component.alertdialog.DeleteOptionDialog
@@ -148,12 +155,48 @@ fun HomeScreen(
     }
     val context = LocalContext.current
     val error = mainViewModel.error.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val hbFormatState = mainViewModel.hbFormat.collectAsState()
+
+    // NEW: Import launcher
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val fileName = context.contentResolver.getFileName(uri) ?: "Imported.txt"
+                val raw = context.contentResolver.openInputStream(uri)
+                    ?.bufferedReader(Charsets.UTF_8)
+                    ?.readText()
+                if (raw != null) {
+                    val (artist, title) = TxtSongIO.parseArtistTitleFromFileName(fileName)
+                    val song = Song(
+                        title = title,
+                        artist = artist,
+                        content = raw.replace("\r\n", "\n").replace("\r", "\n"),
+                        hBFormat = hbFormatState.value
+                    )
+                    mainViewModel.insertSong(song)
+                    // Provide feedback if you have a snackbar
+                    Log.d("HomeScreen", "Imported TXT as song: $title by $artist")
+                }
+            }
+        }
+    }
+
 
 
     LaunchedEffect(searchQuery) {
         mainViewModel.setSearchQuery(searchQuery)
     }
     LaunchedEffect(email.value) {
+    }
+    LaunchedEffect(error.value) {
+        error.value?.let { errMsg ->
+            snackbarHostState.showSnackbar(errMsg)
+            mainViewModel.clearError()
+        }
     }
 
     BackHandler(enabled = searchBarIsActive) {
@@ -194,6 +237,9 @@ fun HomeScreen(
         BottomSheetScaffold(
             sheetPeekHeight = sheetPeekHeight,
             scaffoldState = scaffoldState,
+            snackbarHost = {
+                SnackbarHost(snackbarHostState)
+            },
             sheetContent = {
                 when (selectedTab.value) {
                     MainTabs.MY_SONGS -> {
@@ -282,6 +328,10 @@ fun HomeScreen(
                             Log.d("HomeScreen", "Syncing songs...")
                             mainViewModel.fetchMyRemoteSongs()
                         }
+                    },
+                    onImportTxtClick = {
+                        importLauncher.launch(arrayOf("text/plain"))
+                        showOptionsMenu = false
                     }
                 )
             },

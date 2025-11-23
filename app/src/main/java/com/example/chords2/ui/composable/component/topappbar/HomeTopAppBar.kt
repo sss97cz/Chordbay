@@ -2,8 +2,10 @@ package com.example.chords2.ui.composable.component.topappbar
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Input
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Input
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -33,6 +35,7 @@ fun HomeTopAppBar(
     onMenuToggle: () -> Unit,
     onPlaylistClick: () -> Unit,
     onSyncClick: () -> Unit,
+    onImportTxtClick: () -> Unit
 ) {
     MyTopAppBar(
         title = when (selectedTab){
@@ -68,6 +71,13 @@ fun HomeTopAppBar(
                         onClick = onSyncClick,
                         leadingIcon = { Icon(Icons.Filled.Sync, contentDescription = null) }
                     )
+                    if (selectedTab == MainTabs.MY_SONGS) {
+                        DropdownMenuItem(
+                            text = { Text("Import TXT") },
+                            onClick = onImportTxtClick,
+                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Input, contentDescription = null) }
+                        )
+                    }
 //                    HorizontalDivider()
 //                    DropdownMenuItem(
 //                        text = { Text("Help") },

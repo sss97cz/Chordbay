@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.util.SortBy
+import com.example.chords2.data.model.util.toError
 import com.example.chords2.data.remote.model.ArtistDto
 import com.example.chords2.ui.composable.screen.FilterField
 import com.example.chords2.ui.composable.screen.ResultMode
@@ -201,7 +202,7 @@ class RemoteSongsViewModel(
             _error.value = null
             songRemoteRepository.getAllArtists()
                 .onSuccess { _artists.value = it }
-                .onFailure { _error.value = it.message }
+                .onFailure { _error.value = it.message?.toError()?.message }
             _loading.value = false
         }
     }
@@ -231,7 +232,7 @@ class RemoteSongsViewModel(
                 limit = 50
             )
                 .onSuccess { _songsRaw.value = it }
-                .onFailure { _error.value = it.message }
+                .onFailure { _error.value = it.message?.toError()?.message }
             _loading.value = false
         }
     }
@@ -281,7 +282,7 @@ class RemoteSongsViewModel(
                     Log.d("SongViewModel", "Fetched ${fetchedSongs.size} songs for artist: $artist")
                 }
                 .onFailure { exception ->
-                    _error.value = "Failed to fetch songs by artist: ${exception.message}"
+                    _error.value = "Failed to fetch songs by artist: ${exception.message}".toError().message
                     Log.e(
                         "SongViewModel",
                         "Error fetching songs for artist $artist: ${exception.message}"
@@ -297,7 +298,7 @@ class RemoteSongsViewModel(
             _songsRaw.value = emptyList()
             songRemoteRepository.getSongsByViewedCount()
                 .onSuccess { _songsRaw.value = it }
-                .onFailure { _error.value = it.message }
+                .onFailure { _error.value = it.message?.toError()?.message }
             _loading.value = false
         }
     }

@@ -13,6 +13,7 @@ import com.example.chords2.data.model.util.MainTabs
 import com.example.chords2.data.model.util.Settings
 import com.example.chords2.data.model.util.SortBy
 import com.example.chords2.data.model.util.ThemeMode
+import com.example.chords2.data.model.util.toError
 import com.example.chords2.data.repository.auth.AuthRepository
 import com.example.chords2.data.repository.playlist.PlaylistRepository
 import com.example.chords2.data.repository.remote.SongRemoteRepository
@@ -186,6 +187,11 @@ class MainViewModel(
             songRepository.deleteSong(song)
         }
     }
+    fun insertSong(song: Song) {
+        viewModelScope.launch {
+            songRepository.insertSong(song)
+        }
+    }
 
     fun updateSong(song: Song) {
         viewModelScope.launch {
@@ -252,7 +258,7 @@ class MainViewModel(
                 _remoteSongById.value = song
                 Log.d("SongViewModel", "Fetched remote song successfully: $fetchedSong")
             }.onFailure { exception ->
-                _error.value = "Failed to fetch remote song: ${exception.message}"
+                _error.value = "Failed to fetch remote song: ${exception.message}".toError().message
                 Log.e("SongViewModel", "Error fetching remote song: ${exception.message}")
             }
         }
@@ -295,7 +301,7 @@ class MainViewModel(
                         Log.d("SongViewModel", "Local song updated with remote ID: $it")
                     }
                 }.onFailure { exception ->
-                    _error.value = "Failed to post song: ${exception.message}"
+                    _error.value = "Failed to post song: ${exception.message?.toError()?.message}"
                 }
 
             } else {
@@ -335,7 +341,7 @@ class MainViewModel(
                                             }
                                         }.onFailure { exception ->
                                             _error.value =
-                                                "Failed to post song: ${exception.message}"
+                                                "Failed to post song: ${exception.message?.toError()?.message}"
                                         }
                                     }
                                 }
@@ -364,7 +370,7 @@ class MainViewModel(
                             }
                             _myRemoteSongsIds.value += it
                         }.onFailure { exception ->
-                            _error.value = "Failed to post song: ${exception.message}"
+                            _error.value = "Failed to post song: ${exception.message?.toError()?.message}"
                         }
                     }
                 }
@@ -403,14 +409,14 @@ class MainViewModel(
                                 return@launch // done
                             }.onFailure { e ->
                                 _myRemoteSongsIds.value = emptySet()
-                                _error.value = "Failed after refresh: ${e.message}"
+                                _error.value = "Failed after refresh: ${e.message?.toError()?.message}"
                                 return@launch
                             }
                         }
                     }
                     // refresh failed
                     Log.d("SongViewModel", "Token refresh failed")
-                    _error.value = "Refresh failed: $message"
+                    _error.value = "Refresh failed: ${message?.toError()?.message}"
                     _myRemoteSongsIds.value = emptySet()
                     return@launch
                 }
@@ -420,9 +426,9 @@ class MainViewModel(
                 syncToLocalDb(remoteSongs)
                 _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
             }.onFailure { e ->
-                Log.d("SongViewModel", "Failed to fetch my songs: ${e.message}")
+                Log.d("SongViewModel", "Failed to fetch my songs: ${e.message?.toError()?.message}")
                 _myRemoteSongsIds.value = emptySet()
-                _error.value = "Failed to fetch my songs: ${e.message}"
+                _error.value = "Failed to fetch my songs: ${e.message?.toError()?.message}"
             }
         }
     }
@@ -460,7 +466,7 @@ class MainViewModel(
                 return@launch
             }
             if (song.remoteId == null) {
-                _error.value = "Cannot delete song: remoteId is null"
+                _error.value = "Cannot delete song"
                 return@launch
             }
             var result = songRemoteRepository.deleteSong(song.remoteId, token)
@@ -486,7 +492,7 @@ class MainViewModel(
                     _error.value = "Failed to delete song: Unknown error"
                 }
             }.onFailure { exception ->
-                _error.value = "Failed to delete song: ${exception.message}"
+                _error.value = "Failed to delete song: ${exception.message?.toError()?.message}"
             }
         }
     }

@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.datastore.UserDataStore
+import com.example.chords2.data.model.util.toAuthError
+import com.example.chords2.data.model.util.toError
 import com.example.chords2.data.remote.model.AuthRequest
 import com.example.chords2.data.repository.auth.AuthRepository
 import kotlinx.coroutines.delay
@@ -60,7 +62,7 @@ class AuthViewModel(
                     _loading.value = false
                 }
                 .onFailure { exception ->
-                    _error.value = "Login failed: ${exception.message}"
+                    _error.value = "Login failed: ${exception.message}".toAuthError().message
                     _loading.value = false
                 }
         }
@@ -75,7 +77,7 @@ class AuthViewModel(
                     Log.d("AuthViewModel", "User logged out successfully")
                 }
                 .onFailure { exception ->
-                    _error.value = "Logout failed: ${exception.message}"
+                    _error.value = "Logout failed: ${exception.message}".toAuthError().message
                 }
         }
     }
@@ -95,7 +97,7 @@ class AuthViewModel(
                     _loading.value = false
                 }
                 .onFailure { exception ->
-                    _error.value = "Registration failed: ${exception.message}"
+                    _error.value = "Registration failed: ${exception.message}".toAuthError().message
                     _loading.value = false
                 }
         }
@@ -123,7 +125,7 @@ class AuthViewModel(
                     _loading.value = false
                 }
                 .onFailure { exception ->
-                    _error.value = "Resend verification email failed: ${exception.message}"
+                    _error.value = "Resend verification email failed: ${exception.message?.toError()?.message}"
                     _loading.value = false
                 }
         }
@@ -155,15 +157,15 @@ class AuthViewModel(
                                     _loading.value = false
                                 }
                                 .onFailure { deleteException ->
-                                    _error.value = "Account deletion failed: ${deleteException.message}"
+                                    _error.value = "Account deletion failed: ${deleteException.message?.toError()?.message}"
                                     _loading.value = false
                                 }
                         }.onFailure { refreshException ->
-                            _error.value = "Token refresh failed: ${refreshException.message}"
+                            _error.value = "Token refresh failed: ${refreshException.message?.toError()?.message}"
                             _loading.value = false
                         }
                     } else {
-                        _error.value = "Account deletion failed: ${exception.message}"
+                        _error.value = "Account deletion failed: ${exception.message?.toError()?.message}"
                         _loading.value = false
                     }
                 }

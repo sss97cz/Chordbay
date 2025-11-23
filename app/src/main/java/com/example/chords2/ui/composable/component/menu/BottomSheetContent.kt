@@ -39,7 +39,7 @@ fun BottomSheetContent(
     onDeleteClick: () -> Unit,
     onPostClick: () -> Unit,
     onCloseClick: () -> Unit,
-    onAddToPlaylistClick: () -> Unit
+    onAddToPlaylistClick: () -> Unit,
 ) {
     val single = selectedSongs.size == 1
     val count = selectedSongs.size
