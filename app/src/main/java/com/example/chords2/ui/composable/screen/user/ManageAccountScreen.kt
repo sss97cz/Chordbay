@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -226,10 +227,9 @@ private fun DeleteAccountDialog(
                 """.trimIndent()
             ) },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = onConfirm,
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
                 ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }

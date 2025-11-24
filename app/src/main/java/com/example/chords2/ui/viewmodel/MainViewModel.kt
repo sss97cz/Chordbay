@@ -1,11 +1,15 @@
 package com.example.chords2.ui.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chords2.data.database.playlist.PlaylistEntity
 import com.example.chords2.data.datastore.SettingsDataStore
 import com.example.chords2.data.datastore.UserDataStore
+import com.example.chords2.data.helper.TxtSongIO
+import com.example.chords2.data.helper.getFileName
 import com.example.chords2.data.model.Song
 import com.example.chords2.data.model.util.ColorMode
 import com.example.chords2.data.model.util.HBFormat
@@ -498,7 +502,41 @@ class MainViewModel(
             }
         }
     }
-
+    //------------------------------- Txt import/export -----------------------------------------------
+    fun importTxtSongsFromUris(uris: List<@JvmSuppressWildcards Uri>, context: Context, hbFormat: HBFormat) {
+        viewModelScope.launch {
+            if (uris.isNotEmpty()) {
+                uris.forEach { uri ->
+                    try {
+                        val fileName = context.contentResolver.getFileName(uri) ?: "Imported.txt"
+                        val raw = context.contentResolver.openInputStream(uri)
+                            ?.bufferedReader(Charsets.UTF_8)
+                            ?.readText()
+                        if (!raw.isNullOrEmpty()) {
+                            val song = TxtSongIO.txtToSong(
+                                rawContent = raw,
+                                fileName = fileName,
+                                userHBFormat = hbFormat
+                            )
+                            insertSong(song)
+                            Log.d("HomeScreen", "Imported TXT as song: ${song.title} by ${song.artist}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("HomeScreen", "Failed to import $uri", e)
+                    }
+                }
+            }
+        }
+    }
+    fun exportSongAsTxt(uri: Uri?, song: Song?, context: Context) {
+        if (uri != null && song != null) {
+            val content = TxtSongIO.songToTxtContent(song)
+            context.contentResolver.openOutputStream(uri)?.use { out ->
+                out.write(content.toByteArray(Charsets.UTF_8))
+            }
+            Log.d("SongScreen", "Exported song to TXT: $uri")
+        }
+    }
     //------------------------------- Playlist  operations ---------------------------------------------
 
     val playlists: StateFlow<List<PlaylistEntity>> = playlistRepository.getAllPlaylists()

@@ -98,18 +98,10 @@ fun SongScreen(
 
     val context = LocalContext.current
 
-    // NEW: Export launcher for creating a TXT document
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/plain")
     ) { uri ->
-        if (uri != null && song != null) {
-            val content = TxtSongIO.songToTxtContent(song)
-            context.contentResolver.openOutputStream(uri)?.use { out ->
-                out.write(content.toByteArray(Charsets.UTF_8))
-            }
-            // Optionally show a snackbar or toast (requires ScaffoldState / etc.)
-            Log.d("SongScreen", "Exported song to TXT: $uri")
-        }
+        mainViewModel.exportSongAsTxt(uri, song, context)
     }
 
     val isDropdownMenuExpanded = remember { mutableStateOf(false) }
