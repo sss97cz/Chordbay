@@ -17,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -53,6 +54,10 @@ fun ManageAccountScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val showDeleteAccountDialog = rememberSaveable { mutableStateOf(false) }
+    val showChangePassDialog = rememberSaveable { mutableStateOf(false) }
+    val oldPassText = rememberSaveable { mutableStateOf("") }
+    val newPassText = rememberSaveable { mutableStateOf("") }
+    val confirmPassText = rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -107,7 +112,6 @@ fun ManageAccountScreen(
                     textAlign = TextAlign.Center
                 )
 
-                // Main card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -142,17 +146,13 @@ fun ManageAccountScreen(
 
                         Button(
                             onClick = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        "not implemented yet"
-                                    )
-                                }
+                                showChangePassDialog.value = true
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             enabled = emailState.value != null
                         ) {
-                            Text(text = "Send password reset email")
+                            Text(text = "Change password")
                         }
 
                         HorizontalDivider(Modifier.padding(0.dp))
@@ -183,8 +183,6 @@ fun ManageAccountScreen(
 
                             TextButton(
                                 onClick = {
-//                                    authViewModel.deleteAccount()
-//                                    navController.popBackStack()
                                     showDeleteAccountDialog.value = true
                                 },
                                 enabled = emailState.value != null
@@ -203,6 +201,34 @@ fun ManageAccountScreen(
                     showDeleteAccountDialog.value = false
                     authViewModel.deleteAccount()
                     navController.popBackStack()
+                }
+            )
+            ChangePasswordDialog(
+                showDialog = showChangePassDialog.value,
+                onDismiss = { showChangePassDialog.value = false },
+                oldPassText = oldPassText.value,
+                newPassText = newPassText.value,
+                confirmPassText = confirmPassText.value,
+                onConfirm = {
+                    showChangePassDialog.value = false
+                    authViewModel.changePassword(
+                        email = emailState.value ?: return@ChangePasswordDialog,
+                        oldPassword = oldPassText.value,
+                        newPassword = newPassText.value,
+                    )
+                    oldPassText.value = ""
+                    newPassText.value = ""
+                    confirmPassText.value = ""
+                },
+                onOldPassChange = { oldPassText.value = it },
+                onNewPassChange = { newPassText.value = it },
+                onConfirmPassChange = { confirmPassText.value = it },
+                onNotMatchingPass = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            "New passwords do not match."
+                        )
+                    }
                 }
             )
         }
@@ -232,6 +258,83 @@ private fun DeleteAccountDialog(
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
                 ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismiss
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun ChangePasswordDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    oldPassText: String,
+    newPassText: String,
+    confirmPassText: String,
+    onConfirm: () -> Unit,
+    onNotMatchingPass: () -> Unit,
+    onOldPassChange: (String) -> Unit,
+    onNewPassChange: (String) -> Unit,
+    onConfirmPassChange: (String) -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Change Password") },
+            text = {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = oldPassText,
+                            onValueChange = onOldPassChange,
+                            label = { Text("Old Password") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = newPassText,
+                            onValueChange = onNewPassChange,
+                            label = { Text("New Password") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = confirmPassText,
+                            onValueChange = onConfirmPassChange,
+                            label = { Text("Confirm New Password") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (newPassText == confirmPassText) {
+                            onConfirm()
+                        } else {
+                            onNotMatchingPass()
+                        }
+                    }
+                ) {
+                    Text("Change Password")
                 }
             },
             dismissButton = {

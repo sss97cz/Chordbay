@@ -171,4 +171,38 @@ class AuthViewModel(
                 }
         }
     }
+    private val _forgotPasswordSuccess = MutableStateFlow(false)
+    val forgotPasswordSuccess = _forgotPasswordSuccess.asStateFlow()
+    fun onForgotPasswordSuccess() {
+        _forgotPasswordSuccess.value = false
+    }
+
+    fun forgotPassword(email: String) {
+        _loading.value = true
+        viewModelScope.launch {
+            authRepository.forgotPassword(email)
+                .onSuccess {
+                    _forgotPasswordSuccess.value = true
+                    _loading.value = false
+                }
+                .onFailure { exception ->
+                    _error.value = "Forgot password failed: ${exception.message}".toAuthError().message
+                    _loading.value = false
+                }
+        }
+    }
+
+    fun changePassword(oldPassword: String, newPassword: String, email: String) {
+        _loading.value = true
+        viewModelScope.launch {
+            authRepository.changePassword(oldPassword = oldPassword, newPassword = newPassword,  email = email)
+                .onSuccess {
+                    _loading.value = false
+                }
+                .onFailure { exception ->
+                    _error.value = "Change password failed: ${exception.message}".toAuthError().message
+                    _loading.value = false
+                }
+        }
+    }
 }

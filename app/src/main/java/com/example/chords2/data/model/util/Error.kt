@@ -9,6 +9,7 @@ enum class Error(val message: String) {
     SYNC_FAILED("Data synchronization failed."),
     UNKNOWN_ERROR("An unknown error occurred."),
     LOGOUT_FAILED("Logout attempt failed."),
+    RESET_PASSWORD_FAILED("Password reset attempt failed."),
 }
 fun String.toError(): Error {
     val hasCode: Boolean = this.contains("code:")
@@ -33,6 +34,7 @@ fun String.toAuthError(): Error {
         this.contains("Login", ignoreCase = true) -> Error.LOGIN_FAILED_INVALID_CREDENTIALS
         this.contains("Registration", ignoreCase = true) -> Error.REGISTRATION_FAILED
         this.contains("Logout", ignoreCase = true) -> Error.LOGOUT_FAILED
+        this.contains("Forgot password") -> Error.RESET_PASSWORD_FAILED
         else -> Error.UNKNOWN_ERROR
     }
 }

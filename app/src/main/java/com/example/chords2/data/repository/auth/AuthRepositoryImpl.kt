@@ -130,4 +130,42 @@ class AuthRepositoryImpl(
     override suspend fun getAccessToken(): String? =
         credentialManager.getAccessToken()
 
+    override suspend fun forgotPassword(email: String): Result<Unit> {
+        return try {
+            val response = authApiService.forgotPassword(
+                com.example.chords2.data.remote.ForgetPasswordRequest(email)
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Forgot password failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun changePassword(
+        email: String,
+        newPassword: String,
+        oldPassword: String
+    ): Result<Unit> {
+        return try {
+            val response = authApiService.changePassword(
+                com.example.chords2.data.remote.model.ChangePasswordRequest(
+                    email = email,
+                    currentPassword = oldPassword,
+                    newPassword = newPassword
+                )
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Change password failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

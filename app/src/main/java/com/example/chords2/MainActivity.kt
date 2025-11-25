@@ -31,15 +31,15 @@ class MainActivity : ComponentActivity() {
              - Properly sync the users songs (especially keep track of the IDs from songs/me endpoint
                to not show songs downloaded from remote as your songs and that you have permission to edit them) **DONE**
              - Improve playlist functionality.
-             - Fully polish the UI of the app (mainly the song editor and settings, error handling). **Working on**
+             - Fully polish the UI of the app (mainly the song editor and settings, error handling **Done**). **Working on**
              - All around code cleanup. **Working on**
-             - manage the B,H/A#,B
+             - manage B,H/Bb,B **Done**
              - Testing.
              - Add app icon.
              (Optional)
              - Improve the chord detection algorithm.
              - Paging for the song list.
-             - Possibility to add more features like TXT export/import.
+             - Possibility to add more features like TXT export/import. **Done**
              - Properly host the MongoDB.
              - Publishing the app to Play Store. (Remove all songs from remote, add privacy policy, kofi link, etc.)
          Bugs:

@@ -69,6 +69,7 @@ fun LoginScreen(
     var showPassword by rememberSaveable { mutableStateOf(false) }
     val isLoading = authViewModel.loading.collectAsState()
     var errorText by remember { mutableStateOf<String?>(null) }
+    val forgotPasswordEmailSent = authViewModel.forgotPasswordSuccess.collectAsState()
 
     val isEmailValid = email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val isPasswordValid = password.length >= 9 &&
@@ -96,6 +97,14 @@ fun LoginScreen(
                     snackbarHostState.showSnackbar(errorMessage.value!!)
                     authViewModel.clearError()
                 }
+            }
+        }
+    }
+    LaunchedEffect(forgotPasswordEmailSent.value) {
+        if (forgotPasswordEmailSent.value) {
+            authViewModel.onForgotPasswordSuccess()
+            scope.launch {
+                snackbarHostState.showSnackbar("Password reset email sent to $email")
             }
         }
     }
@@ -273,7 +282,24 @@ fun LoginScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            TextButton(onClick = { /* TODO: navigate to reset password */ }) {
+                            TextButton(
+                                onClick = {
+                                    if (email.isBlank()) {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("Please enter your email to reset your password.")
+                                        }
+                                        return@TextButton
+                                    }
+                                    if (!isEmailValid) {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("Please enter a valid email to reset your password.")
+                                        }
+                                        return@TextButton
+                                    } else {
+                                        authViewModel.forgotPassword(email)
+                                    }
+                                }
+                            ) {
                                 Text("Forgot password?")
                             }
                             TextButton(onClick = {
