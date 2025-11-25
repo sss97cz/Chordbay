@@ -1,21 +1,28 @@
 package com.example.chords2.ui.composable.screen.user
 
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -24,20 +31,28 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chords2.data.helper.isPasswordValid
 import com.example.chords2.ui.composable.component.topappbar.MyTopAppBar
 import com.example.chords2.ui.composable.navigation.Paths
 import com.example.chords2.ui.viewmodel.AuthViewModel
@@ -55,9 +70,32 @@ fun ManageAccountScreen(
     val scope = rememberCoroutineScope()
     val showDeleteAccountDialog = rememberSaveable { mutableStateOf(false) }
     val showChangePassDialog = rememberSaveable { mutableStateOf(false) }
+    val changePasswordSuccess = authViewModel.changePasswordSuccess.collectAsState()
+    val error = authViewModel.error.collectAsState()
     val oldPassText = rememberSaveable { mutableStateOf("") }
     val newPassText = rememberSaveable { mutableStateOf("") }
     val confirmPassText = rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(changePasswordSuccess.value) {
+        if (changePasswordSuccess.value) {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    "Password changed successfully."
+                )
+            }
+            authViewModel.onChangePasswordSuccess()
+        }
+    }
+    LaunchedEffect(error.value) {
+        if (error.value != null) {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    error.value ?: "An unknown error occurred."
+                )
+            }
+            authViewModel.clearError()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -73,7 +111,7 @@ fun ManageAccountScreen(
         },
         containerColor = Color.Transparent,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        ) { paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -203,6 +241,9 @@ fun ManageAccountScreen(
                     navController.popBackStack()
                 }
             )
+            val areAllValid = oldPassText.value.isPasswordValid() &&
+                    newPassText.value.isPasswordValid() &&
+                    confirmPassText.value.isPasswordValid()
             ChangePasswordDialog(
                 showDialog = showChangePassDialog.value,
                 onDismiss = { showChangePassDialog.value = false },
@@ -210,6 +251,14 @@ fun ManageAccountScreen(
                 newPassText = newPassText.value,
                 confirmPassText = confirmPassText.value,
                 onConfirm = {
+                    if (!areAllValid) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "Please ensure all password fields are valid."
+                            )
+                        }
+                        return@ChangePasswordDialog
+                    }
                     showChangePassDialog.value = false
                     authViewModel.changePassword(
                         email = emailState.value ?: return@ChangePasswordDialog,
@@ -245,13 +294,15 @@ private fun DeleteAccountDialog(
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text("Delete Account") },
-            text = { Text(
-                """
+            text = {
+                Text(
+                    """
                 Are you sure you want to delete your account?
                 This action cannot be undone.
                 All your uploaded songs will be permanently deleted.
                 """.trimIndent()
-            ) },
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = onConfirm,
@@ -300,26 +351,25 @@ private fun ChangePasswordDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(top = 8.dp)
+                            .padding(horizontal = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        OutlinedTextField(
-                            value = oldPassText,
-                            onValueChange = onOldPassChange,
-                            label = { Text("Old Password") },
-                            modifier = Modifier.fillMaxWidth()
+                        PasswordTextField(
+                            password = oldPassText,
+                            onPasswordChange = onOldPassChange,
+                            label = "Current Password"
                         )
-                        OutlinedTextField(
-                            value = newPassText,
-                            onValueChange = onNewPassChange,
-                            label = { Text("New Password") },
-                            modifier = Modifier.fillMaxWidth()
+                        PasswordTextField(
+                            password = newPassText,
+                            onPasswordChange = onNewPassChange,
+                            label = "New Password",
+                            showSupportingText = true
                         )
-                        OutlinedTextField(
-                            value = confirmPassText,
-                            onValueChange = onConfirmPassChange,
-                            label = { Text("Confirm New Password") },
-                            modifier = Modifier.fillMaxWidth()
+                        PasswordTextField(
+                            password = confirmPassText,
+                            onPasswordChange = onConfirmPassChange,
+                            label = "Confirm Password"
                         )
                     }
                 }
@@ -346,4 +396,59 @@ private fun ChangePasswordDialog(
             }
         )
     }
+}
+
+@Composable
+private fun PasswordTextField(
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    showSupportingText: Boolean = false
+) {
+    var showPassword by remember { mutableStateOf(false) }
+    OutlinedTextField(
+        value = password,
+        onValueChange = {
+            onPasswordChange(it)
+        },
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall
+            )
+        },
+        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+        trailingIcon = {
+            IconButton(onClick = { showPassword = !showPassword }) {
+                Icon(
+                    if (showPassword) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                    contentDescription = if (showPassword) "Hide password" else "Show password"
+                )
+            }
+        },
+        singleLine = true,
+        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.None,
+            keyboardType = KeyboardType.Password
+        ),
+        isError = password.isNotBlank() && !password.isPasswordValid(),
+        supportingText = {
+            if (showSupportingText) {
+                AnimatedVisibility(visible = !password.isPasswordValid()) {
+                    Text(
+                        """
+                            Password must contain:
+                                • At least 9 characters
+                                • Uppercase and lowercase letters
+                                • At least one digit
+                        """.trimIndent(),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+    )
 }

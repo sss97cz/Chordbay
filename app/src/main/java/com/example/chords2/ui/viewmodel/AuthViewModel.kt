@@ -192,11 +192,17 @@ class AuthViewModel(
         }
     }
 
+    private val _changePasswordSuccess = MutableStateFlow(false)
+    val changePasswordSuccess = _changePasswordSuccess.asStateFlow()
+    fun onChangePasswordSuccess() {
+        _changePasswordSuccess.value = false
+    }
     fun changePassword(oldPassword: String, newPassword: String, email: String) {
         _loading.value = true
         viewModelScope.launch {
             authRepository.changePassword(oldPassword = oldPassword, newPassword = newPassword,  email = email)
                 .onSuccess {
+                    _changePasswordSuccess.value = true
                     _loading.value = false
                 }
                 .onFailure { exception ->

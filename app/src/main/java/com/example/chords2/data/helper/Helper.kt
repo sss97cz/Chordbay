@@ -39,6 +39,13 @@ fun findKey(song: String, hbFormat: HBFormat, songHBFormat: HBFormat): String? {
     return baseChord?.value
 }
 
+fun String.isPasswordValid(): Boolean =
+    this.length >= 9 &&
+            this.any { it.isUpperCase() } &&
+            this.any { it.isDigit() } &&
+            this.any { it.isLowerCase() }
+
+
 fun ContentResolver.getFileName(uri: android.net.Uri): String? {
     return query(uri, null, null, null, null)?.use { cursor ->
         val index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)

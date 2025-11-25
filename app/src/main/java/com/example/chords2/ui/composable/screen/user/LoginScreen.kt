@@ -177,7 +177,9 @@ fun LoginScreen(
 
                 // Card with inputs
                 Card(
-                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     shape = RoundedCornerShape(16.dp)
@@ -231,7 +233,8 @@ fun LoginScreen(
                             isError = password.isNotBlank() && !isPasswordValid,
                             supportingText = {
                                 AnimatedVisibility(visible = !isPasswordValid) {
-                                    Text("""
+                                    Text(
+                                        """
                                         Password must contain:
                                         • At least 9 characters
                                         • Uppercase and lowercase letters
@@ -241,7 +244,6 @@ fun LoginScreen(
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-
                             )
 
                         AnimatedVisibility(visible = errorText != null) {

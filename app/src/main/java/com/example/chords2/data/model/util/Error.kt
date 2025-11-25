@@ -10,6 +10,7 @@ enum class Error(val message: String) {
     UNKNOWN_ERROR("An unknown error occurred."),
     LOGOUT_FAILED("Logout attempt failed."),
     RESET_PASSWORD_FAILED("Password reset attempt failed."),
+    CHANGE_PASSWORD_FAILED("Change password attempt failed.")
 }
 fun String.toError(): Error {
     val hasCode: Boolean = this.contains("code:")
@@ -35,6 +36,7 @@ fun String.toAuthError(): Error {
         this.contains("Registration", ignoreCase = true) -> Error.REGISTRATION_FAILED
         this.contains("Logout", ignoreCase = true) -> Error.LOGOUT_FAILED
         this.contains("Forgot password") -> Error.RESET_PASSWORD_FAILED
+        this.contains("Change password") -> Error.CHANGE_PASSWORD_FAILED
         else -> Error.UNKNOWN_ERROR
     }
 }
