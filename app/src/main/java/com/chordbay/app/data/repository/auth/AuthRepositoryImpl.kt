@@ -1,0 +1,169 @@
+package com.chordbay.app.data.repository.auth
+
+import com.chordbay.app.data.datastore.CredentialManager
+import com.chordbay.app.data.remote.AuthApiService
+import com.chordbay.app.data.remote.model.AuthRequest
+import com.chordbay.app.data.remote.model.RefreshRequest
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+class AuthRepositoryImpl(
+    private val authApiService: AuthApiService,
+    private val credentialManager: CredentialManager,
+) : AuthRepository {
+
+    private val _isUserLoggedIn = MutableStateFlow(false)
+    override val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
+    override fun setIsUserLoggedIn(loggedIn: Boolean) {
+        _isUserLoggedIn.value = loggedIn
+    }
+
+    override suspend fun login(authRequest: AuthRequest): Result<Unit> {
+        return try {
+            val response = authApiService.login(authRequest)
+            if (response.isSuccessful) {
+                val tokenPair = response.body()
+                if (tokenPair != null) {
+                    // Save tokens using CredentialManager
+                    credentialManager.saveTokens(tokenPair)
+                    _isUserLoggedIn.value = true
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Empty response body"))
+                }
+            } else {
+                Result.failure(Exception("Login failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun register(authRequest: AuthRequest): Result<Unit> {
+        return try {
+            val response = authApiService.register(authRequest)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Registration failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun refresh(): Result<Unit> {
+        return try {
+            val refreshToken = credentialManager.getRefreshToken()
+                ?: return Result.failure(Exception("No refresh token available"))
+            val response = authApiService.refresh(RefreshRequest(refreshToken))
+            if (response.isSuccessful) {
+                val tokenPair = response.body()
+                if (tokenPair != null) {
+                    credentialManager.saveTokens(tokenPair)
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Empty response body"))
+                }
+            } else {
+                Result.failure(Exception("Token refresh failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun logout(): Result<Unit> {
+        return try {
+            val refreshRequest = credentialManager.getRefreshToken()
+                ?: return Result.failure(Exception("No refresh token available"))
+            val response = authApiService.logout(RefreshRequest(refreshRequest))
+            if (response.isSuccessful) {
+                // Clear tokens from CredentialManager
+                credentialManager.clearTokens()
+                _isUserLoggedIn.value = false
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Logout failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun resendVerificationEmail(email: String): Result<Unit> {
+        return try {
+            val response = authApiService.resendVerificationEmail(
+                com.chordbay.app.data.remote.model.ResendRequest(email)
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Resend verification email failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteAccount(): Result<Unit> {
+        return try {
+            val accessToken = credentialManager.getAccessToken()
+                ?: return Result.failure(Exception("No access token available"))
+            val response = authApiService.deleteAccount("Bearer $accessToken")
+            if (response.isSuccessful) {
+                // Clear tokens from CredentialManager
+                credentialManager.clearTokens()
+                _isUserLoggedIn.value = false
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Delete account failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getAccessToken(): String? =
+        credentialManager.getAccessToken()
+
+    override suspend fun forgotPassword(email: String): Result<Unit> {
+        return try {
+            val response = authApiService.forgotPassword(
+                com.chordbay.app.data.remote.ForgetPasswordRequest(email)
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Forgot password failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun changePassword(
+        email: String,
+        newPassword: String,
+        oldPassword: String
+    ): Result<Unit> {
+        return try {
+            val response = authApiService.changePassword(
+                com.chordbay.app.data.remote.model.ChangePasswordRequest(
+                    email = email,
+                    currentPassword = oldPassword,
+                    newPassword = newPassword
+                )
+            )
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Change password failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+}

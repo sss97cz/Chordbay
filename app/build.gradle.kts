@@ -7,11 +7,11 @@ plugins {
     id("com.google.devtools.ksp")
 }
 android {
-    namespace = "com.example.chords2"
+    namespace = "com.chordbay.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.chords2"
+        applicationId = "com.chordbay.app"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
