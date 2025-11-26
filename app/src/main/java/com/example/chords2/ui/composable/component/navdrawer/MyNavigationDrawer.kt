@@ -30,6 +30,7 @@ import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -75,6 +76,8 @@ fun MyDrawerContent(
     onLoginClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onSignOutClick: () -> Unit = {},
+    onHelpAndFeedbackClick: () -> Unit = {},
+    onLegalClick: () -> Unit = {},
     userEmail: String? = null,
 ) {
     var playlistsExpanded by remember { mutableStateOf(false) }
@@ -172,13 +175,19 @@ fun MyDrawerContent(
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
                 NavigationDrawerItem(
-                    label = { Text("Help & feedback") },
+                    label = { Text("Help") },
                     selected = false,
                     icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                    onClick = { /* TODO: open help */ },
+                    onClick = onHelpAndFeedbackClick,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
-                Spacer(Modifier.height(24.dp))
+                NavigationDrawerItem(
+                    label = { Text("Legal") },
+                    selected = false,
+                    icon = { Icon(Icons.Default.Info, null) },
+                    onClick = onLegalClick,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         }
     }

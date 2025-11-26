@@ -211,6 +211,12 @@ fun HomeScreen(
                 onCreatePlaylistClick = {
                     showAddPlaylistDialog = true
                 },
+                onHelpAndFeedbackClick = {
+                    navController.navigate(Paths.HelpPath.route)
+                },
+                onLegalClick = {
+                    navController.navigate(Paths.LegalPath.route)
+                }
             )
         },
         drawerState = drawerState

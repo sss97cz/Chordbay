@@ -30,4 +30,6 @@ sealed class Paths(
     object VerifyEmailPath: Paths("verifyEmail/{email}"){
         fun createRoute(email : String) = "verifyEmail/$email"
     }
+    object HelpPath: Paths("help")
+    object LegalPath: Paths("legal")
 }

@@ -10,7 +10,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.chords2.ui.composable.screen.ArtistSongsScreen
 import com.example.chords2.ui.composable.screen.EditSongScreen
+import com.example.chords2.ui.composable.screen.HelpScreen
 import com.example.chords2.ui.composable.screen.HomeScreen
+import com.example.chords2.ui.composable.screen.LegalScreen
 import com.example.chords2.ui.composable.screen.PlaylistScreen
 import com.example.chords2.ui.composable.screen.SettingsScreen
 import com.example.chords2.ui.composable.screen.SongScreen
@@ -212,6 +214,18 @@ fun AppNavigation(
                    authViewModel = authViewModel,
                    email = it.arguments?.getString("email") ?: "",
                )
+        }
+
+        composable(
+            route = Paths.HelpPath.route
+        ) {
+            HelpScreen(navController = navController)
+        }
+
+        composable(
+            route = Paths.LegalPath.route
+        ) {
+            LegalScreen(navController = navController)
         }
     }
 }

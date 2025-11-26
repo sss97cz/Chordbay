@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -144,7 +145,7 @@ fun ManageAccountScreen(
                 )
 
                 Text(
-                    text = "Manage your sign-in details and security.",
+                    text = "Manage your account.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -178,7 +179,7 @@ fun ManageAccountScreen(
                         )
                         Text(
                             text = emailText,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
 
 
@@ -208,11 +209,7 @@ fun ManageAccountScreen(
                         ) {
                             Button(
                                 onClick = {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            "not implemented yet"
-                                        )
-                                    }
+                                    authViewModel.logoutUser()
                                 },
                                 enabled = emailState.value != null
                             ) {
