@@ -99,6 +99,7 @@ fun HomeScreen(
     var showAddSongToPlaylistDialog by remember { mutableStateOf(false) }
     var showPrivacyBulkDialog by remember { mutableStateOf(false) }
     var showDeleteOptionDialog by remember { mutableStateOf(false) }
+    val postSuccess = mainViewModel.postSuccess.collectAsState()
 
     val email = authViewModel.userEmail.collectAsState()
     val isUserLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
@@ -177,6 +178,12 @@ fun HomeScreen(
         error.value?.let { errMsg ->
             snackbarHostState.showSnackbar(errMsg)
             mainViewModel.clearError()
+        }
+    }
+    LaunchedEffect(postSuccess.value) {
+        if (postSuccess.value == true) {
+            snackbarHostState.showSnackbar("Successful upload")
+            mainViewModel.clearPostSuccess()
         }
     }
 

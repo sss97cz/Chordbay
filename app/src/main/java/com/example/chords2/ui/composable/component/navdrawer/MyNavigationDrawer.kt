@@ -174,6 +174,7 @@ fun MyDrawerContent(
                     onClick = onSettingsClick,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
+                HorizontalDivider()
                 NavigationDrawerItem(
                     label = { Text("Help") },
                     selected = false,

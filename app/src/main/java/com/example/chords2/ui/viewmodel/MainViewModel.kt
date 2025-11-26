@@ -270,6 +270,11 @@ class MainViewModel(
         }
     }
 
+    private val _postSuccess = MutableStateFlow<Boolean?>(null)
+    val postSuccess = _postSuccess.asStateFlow()
+    fun clearPostSuccess() {
+        _postSuccess.value = null
+    }
     fun postSong(song: Song) {
         val song = song.copy(
             title = song.title.ifBlank { "Untitled" }.trim(),
@@ -304,6 +309,7 @@ class MainViewModel(
                     Log.d("SongViewModel", "Song posted successfully with ID: $it")
                     updateSong(song.copy(remoteId = it)).also { _ ->
                         _myRemoteSongsIds.value += it
+                        _postSuccess.value = true
                         Log.d("SongViewModel", "Local song updated with remote ID: $it")
                     }
                 }.onFailure { exception ->
@@ -325,9 +331,8 @@ class MainViewModel(
                             if (newToken != null) {
                                 result = songRemoteRepository.updateSong(song, newToken)
                                 result.onFailure {
-                                    if (it.message?.contains("403") == true || it.message?.contains(
-                                            "404"
-                                        ) == true
+                                    if (it.message?.contains("403") == true ||
+                                        it.message?.contains("404") == true
                                     ) {
                                         val result = songRemoteRepository.createSong(
                                             token = newToken,
@@ -345,6 +350,7 @@ class MainViewModel(
                                                 )
                                                 _myRemoteSongsIds.value += it
                                             }
+                                            _postSuccess.value = true
                                         }.onFailure { exception ->
                                             _error.value =
                                                 "Failed to post song: ${exception.message?.toError()?.message}"
@@ -358,11 +364,11 @@ class MainViewModel(
                 result.onSuccess {
                     if (it) {
                         Log.d("SongViewModel", "Song updated successfully on remote server")
+                        _postSuccess.value = true
                     } else {
                         _error.value = "Failed to update song: Unknown error"
                     }
                 }.onFailure { exception ->
-                    _error.value = "Failed to update song: ${exception.message}"
                     val message = exception.message ?: ""
                     if (message.contains("403") || message.contains("404")) {
                         val result = songRemoteRepository.createSong(
@@ -374,6 +380,7 @@ class MainViewModel(
                             updateSong(song.copy(remoteId = it)).also {
                                 Log.d("SongViewModel", "Local song updated with remote ID: $it")
                             }
+                            _postSuccess.value = true
                             _myRemoteSongsIds.value += it
                         }.onFailure { exception ->
                             _error.value = "Failed to post song: ${exception.message?.toError()?.message}"
