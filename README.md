@@ -172,17 +172,6 @@ If you'd like, I can:
 
 ---
 
-## 🧩 Project structure
-
-> This is a high‑level overview. Package names may differ slightly in the actual project.
-
-
-
-
-For exact structure, browse the source in this repository.
-
----
-
 ## 💡 Roadmap ideas
 
 Some possible future improvements:
