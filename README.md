@@ -108,7 +108,6 @@ cd Chordbay
 
 A small helper script (uploader.sh) can upload plain `.txt` song files to the backend. This section documents usage and examples.
 
-- Expected location: scripts/uploader.sh (or wherever you keep your helper scripts).
 - Input: a directory containing `.txt` song files (one file per song in format: {ArtistName - SongName).
 - Authentication: the script requires an API token (access token).
 
@@ -124,8 +123,10 @@ Example:
   uploader.sh -t "mytoken" -d ./songs
 ```
 
-How to obtain a token
+How to obtain a token 
 1. Authenticate with the backend to get an access token (example uses the /api/auth/login endpoint):
+
+  -expectes you to have an verifierd account
 
 ```bash
 curl https://chordbay.eu/api/auth/login \
