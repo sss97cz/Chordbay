@@ -7,7 +7,7 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
 
 ---
 ## Screenshots
-<img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/21cbff75-517a-413e-8335-a281ab9dfbda" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs[...]
+<img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/21cbff75-517a-413e-8335-a281ab9dfbda" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs
 <img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/d3b95a76-8e68-4c8e-9132-011818125679" />
 
 
