@@ -6,12 +6,18 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
 > **Key features:** Offline songbook · Chord transposition · Playlists · Sharing & sync
 
 ---
+## Screenshots
+<img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/21cbff75-517a-413e-8335-a281ab9dfbda" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/d3b95a76-8e68-4c8e-9132-011818125679" />
+
+
+
 
 ## ✨ Features
-
 ### 🎵 Song management
 
-- Create, read, update, and delete (CRUD) songs
+- Local song library
+- Song editor
 - Store chords and lyrics together in a clean format
 - Organize songs by:
   - Title
@@ -44,7 +50,8 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
 - **Chord transposition**:
   - Quickly transpose a song to any key
   - Preserve chord structure while adjusting lyrics layout
-- Designed for readability
+- Highlighting chords in songs
+- Support for English (Bb/B) and German (B,H) chord format
 
 ### 🎧 Playlists & sets
 
@@ -61,6 +68,8 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
   - Declarative UI
   - Theming and dark mode friendly
 - **Room** for persistence and structured querying
+- **Koin** for managing dependencies
+- **MVVM** for better code management
 - Follows modern Android app architecture best practices
 
 ---
@@ -71,8 +80,7 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
 
 ### Prerequisites
 
-- Android Studio (Giraffe or newer recommended)
-- JDK 17 (or version used in this project)
+- Android Studio
 - Android SDK + required build tools
 
 ### Clone the repository
@@ -90,8 +98,7 @@ cd Chordbay
 4. Let Gradle sync finish
 
 ### Run the app
-
-1. Connect a physical Android device or start an emulator
+1. Connect a physical Android device or start an emulator (Make sure you have enabled developer mode https://developer.android.com/studio/debug/dev-options)
 2. Press **Run ▶** in Android Studio
 3. The app should install and launch automatically
 
@@ -111,8 +118,9 @@ For exact structure, browse the source in this repository.
 ## 💡 Roadmap ideas
 
 Some possible future improvements:
-
-- 
+- Publishing the app on Google Play (in process, if you want to help with testing you can contact me at dev@chordbay.eu)
+- Move the project to KMP (Kotlin Multiplatform) for desktop and browser.
+- Improve the chord detection algorithm.
 
 If you have suggestions or want to help with any of these, contributions are welcome.
 
@@ -122,15 +130,6 @@ If you have suggestions or want to help with any of these, contributions are wel
 
 Contributions, bug reports, and feature requests are welcome.
 
-1. Fork the repo
-2. Create a feature branch:  
-   `git checkout -b feature/my-feature`
-3. Commit your changes:  
-   `git commit -m "Add my feature"`
-4. Push the branch:  
-   `git push origin feature/my-feature`
-5. Open a Pull Request on GitHub
-
 ---
 
 ## 📝 License
@@ -139,13 +138,3 @@ This project is open source. See the [LICENSE](./LICENSE) file for details.
 
 ---
 
-## 📬 Contact
-
-If you’re using Chordbay or want to collaborate:
-
-- GitHub: [Chordbay repository](https://github.com/sss97cz/Chordbay)
-- Issues: Use the [Issues](https://github.com/sss97cz/Chordbay/issues) section for bugs and feature requests
-
----
-
-Made for musicians who just want a fast, offline‑first songbook that gets out of the way and lets them play.
