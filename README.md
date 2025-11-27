@@ -1,13 +1,13 @@
 # Chordbay
 
-Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack Compose for musicians who want a simple, flexible way to organize, view, and play songs with chords and lyrics. The main focus is to provide a free, offline‑first personal songbook.
+Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack Compose for musicians who want a simple, flexible way to organize, view, and play songs with chords and lyrics. The main [...]
 
 > **Tech stack:** Kotlin · Jetpack Compose · Room · Android  
 > **Key features:** Offline songbook · Chord transposition · Playlists · Sharing & sync
 
 ---
 ## Screenshots
-<img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/21cbff75-517a-413e-8335-a281ab9dfbda" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/21cbff75-517a-413e-8335-a281ab9dfbda" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs[...]
 <img width="300" height="622" alt="image" src="https://github.com/user-attachments/assets/d3b95a76-8e68-4c8e-9132-011818125679" />
 
 
@@ -104,6 +104,73 @@ cd Chordbay
 
 ---
 
+## 🛠 Command-line uploader
+
+A small helper script (uploader.sh) can upload plain `.txt` song files to the backend. This section documents usage and examples.
+
+- Expected location: scripts/uploader.sh (or wherever you keep your helper scripts).
+- Input: a directory containing `.txt` song files (one file per song in format: {ArtistName - SongName).
+- Authentication: the script requires an API token (access token).
+
+Usage (uploader.sh -h output):
+
+```
+Usage: uploader.sh -t TOKEN [-d DIR]
+Options:
+  -t TOKEN    API token (required)
+  -d DIR      Directory with .txt song files (default: current directory)
+  -h          Show this help
+Example:
+  uploader.sh -t "mytoken" -d ./songs
+```
+
+How to obtain a token
+1. Authenticate with the backend to get an access token (example uses the /api/auth/login endpoint):
+
+```bash
+curl https://chordbay.eu/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com", "password":"YourPassword"}'
+```
+
+The server will respond with JSON containing at least an `accessToken` and `refreshToken`. Example (redacted):
+
+```json
+{
+  "accessToken": "ACCESS_TOKEN_HERE",
+  "refreshToken": "REFRESH_TOKEN_HERE"
+}
+```
+
+2. Use the access token with uploader.sh:
+
+```bash
+./uploader.sh -t ACCESS_TOKEN_HERE -d ./assets
+```
+
+Example run and expected output
+```
+Uploading: Artist1  — Song1
+  OK (HTTP 200)
+-----
+Uploading: Artist2 — Song2
+  OK (HTTP 200)
+-----
+```
+
+Notes and tips
+- Default directory: if `-d` is not provided, the script uses the current directory.
+- File format: expect plain `.txt` files containing the song text (same format as used for import/export within the app). Keep one song per file.
+- Security: do not commit access tokens to version control. Treat access tokens as secrets.
+- Troubleshooting: if you get 401/403 responses, verify the token is valid and has not expired. Use the refresh token flow (if available) or re-login to obtain a fresh access token.
+
+If you'd like, I can:
+- Add the uploader.sh file to the repo (if it's missing),
+- Create a short example `assets/` directory with a sample .txt song,
+- Or open a PR with this README change applied.
+
+---
+
 ## 🧩 Project structure
 
 > This is a high‑level overview. Package names may differ slightly in the actual project.
@@ -137,4 +204,3 @@ Contributions, bug reports, and feature requests are welcome.
 This project is open source. See the [LICENSE](./LICENSE) file for details.
 
 ---
-
