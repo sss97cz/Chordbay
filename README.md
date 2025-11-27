@@ -164,12 +164,7 @@ Notes and tips
 - File format: expect plain `.txt` files containing the song text (same format as used for import/export within the app). Keep one song per file.
 - Security: do not commit access tokens to version control. Treat access tokens as secrets.
 - Troubleshooting: if you get 401/403 responses, verify the token is valid and has not expired. Use the refresh token flow (if available) or re-login to obtain a fresh access token.
-
-If you'd like, I can:
-- Add the uploader.sh file to the repo (if it's missing),
-- Create a short example `assets/` directory with a sample .txt song,
-- Or open a PR with this README change applied.
-
+- 
 ---
 
 ## 💡 Roadmap ideas
