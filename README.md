@@ -200,6 +200,14 @@ Contributions, bug reports, and feature requests are welcome.
 
 ---
 
+## 💖 Support
+
+If you find Chordbay useful, you can support development on Ko-fi:
+
+[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-29ABE0?style=for-the-badge&logo=ko-fi&logoColor=fff)](https://ko-fi.com/chordbaysongbook)
+
+-Money from Ko-fi will be used to cover server hosting costs.
+
 ## 📝 License
 
 This project is open source. See the [LICENSE](./LICENSE) file for details.
