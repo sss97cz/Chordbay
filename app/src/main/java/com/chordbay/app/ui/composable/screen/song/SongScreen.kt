@@ -1,4 +1,4 @@
-package com.chordbay.app.ui.composable.screen
+package com.chordbay.app.ui.composable.screen.song
 
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult

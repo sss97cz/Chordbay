@@ -1,4 +1,4 @@
-package com.chordbay.app.ui.composable.screen
+package com.chordbay.app.ui.composable.screen.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -34,8 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.chordbay.app.data.model.util.ColorMode
-import com.chordbay.app.data.model.util.HBFormat
-import com.chordbay.app.data.model.util.Settings
+import com.chordbay.app.data.model.chord.HBFormat
+import com.chordbay.app.data.model.settings.Settings
 import com.chordbay.app.data.model.util.SortBy
 import com.chordbay.app.data.model.util.ThemeMode
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar

@@ -6,7 +6,7 @@ import com.chordbay.app.data.mappers.toSong
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.remote.ChordsBayApiService
 import com.chordbay.app.data.remote.model.ArtistDto
-import com.chordbay.app.ui.composable.screen.FilterField
+import com.chordbay.app.ui.composable.screen.song.FilterField
 import java.io.IOException
 
 class SongRemoteRepositoryImpl(

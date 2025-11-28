@@ -1,4 +1,4 @@
-package com.chordbay.app.ui.composable.screen
+package com.chordbay.app.ui.composable.screen.song
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -5,7 +5,7 @@ import com.chordbay.app.data.database.song.SongEntity
 import com.chordbay.app.data.mappers.toSong
 import com.chordbay.app.data.mappers.toSongEntity
 import com.chordbay.app.data.model.Song
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

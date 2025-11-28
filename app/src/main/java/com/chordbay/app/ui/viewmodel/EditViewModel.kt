@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chordbay.app.data.datastore.SettingsDataStore
 import com.chordbay.app.data.model.Song
-import com.chordbay.app.data.model.util.HBFormat
-import com.chordbay.app.data.model.util.Settings
+import com.chordbay.app.data.model.chord.HBFormat
+import com.chordbay.app.data.model.settings.Settings
 import com.chordbay.app.data.repository.song.SongRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

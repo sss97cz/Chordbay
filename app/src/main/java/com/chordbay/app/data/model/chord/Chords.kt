@@ -1,11 +1,11 @@
-package com.chordbay.app.data.model.util
+package com.chordbay.app.data.model.chord
 
 import android.util.Log
-import com.chordbay.app.data.model.util.Chords.A.add5
-import com.chordbay.app.data.model.util.Chords.A.add7
-import com.chordbay.app.data.model.util.Chords.A.addMoll
-import com.chordbay.app.data.model.util.Chords.A.addMoll7
-import com.chordbay.app.data.model.util.Chords.A.mapBaseChord
+import com.chordbay.app.data.model.chord.Chords.A.add5
+import com.chordbay.app.data.model.chord.Chords.A.add7
+import com.chordbay.app.data.model.chord.Chords.A.addMoll
+import com.chordbay.app.data.model.chord.Chords.A.addMoll7
+import com.chordbay.app.data.model.chord.Chords.A.mapBaseChord
 
 sealed class Chords(
     val value: String,

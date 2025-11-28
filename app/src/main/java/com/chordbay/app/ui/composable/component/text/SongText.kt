@@ -14,10 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-import com.chordbay.app.data.model.util.Chords
-import com.chordbay.app.data.model.util.Chords.A.mapBaseChord
-import com.chordbay.app.data.model.util.Chords.Companion.transpose
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.Chords
+import com.chordbay.app.data.model.chord.Chords.A.mapBaseChord
+import com.chordbay.app.data.model.chord.Chords.Companion.transpose
+import com.chordbay.app.data.model.chord.HBFormat
 
 @Composable
 fun SongText(

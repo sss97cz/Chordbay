@@ -1,4 +1,4 @@
-package com.chordbay.app.ui.composable.screen
+package com.chordbay.app.ui.composable.screen.song
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -69,6 +69,7 @@ import com.chordbay.app.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.chordbay.app.ui.composable.component.alertdialog.DeleteOptionDialog
 import com.chordbay.app.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.chordbay.app.ui.composable.component.list.AlphabeticalSongList
+import com.chordbay.app.ui.composable.screen.song.RemoteSongsTab
 import com.chordbay.app.ui.viewmodel.AuthViewModel
 import com.chordbay.app.ui.viewmodel.RemoteSongsViewModel
 

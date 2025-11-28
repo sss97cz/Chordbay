@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
-import com.chordbay.app.data.model.util.Chords
-import com.chordbay.app.data.model.util.Settings
+import com.chordbay.app.data.model.chord.Chords
+import com.chordbay.app.data.model.settings.Settings
 import com.chordbay.app.ui.composable.navigation.AppNavigation
 import com.chordbay.app.ui.theme.ChordsTheme
 import com.chordbay.app.ui.viewmodel.AuthViewModel

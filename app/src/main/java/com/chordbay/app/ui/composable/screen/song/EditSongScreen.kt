@@ -1,4 +1,4 @@
-package com.chordbay.app.ui.composable.screen
+package com.chordbay.app.ui.composable.screen.song
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +51,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 import com.chordbay.app.ui.composable.component.alertdialog.EditInfoAlertDialog
 import com.chordbay.app.ui.composable.component.textfield.SongEditor
 import com.chordbay.app.ui.composable.component.textfield.SongTextField

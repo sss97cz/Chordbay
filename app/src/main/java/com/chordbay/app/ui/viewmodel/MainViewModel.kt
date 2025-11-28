@@ -12,9 +12,9 @@ import com.chordbay.app.data.helper.TxtSongIO
 import com.chordbay.app.data.helper.getFileName
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.model.util.ColorMode
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 import com.chordbay.app.data.model.util.MainTabs
-import com.chordbay.app.data.model.util.Settings
+import com.chordbay.app.data.model.settings.Settings
 import com.chordbay.app.data.model.util.SortBy
 import com.chordbay.app.data.model.util.ThemeMode
 import com.chordbay.app.data.model.util.toError

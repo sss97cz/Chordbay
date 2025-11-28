@@ -1,7 +1,7 @@
 package com.chordbay.app.data.helper
 
 import com.chordbay.app.data.model.Song
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 import kotlin.text.Regex
 
 object TxtSongIO {

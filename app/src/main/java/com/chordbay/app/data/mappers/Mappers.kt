@@ -2,7 +2,7 @@ package com.chordbay.app.data.mappers
 
 import com.chordbay.app.data.database.song.SongEntity
 import com.chordbay.app.data.model.Song
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 import com.chordbay.app.data.remote.model.SongDto
 
 fun SongEntity.toSong(): Song =

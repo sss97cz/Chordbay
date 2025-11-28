@@ -1,7 +1,11 @@
-package com.chordbay.app.data.model.util
+package com.chordbay.app.data.model.settings
 
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.chordbay.app.data.model.util.ColorMode
+import com.chordbay.app.data.model.chord.HBFormat
+import com.chordbay.app.data.model.util.SortBy
+import com.chordbay.app.data.model.util.ThemeMode
 
 sealed class Settings<T>(
     val title: String,

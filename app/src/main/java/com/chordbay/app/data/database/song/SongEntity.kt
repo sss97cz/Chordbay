@@ -2,7 +2,7 @@ package com.chordbay.app.data.database.song
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 
 @Entity(tableName = "songs")
 data class SongEntity(

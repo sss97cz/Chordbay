@@ -1,6 +1,6 @@
 package com.chordbay.app.data.model
 
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 
 data class Song(
     val localId: Int? = null,

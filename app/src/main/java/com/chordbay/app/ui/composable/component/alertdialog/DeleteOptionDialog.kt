@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.chordbay.app.data.helper.pluralText
 import com.chordbay.app.data.model.Song
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.HBFormat
 
 @Composable
 fun DeleteOptionDialog(

@@ -10,9 +10,9 @@ import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.model.util.SortBy
 import com.chordbay.app.data.model.util.toError
 import com.chordbay.app.data.remote.model.ArtistDto
-import com.chordbay.app.ui.composable.screen.FilterField
-import com.chordbay.app.ui.composable.screen.ResultMode
-import com.chordbay.app.ui.composable.screen.SortByArtist
+import com.chordbay.app.ui.composable.screen.song.FilterField
+import com.chordbay.app.ui.composable.screen.song.ResultMode
+import com.chordbay.app.ui.composable.screen.song.SortByArtist
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted

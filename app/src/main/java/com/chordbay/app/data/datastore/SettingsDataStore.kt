@@ -2,7 +2,7 @@ package com.chordbay.app.data.datastore
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
-import com.chordbay.app.data.model.util.Settings
+import com.chordbay.app.data.model.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

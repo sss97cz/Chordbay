@@ -2,7 +2,7 @@ package com.chordbay.app.data.repository.remote
 
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.remote.model.ArtistDto
-import com.chordbay.app.ui.composable.screen.FilterField
+import com.chordbay.app.ui.composable.screen.song.FilterField
 
 interface SongRemoteRepository {
     suspend fun getSongs(): Result<List<Song>>

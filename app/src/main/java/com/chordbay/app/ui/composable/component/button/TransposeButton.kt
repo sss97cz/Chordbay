@@ -25,8 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.chordbay.app.data.model.util.Chords.Companion.transposeChord
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.Chords.Companion.transposeChord
+import com.chordbay.app.data.model.chord.HBFormat
 import com.chordbay.app.ui.theme.imagevector.Check_indeterminate_small
 
 @Composable

@@ -1,8 +1,8 @@
 package com.chordbay.app.data.helper
 
 import android.content.ContentResolver
-import com.chordbay.app.data.model.util.Chords
-import com.chordbay.app.data.model.util.HBFormat
+import com.chordbay.app.data.model.chord.Chords
+import com.chordbay.app.data.model.chord.HBFormat
 import kotlin.math.roundToInt
 
 fun pluralText(msg: String, count: Int): String {
