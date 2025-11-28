@@ -220,6 +220,9 @@ fun HomeScreen(
                 },
                 onLegalClick = {
                     navController.navigate(Paths.LegalPath.route)
+                },
+                onAboutClick = {
+                    navController.navigate(Paths.AboutPath.route)
                 }
             )
         },

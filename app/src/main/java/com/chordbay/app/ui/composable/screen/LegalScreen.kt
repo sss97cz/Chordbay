@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
+import androidx.core.net.toUri
 
 private const val TERMS_URL = "https://chordbay.eu/terms"
 private const val PRIVACY_URL = "https://chordbay.eu/privacy"
@@ -52,7 +53,7 @@ fun LegalScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(role = Role.Button) {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(TERMS_URL))
+                        val intent = Intent(Intent.ACTION_VIEW, TERMS_URL.toUri())
                         context.startActivity(intent)
                     }
             ) {
@@ -62,7 +63,7 @@ fun LegalScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(role = Role.Button) {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_URL))
+                        val intent = Intent(Intent.ACTION_VIEW, PRIVACY_URL.toUri())
                         context.startActivity(intent)
                     }
             ) {

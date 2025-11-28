@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.chordbay.app.ui.composable.screen.AboutScreen
 import com.chordbay.app.ui.composable.screen.ArtistSongsScreen
 import com.chordbay.app.ui.composable.screen.EditSongScreen
 import com.chordbay.app.ui.composable.screen.HelpScreen
@@ -225,6 +226,12 @@ fun AppNavigation(
             route = Paths.LegalPath.route
         ) {
             LegalScreen(navController = navController)
+        }
+
+        composable(
+            route = Paths.AboutPath.route
+        ){
+            AboutScreen(navController = navController)
         }
     }
 }

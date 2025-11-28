@@ -68,7 +68,6 @@ fun PlaylistScreen(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Playlist $playlistId")
                     AlphabeticalSongList(
                         songs = songsFromPlaylist.value,
                         selectedSongs = emptyList(),

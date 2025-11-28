@@ -51,6 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.chordbay.app.R
 import com.chordbay.app.data.database.playlist.PlaylistEntity
 
 @Composable
@@ -64,6 +65,7 @@ fun MyDrawerContent(
     onSignOutClick: () -> Unit = {},
     onHelpAndFeedbackClick: () -> Unit = {},
     onLegalClick: () -> Unit = {},
+    onAboutClick: () -> Unit = {},
     userEmail: String? = null,
 ) {
     var playlistsExpanded by remember { mutableStateOf(false) }
@@ -175,6 +177,13 @@ fun MyDrawerContent(
                     onClick = onLegalClick,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
+                NavigationDrawerItem(
+                    label = { Text("About & Support") },
+                    selected = false,
+                    icon = { Icon(Icons.Default.Info, null) },
+                    onClick = onAboutClick,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                )
             }
         }
     }
@@ -189,7 +198,7 @@ private fun DrawerHeader() {
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Image(
-            painter = painterResource(id = com.chordbay.app.R.mipmap.ic_launcher_foreground),
+            painter = painterResource(id = R.mipmap.ic_launcher_foreground),
             contentDescription = null,
             modifier = Modifier.size(50.dp)
         )

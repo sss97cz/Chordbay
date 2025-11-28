@@ -32,4 +32,5 @@ sealed class Paths(
     }
     object HelpPath: Paths("help")
     object LegalPath: Paths("legal")
+    object AboutPath: Paths("about")
 }
