@@ -52,10 +52,8 @@ sealed class Chords(
             }
             val sevenths = baseChords.map { add7(it) }
             val fifths = baseChords.map { add5(it) }
-            val minorSevenths = baseChords.map { addMoll7(it) }
-            return baseChords.map{it.value} + minors + sevenths + fifths + minorSevenths.also {
-                Log.d("AllChordsToString", "All chords: $it")
-            }
+            val minorSevenths =  baseChords.map { addMoll7(it, MollFormat.Mi) } + baseChords.map { addMoll7(it, MollFormat.M) }
+            return baseChords.map{it.value} + minors + sevenths + fifths + minorSevenths
         }
 
         // Extension for base chord
@@ -101,7 +99,7 @@ sealed class Chords(
 
     fun add7(chord: Chords) = chord.value + "7"
 
-    fun addMoll7(chord: Chords) = addMoll(chord) + "7"
+    fun addMoll7(chord: Chords, mollFormat: MollFormat) = addMoll(chord, mollFormat) + "7"
     fun add5(chord: Chords) = chord.value + "5"
     fun Chords.mapBaseChord(userFormat: HBFormat?, songFormat: HBFormat): String? {
         if (userFormat == null) return this.value
