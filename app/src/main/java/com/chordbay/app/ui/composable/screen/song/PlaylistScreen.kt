@@ -1,29 +1,47 @@
 package com.chordbay.app.ui.composable.screen.song
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.model.util.SortBy
-import com.chordbay.app.ui.composable.component.list.AlphabeticalSongList
 import com.chordbay.app.ui.composable.component.list.PlaylistList
+import com.chordbay.app.ui.composable.component.menu.PlaylistBottomSheetContent
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
 import com.chordbay.app.ui.composable.navigation.Paths
 import com.chordbay.app.ui.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,14 +52,54 @@ fun PlaylistScreen(
 ) {
     val songsFromPlaylist = mainViewModel.playlistSongs.collectAsState()
     val playlistState = mainViewModel.getPlaylistById(playlistId).collectAsState()
+    val selectedSongsList = rememberSaveable { mutableStateOf<List<Song>>(emptyList()) }
     val playlist = playlistState.value
     LaunchedEffect(Unit) {
         mainViewModel.getSongsInPlaylist(playlistId)
     }
 
     val canNavigateUp = navController.previousBackStackEntry != null
+    val scope = rememberCoroutineScope()
+
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        )
+    )
+    // Dynamic bottom padding for LazyColumn
+    val targetPadding by remember(scaffoldState.bottomSheetState.currentValue) {
+        derivedStateOf {
+            when (scaffoldState.bottomSheetState.currentValue) {
+                SheetValue.Expanded -> 190.dp
+                SheetValue.PartiallyExpanded -> {
+                    if (selectedSongsList.value.isNotEmpty()) 64.dp else 24.dp
+                }
+                else -> 24.dp
+            }
+        }
+    }
+    val bottomSystemPadding = WindowInsets.navigationBars.asPaddingValues()
+    val dynamicBottomPadding by animateDpAsState(
+        targetValue = targetPadding + bottomSystemPadding.calculateBottomPadding(),
+        animationSpec = tween(durationMillis = 60)
+    )
+    val sheetPeekHeight by remember(
+        selectedSongsList.value.isNotEmpty(),
+        scaffoldState.bottomSheetState.currentValue
+    ) {
+        derivedStateOf {
+            if (selectedSongsList.value.isNotEmpty()) {
+                BottomSheetDefaults.SheetPeekHeight
+            } else {
+                0.dp
+            }
+        }
+    }
     if (playlist != null) {
-        Scaffold(
+        BottomSheetScaffold(
+            sheetPeekHeight = sheetPeekHeight,
+            scaffoldState = scaffoldState,
             topBar = {
                 MyTopAppBar(
                     title = playlist.name,
@@ -62,28 +120,44 @@ fun PlaylistScreen(
                         }
                     }
                 )
-            }
-        ) { innerPadding ->
+            },
+            sheetContent = {
+                PlaylistBottomSheetContent(
+                    selectedSongs = selectedSongsList.value,
+                    onCloseClick = {
+                        selectedSongsList.value = emptyList()
+                        scope.launch {
+                            scaffoldState.bottomSheetState.hide()
+                        }
+                    },
+                    onDeleteClick = {
+                        val songsToDelete = selectedSongsList.value
+                        songsToDelete.forEach { song ->
+                            if (song.localId != null) {
+                                mainViewModel.removeSongFromPlaylist(
+                                    playlistId,
+                                    song.localId
+                                )
+                            }
+                        }
+                        selectedSongsList.value = emptyList()
+                        scope.launch {
+                            scaffoldState.bottomSheetState.hide()
+                        }
+                    },
+                    bottomPadding = bottomSystemPadding.calculateBottomPadding()
+                )
+            },
+        ) {
             Box(
                 modifier = Modifier
-                    .padding(innerPadding)
                     .fillMaxSize(),
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-//                    AlphabeticalSongList(
-//                        songs = songsFromPlaylist.value,
-//                        selectedSongs = emptyList(),
-//                        sortBy = SortBy.SONG_NAME,
-//                        onSongClick = { song ->
-//                            navController.navigate(Paths.SongPath.createRoute(song.localId.toString()))
-//                        },
-//                        onSongLongClick = {},
-//                        bottomPadding = 0.dp,
-//                        isPlaylist = true
-//                    )
                     PlaylistList(
+                        selectedSongsList = selectedSongsList.value,
                         songs = songsFromPlaylist.value,
                         onMove = { fromIndex, toIndex ->
                             mainViewModel.moveSongInPlaylist(
@@ -92,21 +166,39 @@ fun PlaylistScreen(
                                 toIndex
                             )
                         },
-                        onDelete = { index ->
-                            val songToRemove = songsFromPlaylist.value.getOrNull(index)
-                            if (songToRemove != null && songToRemove.localId != null) {
-                                mainViewModel.removeSongFromPlaylist(
-                                    playlistId,
-                                    songToRemove.localId
+                        onSongClick = { song ->
+                            if (selectedSongsList.value.isNotEmpty()) {
+                                if (selectedSongsList.value.contains(song)) {
+                                    selectedSongsList.value =
+                                        selectedSongsList.value.toMutableList().also {
+                                            it.remove(song)
+                                        }
+                                } else {
+                                    selectedSongsList.value += song
+                                    scope.launch {
+                                            scaffoldState.bottomSheetState.expand()
+                                    }
+                                }
+                            } else {
+                                navController.navigate(
+                                    Paths.SongPath.createRoute(song.localId.toString())
                                 )
                             }
                         },
-                        onSongClick = { song ->
-                            navController.navigate(
-                                Paths.SongPath.createRoute(song.localId.toString())
-                            )
+                        onSongLongClick = {
+                            if (selectedSongsList.value.contains(it)) {
+                                selectedSongsList.value =
+                                    selectedSongsList.value.toMutableList().also { list ->
+                                        list.remove(it)
+                                    }
+                            } else {
+                                selectedSongsList.value += it
+                            }
+                            scope.launch {
+                                    scaffoldState.bottomSheetState.expand()
+                            }
                         },
-                        onSongLongClick = {}
+                        bottomPadding = dynamicBottomPadding
                     )
                 }
             }

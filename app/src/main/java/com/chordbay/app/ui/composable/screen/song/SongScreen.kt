@@ -123,8 +123,8 @@ fun SongScreen(
     Scaffold(
         topBar = {
             MyTopAppBar(
-                title = song?.artist ?: "",
-                subtitle = song?.title ?: "",
+                title = song?.title ?: "",
+                subtitle = song?.artist ?: "",
                 navigationIcon = if (canNavigateBack) {
                     Icons.AutoMirrored.Filled.ArrowBack
                 } else null,

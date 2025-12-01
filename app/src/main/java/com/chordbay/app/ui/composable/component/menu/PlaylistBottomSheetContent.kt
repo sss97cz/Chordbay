@@ -1,45 +1,35 @@
 package com.chordbay.app.ui.composable.component.menu
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.chordbay.app.data.model.Song
-import com.chordbay.app.ui.theme.imagevector.Playlist_add
 
 @Composable
-fun BottomSheetContent(
-    bottomPadding: Dp,
+fun PlaylistBottomSheetContent(
     selectedSongs: List<Song>,
-    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onPostClick: () -> Unit,
     onCloseClick: () -> Unit,
-    onAddToPlaylistClick: () -> Unit,
+    bottomPadding: Dp,
 ) {
     val single = selectedSongs.size == 1
     val count = selectedSongs.size
@@ -95,56 +85,11 @@ fun BottomSheetContent(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (single) {
-                ActionIcon(
-                    icon = Icons.Default.Edit,
-                    label = "Edit",
-                    onClick = onEditClick
-                )
-            }
             ActionIcon(
                 icon = Icons.Default.Delete,
                 label = "Delete",
                 onClick = onDeleteClick
             )
-
-            ActionIcon(
-                icon = Playlist_add,
-                label = "Add to Playlist",
-                onClick = onAddToPlaylistClick
-            )
-            if (count > 0) {
-                ActionIcon(
-                    icon = Icons.Default.Share,
-                    label = "Share",
-                    onClick = onPostClick
-                )
-            }
         }
-    }
-}
-
-@Composable
-fun ActionIcon(
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .padding(4.dp)
-            .widthIn(min = 72.dp)
-            .semantics(mergeDescendants = true) { contentDescription = label }
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(imageVector = icon, contentDescription = null)
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            maxLines = 1
-        )
     }
 }
