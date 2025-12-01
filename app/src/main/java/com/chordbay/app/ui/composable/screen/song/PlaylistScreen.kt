@@ -12,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.chordbay.app.data.model.util.SortBy
 import com.chordbay.app.ui.composable.component.list.AlphabeticalSongList
+import com.chordbay.app.ui.composable.component.list.PlaylistList
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
 import com.chordbay.app.ui.composable.navigation.Paths
 import com.chordbay.app.ui.viewmodel.MainViewModel
@@ -30,9 +32,12 @@ fun PlaylistScreen(
     mainViewModel: MainViewModel,
     navController: NavHostController
 ) {
-    val songsFromPlaylist = mainViewModel.getSongsInPlaylist(playlistId).collectAsState()
+    val songsFromPlaylist = mainViewModel.playlistSongs.collectAsState()
     val playlistState = mainViewModel.getPlaylistById(playlistId).collectAsState()
     val playlist = playlistState.value
+    LaunchedEffect(Unit) {
+        mainViewModel.getSongsInPlaylist(playlistId)
+    }
 
     val canNavigateUp = navController.previousBackStackEntry != null
     if (playlist != null) {
@@ -67,16 +72,41 @@ fun PlaylistScreen(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    AlphabeticalSongList(
+//                    AlphabeticalSongList(
+//                        songs = songsFromPlaylist.value,
+//                        selectedSongs = emptyList(),
+//                        sortBy = SortBy.SONG_NAME,
+//                        onSongClick = { song ->
+//                            navController.navigate(Paths.SongPath.createRoute(song.localId.toString()))
+//                        },
+//                        onSongLongClick = {},
+//                        bottomPadding = 0.dp,
+//                        isPlaylist = true
+//                    )
+                    PlaylistList(
                         songs = songsFromPlaylist.value,
-                        selectedSongs = emptyList(),
-                        sortBy = SortBy.SONG_NAME,
-                        onSongClick = { song ->
-                            navController.navigate(Paths.SongPath.createRoute(song.localId.toString()))
+                        onMove = { fromIndex, toIndex ->
+                            mainViewModel.moveSongInPlaylist(
+                                playlistId,
+                                fromIndex,
+                                toIndex
+                            )
                         },
-                        onSongLongClick = {},
-                        bottomPadding = 0.dp,
-                        isPlaylist = true
+                        onDelete = { index ->
+                            val songToRemove = songsFromPlaylist.value.getOrNull(index)
+                            if (songToRemove != null && songToRemove.localId != null) {
+                                mainViewModel.removeSongFromPlaylist(
+                                    playlistId,
+                                    songToRemove.localId
+                                )
+                            }
+                        },
+                        onSongClick = { song ->
+                            navController.navigate(
+                                Paths.SongPath.createRoute(song.localId.toString())
+                            )
+                        },
+                        onSongLongClick = {}
                     )
                 }
             }

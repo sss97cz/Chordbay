@@ -69,7 +69,6 @@ import com.chordbay.app.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.chordbay.app.ui.composable.component.alertdialog.DeleteOptionDialog
 import com.chordbay.app.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.chordbay.app.ui.composable.component.list.AlphabeticalSongList
-import com.chordbay.app.ui.composable.screen.song.RemoteSongsTab
 import com.chordbay.app.ui.viewmodel.AuthViewModel
 import com.chordbay.app.ui.viewmodel.RemoteSongsViewModel
 
@@ -98,9 +97,10 @@ fun HomeScreen(
     var showPrivacyBulkDialog by remember { mutableStateOf(false) }
     var showDeleteOptionDialog by remember { mutableStateOf(false) }
     val postSuccess = mainViewModel.postSuccess.collectAsState()
+    val deleteSuccess = mainViewModel.deleteSuccess.collectAsState()
+    val isDoneDeletingSongs = mainViewModel.isDoneDeletingSongs.collectAsState()
 
     val email = authViewModel.userEmail.collectAsState()
-    val isUserLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
 
 
     var searchBarExpanded by rememberSaveable { mutableStateOf(false) }
@@ -182,6 +182,13 @@ fun HomeScreen(
         if (postSuccess.value == true) {
             snackbarHostState.showSnackbar("Successful upload")
             mainViewModel.clearPostSuccess()
+        }
+    }
+    LaunchedEffect(deleteSuccess.value, ) {
+        if (deleteSuccess.value == true && isDoneDeletingSongs.value == true) {
+            snackbarHostState.showSnackbar("Successful deletion")
+            mainViewModel.clearDeleteSuccess()
+            mainViewModel.clearDoneDeletingSongs()
         }
     }
 
@@ -275,18 +282,7 @@ fun HomeScreen(
                         )
                     }
 
-                    MainTabs.REMOTE_SONGS -> {
-//                        BottomSheetContentRemote(
-//                            selectedRemoteSongs = selectedRemoteSongsList,
-//                            onSaveClick = {
-//                                songViewModel.saveSelectedRemoteSongsToDatabase()
-//                                scope.launch {
-//                                    scaffoldState.bottomSheetState.hide()
-//                                    songViewModel.clearSelectedRemoteSongs()
-//                                }
-//                            }
-//                        )
-                    }
+                    MainTabs.REMOTE_SONGS -> { }
                 }
             },
             topBar = {
@@ -376,9 +372,7 @@ fun HomeScreen(
                                 keyboardController?.hide()
                                 searchQuery = it
                             },
-                            onSearchClick = {
-//                                searchBarExpanded = false
-                            },
+                            onSearchClick = { },
                             onClearClick = {
                                 searchQuery = ""
                             },
@@ -432,7 +426,6 @@ fun HomeScreen(
                             MainTabs.REMOTE_SONGS -> {
                                 RemoteSongsTab(
                                     remoteSongsViewModel = remoteSongsViewModel,
-                                    songsViewModel = mainViewModel,
                                     navController = navController,
                                 )
                             }

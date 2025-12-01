@@ -58,7 +58,6 @@ import com.chordbay.app.ui.theme.imagevector.Artist
 @Composable
 fun RemoteSongsTab(
     remoteSongsViewModel: RemoteSongsViewModel,
-    songsViewModel: MainViewModel,
     navController: NavController
 ) {
     val query by remoteSongsViewModel.query.collectAsState()
@@ -361,7 +360,7 @@ fun LandscapeSearchBarHeader(
                 remoteSongsViewModel.refreshArtists()
             },
             trailingContent = {
-                Box() {
+                Box {
                     IconButton(
                         onClick = {
                             onMenuExpandedChange()
@@ -691,7 +690,7 @@ fun ResultHeader(mode: ResultMode, count: Int, query: String?, modifier: Modifie
 
         Spacer(Modifier.width(12.dp))
 
-        Column() {
+        Column {
             Text(
                 text = if (mode == ResultMode.ARTISTS) "Artists" else "Songs",
                 style = MaterialTheme.typography.titleMedium

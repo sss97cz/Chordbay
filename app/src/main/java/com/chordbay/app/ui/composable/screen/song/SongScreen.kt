@@ -151,7 +151,7 @@ fun SongScreen(
                             )
                         }
                     }
-                    Box() {
+                    Box {
                         IconButton(
                             onClick = {
                                 isDropdownMenuExpanded.value = true

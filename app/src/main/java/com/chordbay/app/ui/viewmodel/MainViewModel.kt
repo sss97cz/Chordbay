@@ -13,6 +13,7 @@ import com.chordbay.app.data.helper.getFileName
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.model.util.ColorMode
 import com.chordbay.app.data.model.chord.HBFormat
+import com.chordbay.app.data.model.chord.MollFormat
 import com.chordbay.app.data.model.util.MainTabs
 import com.chordbay.app.data.model.settings.Settings
 import com.chordbay.app.data.model.util.SortBy
@@ -205,6 +206,10 @@ class MainViewModel(
         }
     }
 
+    val isDoneDeletingSongs = MutableStateFlow<Boolean?>(null)
+    fun clearDoneDeletingSongs() {
+        isDoneDeletingSongs.value = null
+    }
     fun deleteSongWithOptions(songs: List<Song>, deleteAction: Map<Int, Pair<Boolean, Boolean>>) {
         viewModelScope.launch {
             for (song in songs) {
@@ -218,6 +223,9 @@ class MainViewModel(
                         deleteSong(song)
                     }
                 }
+            }
+            if (deleteAction.entries.any { it.value.second}){
+                isDoneDeletingSongs.value = true
             }
         }
     }
@@ -471,6 +479,10 @@ class MainViewModel(
         postSongs(songsWithPrivacy)
     }
 
+    var deleteSuccess = MutableStateFlow<Boolean?>(null)
+    fun clearDeleteSuccess() {
+        deleteSuccess.value = null
+    }
     fun deleteRemoteSong(song: Song) {
         viewModelScope.launch {
             val token = authRepository.getAccessToken()
@@ -501,6 +513,13 @@ class MainViewModel(
                 if (it) {
                     Log.d("SongViewModel", "Song deleted successfully from remote server")
 //                    deleteSong(song)
+                    if (song.localId != null) {
+                        val updatedSong = song.copy(remoteId = null)
+                        updateSong(updatedSong)
+                    }
+                    _myRemoteSongsIds.value = _myRemoteSongsIds.value - song.remoteId
+                    deleteSuccess.value = true
+
                 } else {
                     _error.value = "Failed to delete song: Unknown error"
                 }
@@ -575,14 +594,16 @@ class MainViewModel(
         }
     }
 
+    private val _playlistSongs = MutableStateFlow<List<Song>>(emptyList())
+    val playlistSongs: StateFlow<List<Song>> = _playlistSongs.asStateFlow()
 
-    fun getSongsInPlaylist(playlistId: Int): StateFlow<List<Song>> =
-        playlistRepository.getSongsInPlaylist(playlistId)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyList()
-            )
+    fun getSongsInPlaylist(playlistId: Int) {
+        viewModelScope.launch {
+            playlistRepository.getSongsInPlaylist(playlistId).collect { list ->
+                _playlistSongs.value = list
+            }
+        }
+    }
 
     fun getPlaylistById(id: Int): StateFlow<PlaylistEntity?> =
         playlists.combine(playlists) { playlists, _ ->
@@ -592,5 +613,36 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
         )
+
+    fun moveSongInPlaylist(
+        playlistId: Int,
+        fromIndex: Int,
+        toIndex: Int
+    ) {
+        val currentSongs = _playlistSongs.value.toMutableList()
+        if (fromIndex in currentSongs.indices && toIndex in currentSongs.indices) {
+            val song = currentSongs.removeAt(fromIndex)
+            currentSongs.add(toIndex, song)
+            _playlistSongs.value = currentSongs
+            savePlaylistOrder(playlistId, currentSongs)
+        }
+    }
+
+
+    fun savePlaylistOrder(playlistId: Int, orderedSongs: List<Song>) {
+        viewModelScope.launch {
+            val orderedSongIds = orderedSongs.mapNotNull { it.localId }
+            playlistRepository.savePlaylistOrder(playlistId, orderedSongIds)
+        }
+    }
+
+
+
+
+    fun removeSongFromPlaylist(playlistId: Int, songId: Int) {
+        viewModelScope.launch {
+            playlistRepository.removeSongFromPlaylistAndReorder(playlistId, songId)
+        }
+    }
 
 }

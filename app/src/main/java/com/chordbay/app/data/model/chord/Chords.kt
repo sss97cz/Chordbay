@@ -53,7 +53,9 @@ sealed class Chords(
             val sevenths = baseChords.map { add7(it) }
             val fifths = baseChords.map { add5(it) }
             val minorSevenths = baseChords.map { addMoll7(it) }
-            return baseChords.map{it.value} + minors + sevenths + fifths + minorSevenths
+            return baseChords.map{it.value} + minors + sevenths + fifths + minorSevenths.also {
+                Log.d("AllChordsToString", "All chords: $it")
+            }
         }
 
         // Extension for base chord

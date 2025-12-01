@@ -79,7 +79,6 @@ fun RegisterScreen(
     val canSubmit = isEmailValid && isPasswordValid && isConfirmValid && !isLoading.value
     val canNavigateBack = navController.previousBackStackEntry != null
 
-    val isLoggedIn = authViewModel.isUserLoggedIn.collectAsState()
     val errorMessage = authViewModel.error.collectAsState()
 
     val registerSuccess = authViewModel.registerSuccess.collectAsState()
