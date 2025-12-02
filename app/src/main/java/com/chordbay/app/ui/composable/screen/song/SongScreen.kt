@@ -37,6 +37,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -61,9 +63,11 @@ import com.chordbay.app.ui.composable.component.button.TransposeButton
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
 import com.chordbay.app.ui.composable.navigation.Paths
 import com.chordbay.app.ui.viewmodel.MainViewModel
+import com.chordbay.app.ui.viewmodel.RemoteSongsViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
@@ -71,6 +75,7 @@ import org.koin.androidx.compose.koinViewModel
 fun SongScreen(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = koinViewModel(),
+    remoteSongsViewModel: RemoteSongsViewModel = koinViewModel(),
     songId: String,
     navController: NavController,
     isRemote: Boolean = false,
@@ -94,6 +99,7 @@ fun SongScreen(
     val sliderState = remember { mutableFloatStateOf(fontSize.value.toFloat()) }
     var showSlider by rememberSaveable { mutableStateOf(false) }
     val hbFormat = mainViewModel.hbFormat.collectAsState()
+    val error = remoteSongsViewModel.error.collectAsState()
 
     val context = LocalContext.current
 
@@ -119,8 +125,32 @@ fun SongScreen(
                 mainViewModel.setSongTextFontSize(value.toInt())
             }
     }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val saveSuccess = remoteSongsViewModel.saveSuccess.collectAsState()
+    LaunchedEffect(saveSuccess.value){
+        if (saveSuccess.value == true){
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    "Song Downloaded"
+                )
+                remoteSongsViewModel.clearSaveSuccess()
+            }
+        }
+    }
+    LaunchedEffect(error.value){
+        if (error.value != null) {
+            scope.launch {
+                snackbarHostState.showSnackbar(error.value ?: "")
+                remoteSongsViewModel.clearError()
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             MyTopAppBar(
                 title = song?.title ?: "",
@@ -170,22 +200,33 @@ fun SongScreen(
                                 text = { Text("Change Font Size") },
                                 onClick = { showSlider = true },
                             )
-                            DropdownMenuItem(
-                                text = { Text("Edit Song") },
-                                onClick = {
-                                    if (song?.localId != null) {
-                                        navController.navigate(
-                                            Paths.EditSongPath.createRoute(songId = song.localId.toString())
-                                        )
-                                    }
-                                }
-                            )
-                            if (song != null) {
+                            if (!isRemote) {
                                 DropdownMenuItem(
-                                    text = { Text("Export as TXT") },
+                                    text = { Text("Edit Song") },
                                     onClick = {
-                                        val suggestedFileName = TxtSongIO.buildFileName(song)
-                                        exportLauncher.launch(suggestedFileName)
+                                        if (song?.localId != null) {
+                                            navController.navigate(
+                                                Paths.EditSongPath.createRoute(songId = song.localId.toString())
+                                            )
+                                        }
+                                    }
+                                )
+                                if (song != null) {
+                                    DropdownMenuItem(
+                                        text = { Text("Export as TXT") },
+                                        onClick = {
+                                            val suggestedFileName = TxtSongIO.buildFileName(song)
+                                            exportLauncher.launch(suggestedFileName)
+                                        }
+                                    )
+                                }
+                            } else {
+                                DropdownMenuItem(
+                                    text = { Text("Download Song") },
+                                    onClick = {
+                                        if (song != null) {
+                                            remoteSongsViewModel.saveSong(song)
+                                        }
                                     }
                                 )
                             }

@@ -237,6 +237,12 @@ class RemoteSongsViewModel(
         }
     }
 
+    private val _saveSuccess = MutableStateFlow<Boolean?>(null)
+    val saveSuccess = _saveSuccess.asStateFlow()
+    fun clearSaveSuccess() {
+        _saveSuccess.value = null
+    }
+
     fun saveSong(song: Song) {
         viewModelScope.launch {
             // Insert into local DB; the localRemoteIds flow will update and mark the item as synced
@@ -251,6 +257,7 @@ class RemoteSongsViewModel(
                         }
                     }
                 }
+                _saveSuccess.value = true
             }
             songRepository.insertRemoteSong(song)
         }
@@ -289,6 +296,10 @@ class RemoteSongsViewModel(
                     )
                 }
         }
+    }
+
+    fun clearError(){
+        _error.value = null
     }
 
     private fun getMostViewedSongs() {

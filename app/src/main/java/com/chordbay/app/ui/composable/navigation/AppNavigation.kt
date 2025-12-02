@@ -64,8 +64,9 @@ fun AppNavigation(
             if (songId != null) {
                 SongScreen(
                     mainViewModel = mainViewModel,
+                    remoteSongsViewModel = remoteSongsViewModel,
                     navController = navController,
-                    songId = songId
+                    songId = songId,
                 )
             } else {
                 navController.popBackStack()
@@ -109,9 +110,10 @@ fun AppNavigation(
                 Log.d("AppNavigation", "remoteId: $remoteId")
                 SongScreen(
                     mainViewModel = mainViewModel,
+                    remoteSongsViewModel = remoteSongsViewModel,
                     navController = navController,
                     songId = remoteId,
-                    isRemote = true
+                    isRemote = true,
                 )
             } else {
                 navController.popBackStack()
