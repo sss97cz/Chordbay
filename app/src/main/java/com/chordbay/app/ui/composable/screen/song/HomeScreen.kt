@@ -57,12 +57,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.WideNavigationRailValue
 import androidx.compose.ui.platform.LocalContext
 import com.chordbay.app.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.chordbay.app.ui.composable.component.alertdialog.CreatePlaylistDialog
@@ -147,7 +150,7 @@ fun HomeScreen(
 //                if (selectedRemoteSongsList.isNotEmpty()) {
 //                    BottomSheetDefaults.SheetPeekHeight
 //                } else {
-                    0.dp
+                0.dp
 //                }
             }
         }
@@ -161,7 +164,11 @@ fun HomeScreen(
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris ->
-        mainViewModel.importTxtSongsFromUris(context = context, uris = uris, hbFormat = hbFormatState.value)
+        mainViewModel.importTxtSongsFromUris(
+            context = context,
+            uris = uris,
+            hbFormat = hbFormatState.value
+        )
     }
 
 
@@ -184,7 +191,7 @@ fun HomeScreen(
             mainViewModel.clearPostSuccess()
         }
     }
-    LaunchedEffect(deleteSuccess.value, ) {
+    LaunchedEffect(deleteSuccess.value) {
         if (deleteSuccess.value == true && isDoneDeletingSongs.value == true) {
             snackbarHostState.showSnackbar("Successful deletion")
             mainViewModel.clearDeleteSuccess()
@@ -201,7 +208,6 @@ fun HomeScreen(
         searchQuery = ""
         keyboardController?.hide()
     }
-
     ModalNavigationDrawer(
         drawerContent = {
             MyDrawerContent(
@@ -282,7 +288,7 @@ fun HomeScreen(
                         )
                     }
 
-                    MainTabs.REMOTE_SONGS -> { }
+                    MainTabs.REMOTE_SONGS -> {}
                 }
             },
             topBar = {

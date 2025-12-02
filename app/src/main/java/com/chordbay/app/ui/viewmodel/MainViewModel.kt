@@ -10,6 +10,7 @@ import com.chordbay.app.data.datastore.SettingsDataStore
 import com.chordbay.app.data.datastore.UserDataStore
 import com.chordbay.app.data.helper.TxtSongIO
 import com.chordbay.app.data.helper.getFileName
+import com.chordbay.app.data.model.PlaylistInfo
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.model.util.ColorMode
 import com.chordbay.app.data.model.chord.HBFormat
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -565,12 +567,28 @@ class MainViewModel(
     }
     //------------------------------- Playlist  operations ---------------------------------------------
 
-    val playlists: StateFlow<List<PlaylistEntity>> = playlistRepository.getAllPlaylists()
+    val _playlists: StateFlow<List<PlaylistEntity>> = playlistRepository.getAllPlaylists()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+    //playlist with songs count
+    val playlists: StateFlow<List<PlaylistInfo>> = _playlists.map {
+        playlists -> playlists.map { playlist ->
+            val songCount = playlistRepository.getSongsInPlaylist(playlist.id)
+                .map { it.size }
+                .first()
+            PlaylistInfo(
+                playlist = playlist,
+                songCount = songCount
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     fun createPlaylist(name: String) {
         viewModelScope.launch {
@@ -590,7 +608,7 @@ class MainViewModel(
 
     fun deletePlaylist(id: Int) {
         viewModelScope.launch {
-            playlistRepository.deletePlaylist(playlists.value.first { it.id == id })
+            playlistRepository.deletePlaylist(_playlists.value.first { it.id == id })
         }
     }
 
@@ -606,7 +624,7 @@ class MainViewModel(
     }
 
     fun getPlaylistById(id: Int): StateFlow<PlaylistEntity?> =
-        playlists.combine(playlists) { playlists, _ ->
+        _playlists.combine(_playlists) { playlists, _ ->
             playlists.firstOrNull { it.id == id }
         }.stateIn(
             scope = viewModelScope,

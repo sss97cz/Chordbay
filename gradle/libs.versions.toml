@@ -29,6 +29,7 @@ foundation = "1.9.5"
 uiUnit = "1.9.5"
 foundationVersion = "1.9.5"
 material3Version = "1.4.0"
+animation = "1.9.5"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -67,6 +68,8 @@ material3 = { group = "androidx.compose.material3", name = "material3", version.
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlinCodegen" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

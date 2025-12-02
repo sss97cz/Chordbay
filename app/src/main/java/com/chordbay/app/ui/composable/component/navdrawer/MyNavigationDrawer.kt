@@ -1,10 +1,13 @@
 package com.chordbay.app.ui.composable.component.navdrawer
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,17 +18,22 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -33,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,10 +62,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.chordbay.app.R
 import com.chordbay.app.data.database.playlist.PlaylistEntity
+import com.chordbay.app.data.helper.pluralText
+import com.chordbay.app.data.model.PlaylistInfo
 
 @Composable
 fun MyDrawerContent(
-    playlists: List<PlaylistEntity>,
+    playlists: List<PlaylistInfo>,
     onPlaylistClick: (PlaylistEntity) -> Unit,
     onCreatePlaylistClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -70,7 +81,7 @@ fun MyDrawerContent(
 ) {
     var playlistsExpanded by remember { mutableStateOf(false) }
     val animatedRotation by animateFloatAsState(
-        targetValue = if (playlistsExpanded) 90f else 0f,
+        targetValue = if (playlistsExpanded) 0f else 90f,
         animationSpec = tween(durationMillis = 150)
     )
     val isSignedIn = !userEmail.isNullOrBlank()
@@ -104,52 +115,14 @@ fun MyDrawerContent(
 
             // Playlists Section
             item {
-                SectionHeader("Library")
-                NavigationDrawerItem(
-                    label = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Playlists", style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.weight(1f))
-                            if (playlists.isNotEmpty()) {
-                                Icon(
-                                    Icons.Default.ArrowDropDown,
-                                    contentDescription = null,
-                                    modifier = Modifier.rotate(animatedRotation)
-                                )
-                            }
-                        }
-                    },
-                    selected = false,
-                    icon = { Icon(Icons.Default.LibraryMusic, null) },
-                    onClick = {
-                        if (playlists.isNotEmpty()) {
-                            playlistsExpanded = !playlistsExpanded
-                        } else {
-                            onCreatePlaylistClick()
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                PlaylistSection(
+                    playlists = playlists,
+                    playlistsExpanded = playlistsExpanded,
+                    onToggleExpand = { playlistsExpanded = !playlistsExpanded },
+                    onPlaylistClick = onPlaylistClick,
+                    onCreatePlaylistClick = onCreatePlaylistClick,
+                    animatedRotation = animatedRotation
                 )
-                AnimatedVisibility(visible = playlistsExpanded) {
-                    Column {
-                        playlists.forEachIndexed { i, playlist ->
-                            NavigationDrawerItem(
-                                label = { Text(playlist.name) },
-                                selected = false,
-                                onClick = { onPlaylistClick(playlist) },
-                                modifier = Modifier
-                                    .padding(horizontal = 32.dp)
-                                    .clip(MaterialTheme.shapes.small)
-                            )
-                            if (i < playlists.size - 1) HorizontalDivider()
-                        }
-                    }
-                }
-
-                HorizontalDivider()
             }
 
             // Settings Section
@@ -166,14 +139,14 @@ fun MyDrawerContent(
                 NavigationDrawerItem(
                     label = { Text("Help") },
                     selected = false,
-                    icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+                    icon = { Icon(Icons.Outlined.HelpOutline, contentDescription = null) },
                     onClick = onHelpAndFeedbackClick,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
                 NavigationDrawerItem(
                     label = { Text("Legal") },
                     selected = false,
-                    icon = { Icon(Icons.Default.Info, null) },
+                    icon = { Icon(Icons.Default.Description, null) },
                     onClick = onLegalClick,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
@@ -195,7 +168,7 @@ private fun DrawerHeader() {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Image(
             painter = painterResource(id = R.mipmap.ic_launcher_foreground),
@@ -205,7 +178,7 @@ private fun DrawerHeader() {
 
         Text(
             "Chordbay",
-            modifier = Modifier.padding(start = 16.dp),
+            modifier = Modifier.padding(start = 12.dp),
             style = MaterialTheme.typography.titleLarge
         )
     }
@@ -290,6 +263,127 @@ fun AccountRow(
             }
         }
     }
+}
+// kotlin
+@Composable
+private fun PlaylistSection(
+    playlists: List<PlaylistInfo>,
+    playlistsExpanded: Boolean,
+    onToggleExpand: () -> Unit,
+    onPlaylistClick: (PlaylistEntity) -> Unit,
+    onCreatePlaylistClick: () -> Unit,
+    animatedRotation: Float
+) {
+    val playlistListState = rememberLazyListState()
+
+    SectionHeader("Library")
+    NavigationDrawerItem(
+        label = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Playlists", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.weight(1f))
+                if (playlists.isNotEmpty()) {
+                    Icon(
+                        Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.rotate(animatedRotation)
+                    )
+                }
+            }
+        },
+        selected = false,
+        icon = { Icon(Icons.Default.LibraryMusic, null) },
+        onClick = {
+            if (playlists.isNotEmpty()) {
+                onToggleExpand()
+            } else {
+                onCreatePlaylistClick()
+            }
+        },
+        modifier = Modifier.padding(horizontal = 8.dp)
+    )
+    AnimatedVisibility(visible = playlistsExpanded) {
+        LazyColumn(
+            state = playlistListState,
+            modifier = Modifier.heightIn(max = 320.dp)
+        ) {
+            items(playlists) { playlistInfo ->
+                PlaylistItemCard(
+                    playlistInfo = playlistInfo,
+                    onClick = { onPlaylistClick(playlistInfo.playlist) }
+                )
+            }
+        }
+    }
+    HorizontalDivider(Modifier.padding(top = 4.dp))
+}
+
+@Composable
+private fun PlaylistItemCard(
+    playlistInfo: PlaylistInfo,
+    onClick: () -> Unit
+) {
+        Surface(
+            tonalElevation = 2.dp,
+            shape = MaterialTheme.shapes.large,
+            modifier = Modifier
+                .padding(start = 56.dp, end = 16.dp, top = 6.dp, bottom = 2.dp)
+                .fillMaxWidth()
+                .animateContentSize()
+                .clip(MaterialTheme.shapes.extraLarge)
+                .clickable { onClick() }
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+            ) {
+                // Thumbnail / icon container
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LibraryMusic,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                Spacer(Modifier.width(12.dp))
+
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = playlistInfo.playlist.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1
+                    )
+
+                    // Example secondary text; adapt to your `PlaylistEntity`
+                    Text(
+                        text = if (playlistInfo.songCount != 0) {
+                            pluralText("${playlistInfo.songCount} song", playlistInfo.songCount)
+                        } else {
+                            "No songs"
+                        },
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
 }
 
 

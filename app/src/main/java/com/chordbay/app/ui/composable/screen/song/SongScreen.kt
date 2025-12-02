@@ -139,7 +139,7 @@ fun SongScreen(
         }
     }
     LaunchedEffect(error.value){
-        if (error.value != null) {
+        if (error.value != null && isRemote) {
             scope.launch {
                 snackbarHostState.showSnackbar(error.value ?: "")
                 remoteSongsViewModel.clearError()
