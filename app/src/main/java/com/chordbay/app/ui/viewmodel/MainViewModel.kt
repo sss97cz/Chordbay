@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.chordbay.app.data.database.playlist.PlaylistEntity
 import com.chordbay.app.data.datastore.SettingsDataStore
 import com.chordbay.app.data.datastore.UserDataStore
@@ -657,10 +658,6 @@ class MainViewModel(
             playlistRepository.savePlaylistOrder(playlistId, orderedSongIds)
         }
     }
-
-
-
-
     fun removeSongFromPlaylist(playlistId: Int, songId: Int) {
         viewModelScope.launch {
             playlistRepository.removeSongFromPlaylistAndReorder(playlistId, songId)
@@ -675,6 +672,39 @@ class MainViewModel(
                 playlistRepository.updatePlaylist(updated)
             }
         }
+    }
+
+    fun isNotFirstSongInPlaylist(playlistId: Int, songId: Int): Boolean {
+        val songsInPlaylist = _playlistSongs.value
+        val index = songsInPlaylist.indexOfFirst { it.localId == songId }
+        return index > 0
+    }
+    fun isNotLastSongInPlaylist(playlistId: Int, songId: Int): Boolean {
+        val songsInPlaylist = _playlistSongs.value
+        val index = songsInPlaylist.indexOfFirst { it.localId == songId }
+        return index >= 0 && index < songsInPlaylist.size - 1
+    }
+    fun navigateInsidePlaylist(
+        navController: NavController,
+        playlistId: Int,
+        currentSongId: Int,
+        direction: Int
+    ) {
+        val songsInPlaylist = _playlistSongs.value
+        val currentIndex = songsInPlaylist.indexOfFirst { it.localId == currentSongId }
+        val newIndex = currentIndex + direction
+        if (newIndex in songsInPlaylist.indices) {
+            val newSong = songsInPlaylist[newIndex]
+            navController.navigate("songFromPlaylist/${newSong.localId}/$playlistId")
+        }
+    }
+    fun positionInPlaylist(playlistId: Int, songId: Int): Int? {
+        val songsInPlaylist = _playlistSongs.value
+        val index = songsInPlaylist.indexOfFirst { it.localId == songId }
+        return if (index >= 0) index + 1 else null
+    }
+    fun playlistSize(playlistId: Int): Int {
+        return _playlistSongs.value.size
     }
 
 }

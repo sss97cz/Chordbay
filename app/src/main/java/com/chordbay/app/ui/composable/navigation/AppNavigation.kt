@@ -164,11 +164,11 @@ fun AppNavigation(
         ) {
             val artistName = it.arguments?.getString("artistName")
             if (artistName != null) {
-                 ArtistSongsScreen(
-                     remoteSongsViewModel = remoteSongsViewModel,
-                     navController = navController,
-                     artistName = artistName
-                 )
+                ArtistSongsScreen(
+                    remoteSongsViewModel = remoteSongsViewModel,
+                    navController = navController,
+                    artistName = artistName
+                )
             } else {
                 navController.popBackStack()
             }
@@ -188,18 +188,18 @@ fun AppNavigation(
         composable(
             route = Paths.RegisterPath.route
         ) {
-             RegisterScreen(
-                 navController = navController,
-                 authViewModel = authViewModel,
-             )
+            RegisterScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+            )
         }
         composable(
             route = Paths.ManageAccountPath.route
         ) {
-              ManageAccountScreen(
-                  navController = navController,
-                  authViewModel = authViewModel,
-              )
+            ManageAccountScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+            )
         }
         composable(
             route = Paths.VerifyEmailPath.route,
@@ -211,11 +211,11 @@ fun AppNavigation(
                 }
             )
         ) {
-               VerifyEmailScreen(
-                   navController = navController,
-                   authViewModel = authViewModel,
-                   email = it.arguments?.getString("email") ?: "",
-               )
+            VerifyEmailScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+                email = it.arguments?.getString("email") ?: "",
+            )
         }
 
         composable(
@@ -232,8 +232,38 @@ fun AppNavigation(
 
         composable(
             route = Paths.AboutPath.route
-        ){
+        ) {
             AboutScreen(navController = navController)
+        }
+
+        composable(
+            route = Paths.SongFromPlaylistPath.route,
+            arguments = listOf(
+                navArgument(
+                    name = "songId"
+                ) {
+                    type = NavType.StringType
+                },
+                navArgument(
+                    name = "playlistId"
+                ) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            val songId = it.arguments?.getString("songId")
+            val playlistId = it.arguments?.getInt("playlistId")
+            if (songId != null && playlistId != null) {
+                SongScreen(
+                    mainViewModel = mainViewModel,
+                    remoteSongsViewModel = remoteSongsViewModel,
+                    navController = navController,
+                    songId = songId,
+                    fromPlaylistId = playlistId
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
     }
 }

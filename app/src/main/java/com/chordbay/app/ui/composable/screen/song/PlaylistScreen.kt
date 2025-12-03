@@ -224,7 +224,10 @@ fun PlaylistScreen(
                                 }
                             } else {
                                 navController.navigate(
-                                    Paths.SongPath.createRoute(song.localId.toString())
+                                    Paths.SongFromPlaylistPath.createRoute(
+                                        song.localId.toString(),
+                                        playlistId
+                                    )
                                 )
                             }
                         },
@@ -279,7 +282,7 @@ fun RenamePlaylistDialog(
                     singleLine = true,
                     modifier = Modifier
                 )
-                
+
             },
             confirmButton = {
                 TextButton(

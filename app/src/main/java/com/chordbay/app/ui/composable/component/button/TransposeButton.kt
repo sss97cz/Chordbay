@@ -46,7 +46,7 @@ fun TransposeButton(
     Box(
         modifier = modifier
             .clip(CircleShape)
-            .size(100.dp, 40.dp)
+            .size(95.dp, 40.dp)
             .background(MaterialTheme.colorScheme.primary)
             .padding(2.dp)
             .clip(CircleShape)

@@ -12,9 +12,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -25,6 +28,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.filled.ArrowLeft
+import androidx.compose.material.icons.filled.ArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,14 +46,18 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -79,6 +90,7 @@ fun SongScreen(
     songId: String,
     navController: NavController,
     isRemote: Boolean = false,
+    fromPlaylistId: Int? = null,
 ) {
     val songData by produceState<Song?>(initialValue = null, key1 = songId) {
         value = if (!isRemote && songId.toIntOrNull() != null) {
@@ -131,8 +143,8 @@ fun SongScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val saveSuccess = remoteSongsViewModel.saveSuccess.collectAsState()
-    LaunchedEffect(saveSuccess.value){
-        if (saveSuccess.value == true){
+    LaunchedEffect(saveSuccess.value) {
+        if (saveSuccess.value == true) {
             scope.launch {
                 snackbarHostState.showSnackbar(
                     "Song Downloaded"
@@ -141,7 +153,7 @@ fun SongScreen(
             }
         }
     }
-    LaunchedEffect(error.value){
+    LaunchedEffect(error.value) {
         if (error.value != null && isRemote) {
             scope.launch {
                 snackbarHostState.showSnackbar(error.value ?: "")
@@ -156,19 +168,35 @@ fun SongScreen(
         },
         topBar = {
             MyTopAppBar(
-                title = song?.title ?: "",
-                subtitle = song?.artist ?: "",
+                title = song?.artist ?: "",
+                subtitle = song?.title ?: "",
                 navigationIcon = if (canNavigateBack) {
                     Icons.AutoMirrored.Filled.ArrowBack
                 } else null,
                 onNavigationIconClick = {
                     if (canNavigateBack) {
-                        navController.navigateUp()
+                        if (fromPlaylistId != null) {
+                            // Clear all songs from this playlist from the back stack
+                            navController.navigate(
+                                Paths.PlaylistPath.createRoute(fromPlaylistId)
+                            ) {
+                                popUpTo(Paths.PlaylistPath.route) {
+                                    inclusive = true   // remove old playlist + its song entries
+                                }
+                                launchSingleTop = true
+                            }
+                        } else {
+                            navController.popBackStack()
+                        }
                     }
                 },
                 actions = {
                     if (song != null) {
-                        val key = findKey(song.content, hbFormat = hbFormat.value, songHBFormat = song.hBFormat)
+                        val key = findKey(
+                            song.content,
+                            hbFormat = hbFormat.value,
+                            songHBFormat = song.hBFormat
+                        )
                         if (key != null) {
                             TransposeButton(
                                 initialSemitones = semitones,
@@ -252,7 +280,8 @@ fun SongScreen(
                     .pointerInput(Unit) {
                         detectTransformGestures { _, _, zoom, _ ->
                             if (zoom != 1f) {
-                                sliderState.floatValue = (sliderState.floatValue * zoom).coerceIn(10f, 30f)
+                                sliderState.floatValue =
+                                    (sliderState.floatValue * zoom).coerceIn(10f, 30f)
                             }
                         }
                     },
@@ -281,6 +310,67 @@ fun SongScreen(
                     }
                 }
             }
+            if (fromPlaylistId != null && song != null && song.localId != null) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                        .padding(horizontal = 16.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    tonalElevation = 1.dp
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        PlaylistNavigationButton(
+                            direction = -1,
+                            isVisible = mainViewModel.isNotFirstSongInPlaylist(
+                                songId = song.localId,
+                                playlistId = fromPlaylistId,
+                            ),
+                            onClick = { direction ->
+                                mainViewModel.navigateInsidePlaylist(
+                                    navController = navController,
+                                    currentSongId = song.localId,
+                                    playlistId = fromPlaylistId,
+                                    direction = direction
+                                )
+                            }
+                        )
+                        Box(
+                            modifier = Modifier
+                                .weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "${
+                                    mainViewModel.positionInPlaylist(
+                                        songId = song.localId,
+                                        playlistId = fromPlaylistId,
+                                    )
+                                } / ${mainViewModel.playlistSize(playlistId = fromPlaylistId)}",
+                            )
+                        }
+                        PlaylistNavigationButton(
+                            direction = 1,
+                            isVisible = mainViewModel.isNotLastSongInPlaylist(
+                                songId = song.localId,
+                                playlistId = fromPlaylistId,
+                            ),
+                            onClick = { direction ->
+                                mainViewModel.navigateInsidePlaylist(
+                                    navController = navController,
+                                    currentSongId = song.localId,
+                                    playlistId = fromPlaylistId,
+                                    direction = direction
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
             AnimatedVisibility(
                 visible = showSlider,
                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
@@ -365,4 +455,33 @@ fun SongScreen(
             }
         }
     }
+}
+
+
+@Composable
+fun PlaylistNavigationButton(
+    isVisible: Boolean,
+    onClick: (Int) -> Unit,
+    direction: Int
+) {
+    Surface(
+        tonalElevation = if (isVisible) 8.dp else 1.dp,
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        IconButton(
+            onClick = {
+                onClick(direction)
+            },
+            enabled = isVisible,
+            modifier = Modifier
+                .size(45.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Icon(
+                imageVector = if (direction < 0) Icons.AutoMirrored.Filled.ArrowLeft else Icons.AutoMirrored.Filled.ArrowRight,
+                contentDescription = "Navigate in Playlist"
+            )
+        }
+    }
+
 }

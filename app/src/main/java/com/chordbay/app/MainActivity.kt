@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
              - Properly host the MongoDB. **Done**
              - Publishing the app to Play Store. (Remove all songs from remote, add privacy policy, kofi link, etc.) **Working on**
          Bugs:
+             - Possible bug when refresh token expires after 30 days of inactivity. Need to somehow notify the user to login again.
              - Chords like F# are not properly detected. **Fixed**
              - when are the chords written in one line above the lyrics, the offset up looks wierd
                 (maybe fix for later. not really my problem that the user has written the chords in incorrect format)

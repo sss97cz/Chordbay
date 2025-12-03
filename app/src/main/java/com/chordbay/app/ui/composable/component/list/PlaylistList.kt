@@ -86,6 +86,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -175,7 +176,8 @@ fun PlaylistList(
                         modifier = Modifier
                             .padding(end = 4.dp)
                             .fillMaxHeight()
-                            .width(25.dp)
+                            .padding(vertical = 1.dp)
+                            .widthIn(min = 22.dp, max = 30.dp)
                     )
                     SongItem(
                         songTitle = song.title,
@@ -281,9 +283,7 @@ fun SongPosition(
         ) {
             Text(
                 text = (index + 1).toString(),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Medium
-                ),
+                style = MaterialTheme.typography.labelLarge,
                 color = textColor
             )
         }

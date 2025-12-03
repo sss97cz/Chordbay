@@ -39,6 +39,7 @@ import com.chordbay.app.data.model.settings.Settings
 import com.chordbay.app.data.model.util.SortBy
 import com.chordbay.app.data.model.util.ThemeMode
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
+import com.chordbay.app.ui.composable.screen.song.PlaylistScreen
 import com.chordbay.app.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +64,9 @@ fun SettingsScreen(
                 title = "Settings",
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 onNavigationIconClick = {
-                    navController.popBackStack()
+                    if (canNavigateBack) {
+                        navController.popBackStack()
+                    }
                 }
             )
         }
