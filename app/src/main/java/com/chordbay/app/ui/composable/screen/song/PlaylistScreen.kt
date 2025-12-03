@@ -7,18 +7,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
@@ -34,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.chordbay.app.data.helper.pluralText
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.model.util.SortBy
 import com.chordbay.app.ui.composable.component.list.PlaylistList
@@ -75,6 +87,7 @@ fun PlaylistScreen(
                 SheetValue.PartiallyExpanded -> {
                     if (selectedSongsList.value.isNotEmpty()) 64.dp else 24.dp
                 }
+
                 else -> 24.dp
             }
         }
@@ -96,6 +109,8 @@ fun PlaylistScreen(
             }
         }
     }
+    val isMenuExpanded = remember { mutableStateOf(false) }
+    val isRenameDialogVisible = remember { mutableStateOf(false) }
     if (playlist != null) {
         BottomSheetScaffold(
             sheetPeekHeight = sheetPeekHeight,
@@ -103,20 +118,48 @@ fun PlaylistScreen(
             topBar = {
                 MyTopAppBar(
                     title = playlist.name,
+                    subtitle = if (songsFromPlaylist.value.size != 0) {
+                        pluralText(
+                            "${songsFromPlaylist.value.size} song",
+                            songsFromPlaylist.value.size
+                        )
+                    } else {
+                        "No songs"
+                    },
                     navigationIcon = Icons.AutoMirrored.Default.ArrowBack,
                     onNavigationIconClick = { if (canNavigateUp) navController.navigateUp() },
                     actions = {
-                        IconButton(
-                            onClick = {
-                                mainViewModel.deletePlaylist(playlistId)
-                                if (canNavigateUp) {
-                                    navController.navigateUp()
+
+                        Box {
+                            IconButton(
+                                onClick = {
+                                    isMenuExpanded.value = true
                                 }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert, null
+                                )
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete, null
-                            )
+                            DropdownMenu(
+                                expanded = isMenuExpanded.value,
+                                onDismissRequest = { isMenuExpanded.value = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Rename Playlist") },
+                                    onClick = {
+                                        isRenameDialogVisible.value = true
+                                        isMenuExpanded.value = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Delete Playlist") },
+                                    onClick = {
+                                        isMenuExpanded.value = false
+                                        mainViewModel.deletePlaylist(playlistId)
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
                         }
                     }
                 )
@@ -176,7 +219,7 @@ fun PlaylistScreen(
                                 } else {
                                     selectedSongsList.value += song
                                     scope.launch {
-                                            scaffoldState.bottomSheetState.expand()
+                                        scaffoldState.bottomSheetState.expand()
                                     }
                                 }
                             } else {
@@ -195,7 +238,7 @@ fun PlaylistScreen(
                                 selectedSongsList.value += it
                             }
                             scope.launch {
-                                    scaffoldState.bottomSheetState.expand()
+                                scaffoldState.bottomSheetState.expand()
                             }
                         },
                         bottomPadding = dynamicBottomPadding
@@ -203,5 +246,58 @@ fun PlaylistScreen(
                 }
             }
         }
+        RenamePlaylistDialog(
+            currentName = playlist.name,
+            isVisible = isRenameDialogVisible.value,
+            playlistId = playlistId,
+            onDismissRequest = { isRenameDialogVisible.value = false },
+            onRenameClick = { newName ->
+                mainViewModel.renamePlaylist(playlistId, newName)
+            }
+        )
+    }
+}
+
+@Composable
+fun RenamePlaylistDialog(
+    currentName: String = "",
+    playlistId: Int,
+    isVisible: Boolean,
+    onDismissRequest: () -> Unit,
+    onRenameClick: (String) -> Unit = {},
+) {
+    val name = remember { mutableStateOf(currentName) }
+    if (isVisible) {
+        AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = { Text("Rename Playlist") },
+            text = {
+                OutlinedTextField(
+                    value = name.value,
+                    onValueChange = { name.value = it },
+                    label = { Text("Playlist Name") },
+                    singleLine = true,
+                    modifier = Modifier
+                )
+                
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onRenameClick(name.value)
+                        onDismissRequest()
+                    }
+                ) {
+                    Text("Rename")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismissRequest
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

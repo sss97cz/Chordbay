@@ -125,6 +125,9 @@ fun SongScreen(
                 mainViewModel.setSongTextFontSize(value.toInt())
             }
     }
+    LaunchedEffect(song) {
+        Log.d("SongScreen", "Loaded song: $song")
+    }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val saveSuccess = remoteSongsViewModel.saveSuccess.collectAsState()

@@ -203,7 +203,7 @@ fun ManageAccountScreen(
                             horizontalArrangement = Arrangement.SpaceAround,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Button(
+                            TextButton(
                                 onClick = {
                                     authViewModel.logoutUser()
                                 },

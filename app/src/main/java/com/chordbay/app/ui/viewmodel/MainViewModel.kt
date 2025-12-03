@@ -24,6 +24,7 @@ import com.chordbay.app.data.repository.auth.AuthRepository
 import com.chordbay.app.data.repository.playlist.PlaylistRepository
 import com.chordbay.app.data.repository.remote.SongRemoteRepository
 import com.chordbay.app.data.repository.song.SongRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,6 +32,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -574,22 +577,23 @@ class MainViewModel(
             initialValue = emptyList()
         )
     //playlist with songs count
-    val playlists: StateFlow<List<PlaylistInfo>> = _playlists.map {
-        playlists -> playlists.map { playlist ->
-            val songCount = playlistRepository.getSongsInPlaylist(playlist.id)
-                .map { it.size }
-                .first()
-            PlaylistInfo(
-                playlist = playlist,
-                songCount = songCount
-            )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val playlists: StateFlow<List<PlaylistInfo>> = _playlists
+    .flatMapLatest { playlists ->
+        if (playlists.isEmpty()) {
+            flowOf(emptyList())
+        } else {
+            val infoFlows = playlists.map { playlist ->
+                playlistRepository.getSongsInPlaylist(playlist.id)
+                    .map { songs -> PlaylistInfo(playlist = playlist, songCount = songs.size) }
+            }
+            combine(infoFlows) { array -> array.toList() }
         }
     }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5000),
+    initialValue = emptyList()
     )
-
     fun createPlaylist(name: String) {
         viewModelScope.launch {
             playlistRepository.makePlaylist(name)
@@ -660,6 +664,16 @@ class MainViewModel(
     fun removeSongFromPlaylist(playlistId: Int, songId: Int) {
         viewModelScope.launch {
             playlistRepository.removeSongFromPlaylistAndReorder(playlistId, songId)
+        }
+    }
+
+    fun renamePlaylist(playlistId: Int, newName: String) {
+        viewModelScope.launch {
+            val playlist = _playlists.value.firstOrNull { it.id == playlistId }
+            if (playlist != null) {
+                val updated = playlist.copy(name = newName)
+                playlistRepository.updatePlaylist(updated)
+            }
         }
     }
 

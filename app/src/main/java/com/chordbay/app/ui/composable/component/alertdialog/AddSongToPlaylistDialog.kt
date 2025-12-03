@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,17 +34,23 @@ fun AddSongToPlaylistDialog(
                 Text(text = "No playlists available. Please create a playlist first.")
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(playlists.size) { index ->
                         val playlistInfo = playlists[index]
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(min = 56.dp)
                                 .clickable {
-                                    Log.d("AddSongToPlaylistDialog", "Playlist ID: ${playlistInfo.playlist.id}")
+                                    Log.d(
+                                        "AddSongToPlaylistDialog",
+                                        "Playlist ID: ${playlistInfo.playlist.id}"
+                                    )
                                     onConfirm(playlistInfo.playlist.id)
                                 }
                         ) {
@@ -53,7 +60,10 @@ fun AddSongToPlaylistDialog(
                                     .padding(16.dp),
                                 contentAlignment = Alignment.CenterStart
                             ) {
-                                Text(text = playlistInfo.playlist.name, style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    text = playlistInfo.playlist.name,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                             }
                         }
                     }

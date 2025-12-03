@@ -283,7 +283,7 @@ private fun PlaylistSection(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Playlists", style = MaterialTheme.typography.titleMedium)
+                Text("Playlists")
                 Spacer(Modifier.weight(1f))
                 if (playlists.isNotEmpty()) {
                     Icon(
