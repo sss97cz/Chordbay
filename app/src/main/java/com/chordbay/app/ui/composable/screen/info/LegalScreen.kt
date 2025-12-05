@@ -36,7 +36,7 @@ fun LegalScreen(
         topBar = {
             MyTopAppBar(
                 title = "Legal",
-                onNavigationIconClick = { if (canNavigateBack) navController.popBackStack() },
+                onNavigationIconClick = { if (canNavigateBack) navController.navigateUp() },
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Default.ArrowBack else null
             )
         }

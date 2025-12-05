@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -86,8 +87,8 @@ fun PlaylistBottomSheetContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ActionIcon(
-                icon = Icons.Default.Delete,
-                label = "Delete",
+                icon = Icons.Default.Remove,
+                label = "Remove from Playlist",
                 onClick = onDeleteClick
             )
         }

@@ -41,7 +41,7 @@ fun HelpScreen(
         topBar = {
             MyTopAppBar(
                 title = "Help",
-                onNavigationIconClick = { navController.popBackStack() },
+                onNavigationIconClick = { if (canNavigateBack) { navController.navigateUp() }},
                 navigationIcon = Icons.AutoMirrored.Default.ArrowBack
             )
         }

@@ -35,7 +35,7 @@ fun AboutScreen(
         topBar = {
             MyTopAppBar(
                 title = "About app & Support",
-                onNavigationIconClick = { if (canNavigateBack) navController.popBackStack() },
+                onNavigationIconClick = { if (canNavigateBack) navController.navigateUp() },
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Default.ArrowBack else null
             )
         },

@@ -65,7 +65,7 @@ fun SettingsScreen(
                 navigationIcon = if (canNavigateBack) Icons.AutoMirrored.Filled.ArrowBack else null,
                 onNavigationIconClick = {
                     if (canNavigateBack) {
-                        navController.popBackStack()
+                        navController.navigateUp()
                     }
                 }
             )
