@@ -64,21 +64,17 @@ sealed class Chords(
         }
 
         fun Chords.transpose(semitones: Int, hbFormat: HBFormat): Chords {
-            Log.d("TransposeChord", "hbFormat: $hbFormat")
             // compute index against the canonical allBaseChords list
             val canonicalIndex = allBaseChords.indexOf(this.toCanonical())
-            Log.d("TransposeChord", "canonical baseChords: ${allBaseChords.map { it.value }}")
             require(canonicalIndex >= 0) { "Chord not in allBaseChords: ${this.value}" }
             val newIndex = (canonicalIndex + semitones).mod(12)
             // return the chord from the requested format's list at the same positional index
             val targetList = getBaseChordsList(hbFormat)
-            Log.d("TransposeChord", "target baseChords: ${targetList.map { it.value }} newIndex: $newIndex")
             return targetList[newIndex]
         }
 
         // Extension for chord strings, e.g. "C#m7"
         fun String.transposeChord(semitones: Int, hbFormat: HBFormat, songFormat: HBFormat): String {
-            Log.d("TransposeChord", "Transposing $this by $semitones semitones")
             val baseChord = getBaseChordsList(songFormat)
                 .sortedByDescending { it.value.length }
                 .firstOrNull { this.startsWith(it.value) }

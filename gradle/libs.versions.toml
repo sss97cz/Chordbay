@@ -15,7 +15,7 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.0"
 composeBom = "2025.11.01"
 loggingInterceptor = "5.3.1"
-material3 = "1.4.0"
+material3 = "1.5.0-alpha10"
 moshiKotlin = "1.15.2"
 moshiKotlinCodegen = "1.15.2"
 navigationCompose = "2.9.6"
@@ -28,8 +28,10 @@ foundationLayout = "1.9.5"
 foundation = "1.9.5"
 uiUnit = "1.9.5"
 foundationVersion = "1.9.5"
-material3Version = "1.4.0"
+material3Version = "1.5.0-alpha10"
 animation = "1.9.5"
+foundationLayoutVersion = "1.10.0"
+androidxFoundation = "1.10.0"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -69,6 +71,8 @@ moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "mosh
 moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlinCodegen" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
+androidx-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayoutVersion" }
+foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "androidxFoundation" }
 
 
 [plugins]

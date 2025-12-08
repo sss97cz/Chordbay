@@ -1,5 +1,7 @@
 package com.chordbay.app.ui.composable.screen.song
 
+import android.annotation.SuppressLint
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -99,7 +101,22 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import android.content.Intent
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.core.net.toUri
+import com.chordbay.app.data.helper.openExternalApp
 
+
+@SuppressLint("UseKtx")
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun SongScreen(
@@ -131,6 +148,8 @@ fun SongScreen(
     var showSlider by rememberSaveable { mutableStateOf(false) }
     val hbFormat = mainViewModel.hbFormat.collectAsState()
     val error = remoteSongsViewModel.error.collectAsState()
+
+    var showPlayExternalDialog by rememberSaveable { mutableStateOf(false) }
 
     var showAutoscrollFab by rememberSaveable { mutableStateOf(false) }
     val isAutoscrollMenuVisible = rememberSaveable { mutableStateOf(false) }
@@ -351,6 +370,21 @@ fun SongScreen(
                                     showAutoscrollFab = !showAutoscrollFab
                                 },
                             )
+                            if (song != null) {
+                                DropdownMenuItem(
+                                    text = { Text("Play on...") },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.OpenInNew,
+                                            contentDescription = "Play External"
+                                        )
+                                    },
+                                    onClick = {
+                                        isDropdownMenuExpanded.value = false // Close menu
+                                        showPlayExternalDialog = true        // Open dialog
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -631,6 +665,14 @@ fun SongScreen(
                 )
             }
         }
+        if (showPlayExternalDialog && song != null) {
+            PlayOnExternalAppDialog(
+                songArtist = song.artist,
+                songTitle = song.title,
+                onDismiss = { showPlayExternalDialog = false },
+                context = context
+            )
+        }
     }
 }
 
@@ -779,5 +821,75 @@ fun AutoscrollSpeedPopup(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun PlayOnExternalAppDialog(
+    songArtist: String,
+    songTitle: String,
+    onDismiss: () -> Unit,
+    context: android.content.Context
+) {
+    val query = "$songArtist $songTitle"
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Play song on") },
+        text = {
+            Column {
+                PlayOptionRow(
+                    text = "Spotify",
+                    icon = Icons.Default.MusicNote,
+                    onClick = { openExternalApp(context, "Spotify", query); onDismiss() }
+                )
+                PlayOptionRow(
+                    text = "YouTube",
+                    icon = Icons.Default.SlowMotionVideo,
+                    onClick = { openExternalApp(context, "YouTube", query); onDismiss() }
+                )
+                PlayOptionRow(
+                    text = "YouTube Music",
+                    icon = Icons.Default.LibraryMusic,
+                    onClick = { openExternalApp(context, "YouTube Music", query); onDismiss() }
+                )
+                PlayOptionRow(
+                    text = "Browser",
+                    icon = Icons.Default.Public,
+                    onClick = { openExternalApp(context, "Browser", query); onDismiss() }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun PlayOptionRow(
+    text: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
