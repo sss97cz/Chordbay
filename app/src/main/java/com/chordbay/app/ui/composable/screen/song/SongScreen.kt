@@ -34,11 +34,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Output
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PlayForWork
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SlowMotionVideo
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -48,6 +56,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +67,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
@@ -126,7 +136,7 @@ fun SongScreen(
     val isAutoscrollMenuVisible = rememberSaveable { mutableStateOf(false) }
 
     // pixels per second; 0 = off
-    var autoScrollSpeed by rememberSaveable { mutableFloatStateOf(0f) }
+    var autoScrollSpeed by rememberSaveable { mutableFloatStateOf(15f) }
 // or use Boolean + constant speed if you prefer
     var isAutoScrollEnabled by rememberSaveable { mutableStateOf(false) }
 
@@ -212,8 +222,8 @@ fun SongScreen(
         },
         topBar = {
             MyTopAppBar(
-                title = song?.artist ?: "",
-                subtitle = song?.title ?: "",
+                title = song?.title ?: "",
+                subtitle = song?.artist ?: "",
                 navigationIcon = if (canNavigateBack) {
                     Icons.AutoMirrored.Filled.ArrowBack
                 } else null,
@@ -272,12 +282,24 @@ fun SongScreen(
                             onDismissRequest = { isDropdownMenuExpanded.value = false },
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Change Font Size") },
+                                text = { Text("Font Size") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.FormatSize,
+                                        contentDescription = "Font Size"
+                                    )
+                                },
                                 onClick = { showSlider = true },
                             )
                             if (!isRemote) {
                                 DropdownMenuItem(
                                     text = { Text("Edit Song") },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.Edit,
+                                            contentDescription = "Edit Song"
+                                        )
+                                    },
                                     onClick = {
                                         if (song?.localId != null) {
                                             navController.navigate(
@@ -289,6 +311,12 @@ fun SongScreen(
                                 if (song != null) {
                                     DropdownMenuItem(
                                         text = { Text("Export as TXT") },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Filled.Output,
+                                                contentDescription = "Export as TXT"
+                                            )
+                                        },
                                         onClick = {
                                             val suggestedFileName = TxtSongIO.buildFileName(song)
                                             exportLauncher.launch(suggestedFileName)
@@ -298,6 +326,12 @@ fun SongScreen(
                             } else {
                                 DropdownMenuItem(
                                     text = { Text("Download Song") },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.Download,
+                                            contentDescription = "Download Song"
+                                        )
+                                    },
                                     onClick = {
                                         if (song != null) {
                                             remoteSongsViewModel.saveSong(song)
@@ -306,7 +340,13 @@ fun SongScreen(
                                 )
                             }
                             DropdownMenuItem(
-                                text = { Text("Autoscroll") },
+                                text = { Text("Show Autoscroll") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.PlayForWork,
+                                        contentDescription = "Autoscroll"
+                                    )
+                                },
                                 onClick = {
                                     showAutoscrollFab = !showAutoscrollFab
                                 },
@@ -638,7 +678,9 @@ fun AutoscrollFab(
         tonalElevation = 12.dp,
         shape = MaterialTheme.shapes.large,
     ) {
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             IconButton(
                 onClick = onPlayClick,
             ) {
@@ -656,6 +698,7 @@ fun AutoscrollFab(
                     }
                 )
             }
+            VerticalDivider(modifier = Modifier.height(24.dp))
             IconButton(
                 onClick = onFabClick,
             ) {
@@ -709,7 +752,7 @@ fun AutoscrollSpeedPopup(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -729,7 +772,7 @@ fun AutoscrollSpeedPopup(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        modifier = Modifier.widthIn(min = 24.dp),
+                        modifier = Modifier.widthIn(min = 30.dp),
                         text = "${autoScrollSpeed.toInt()} px/s",
                         style = MaterialTheme.typography.bodySmall
                     )

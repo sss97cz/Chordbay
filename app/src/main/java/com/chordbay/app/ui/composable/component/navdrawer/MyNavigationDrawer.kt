@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Description
@@ -139,7 +140,7 @@ fun MyDrawerContent(
                 NavigationDrawerItem(
                     label = { Text("Help") },
                     selected = false,
-                    icon = { Icon(Icons.Outlined.HelpOutline, contentDescription = null) },
+                    icon = { Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = null) },
                     onClick = onHelpAndFeedbackClick,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )

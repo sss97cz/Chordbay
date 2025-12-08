@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -51,11 +52,6 @@ fun SongItem(
 
     Card(
         modifier = modifier
-            .combinedClickable(
-                onClick = onSongClick,
-                onLongClick = onLongClick
-            )
-            .fillMaxWidth()
             .border(
                 width = 1.dp,
                 color = if (isSelected) {
@@ -67,47 +63,56 @@ fun SongItem(
             ),
         colors = colors,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 14.dp else 12.dp
+            defaultElevation = if (isSelected) 6.dp else 4.dp
         )
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-                .heightIn(min = 60.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                .combinedClickable(
+                    onClick = onSongClick,
+                    onLongClick = onLongClick
+                )
+                .fillMaxWidth()
         ) {
-            if (isSelected) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "Selected",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.width(12.dp))
-            }
-
-            Column(
+            Row(
                 modifier = Modifier
-                    .weight(1f),
-                verticalArrangement = Arrangement.Center
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+                    .heightIn(min = 60.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = songTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = songArtist,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+                if (isSelected) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Selected",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.width(12.dp))
+                }
 
-            if (trailingContent != null) {
-                Spacer(Modifier.width(8.dp))
-                trailingContent()
+                Column(
+                    modifier = Modifier
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = songTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = songArtist,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                if (trailingContent != null) {
+                    Spacer(Modifier.width(8.dp))
+                    trailingContent()
+                }
             }
         }
     }

@@ -164,7 +164,7 @@ fun PlaylistList(
             ReorderableItem(
                 state = reorderableState,
                 key = song.localId ?: song.hashCode(),
-                modifier = Modifier.height(70.dp)
+                modifier = Modifier.height(75.dp)
             ) { isDragging ->
                 val interactionSource = remember { MutableInteractionSource() }
                 Row(

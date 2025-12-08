@@ -15,26 +15,29 @@ fun calculatePercentage(range: IntRange, value: Float): Int {
 }
 
 fun findKey(song: String, hbFormat: HBFormat, songHBFormat: HBFormat): String? {
-    val openBracketIndex = song.indexOf('[')
-    if (openBracketIndex == -1) {
+    val openBracketIndices = song.indices.filter { song[it] == '[' }
+    if (openBracketIndices.isEmpty()) {
         return null
     }
-    val textAfterOpenBracket = song.substring(startIndex = openBracketIndex)
-    val closeBracketIndexInSubstring = textAfterOpenBracket.indexOf(']')
-    if (closeBracketIndexInSubstring == -1) {
-        return null
-    }
-    val firstChord = textAfterOpenBracket.substring(1)
-        .substringBefore(']')
-    if (firstChord.isEmpty()) {
-        return null
-    }
-    val formatsMatch = hbFormat == songHBFormat
     val baseChord = Chords.getBaseChordsList(songHBFormat)
         .sortedByDescending { it.value.length }
-        .firstOrNull { firstChord.startsWith(it.value) }
-
-    return baseChord?.value
+    val firstChord = openBracketIndices.mapNotNull { index ->
+        val textAfterOpenBracket = song.substring(startIndex = index)
+        val closeBracketIndexInSubstring = textAfterOpenBracket.indexOf(']')
+        if (closeBracketIndexInSubstring == -1) {
+            null
+        } else {
+            textAfterOpenBracket.substring(1)
+                .substringBefore(']')
+        }
+    }.mapNotNull { chordCandidate ->
+        // Find the longest matching base chord
+        val matchingBaseChord = baseChord.find { baseChord ->
+            chordCandidate.startsWith(baseChord.value)
+        } ?: return@mapNotNull null
+        matchingBaseChord
+    }.firstOrNull()?.value
+    return firstChord
 }
 
 fun String.isPasswordValid(): Boolean =
