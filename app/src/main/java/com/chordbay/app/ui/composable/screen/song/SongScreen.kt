@@ -321,6 +321,7 @@ fun SongScreen(
                                     },
                                     onClick = {
                                         if (song?.localId != null) {
+                                            Log.d("SongScreen", "Navigating to EditSongPath for song ID ${song.localId}")
                                             navController.navigate(
                                                 Paths.EditSongPath.createRoute(songId = song.localId.toString())
                                             )
@@ -427,7 +428,7 @@ fun SongScreen(
                             detectTransformGestures { _, _, zoom, _ ->
                                 if (zoom != 1f) {
                                     sliderState.floatValue =
-                                        (sliderState.floatValue * zoom).coerceIn(10f, 30f)
+                                        (sliderState.floatValue * zoom).coerceIn(8f, 30f)
                                 }
                             }
                         }
@@ -606,8 +607,8 @@ fun SongScreen(
                             onValueChange = {
                                 sliderState.floatValue = it
                             },
-                            valueRange = 10f..30f,
-                            steps = 19,
+                            valueRange = 8f..30f,
+                            steps = 21,
                             onValueChangeFinished = {
                                 mainViewModel.setSongTextFontSize(sliderState.floatValue.toInt())
                             },
@@ -622,7 +623,7 @@ fun SongScreen(
                                         thumbSize = DpSize(26.dp, 26.dp)
                                     )
                                     Text(
-                                        text = calculatePercentage(10..30, sliderState.floatValue)
+                                        text = calculatePercentage(8..30, sliderState.floatValue)
                                             .toString() + "%",
                                         style = MaterialTheme.typography.bodyMedium.copy(
                                             fontSize = 10.sp,

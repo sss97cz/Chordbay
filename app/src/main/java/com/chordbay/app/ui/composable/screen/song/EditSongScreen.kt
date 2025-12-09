@@ -1,6 +1,7 @@
 package com.chordbay.app.ui.composable.screen.song
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -77,8 +78,14 @@ fun EditSongScreen(
 
     // Load song only once per songId
     LaunchedEffect(songId) {
+        Log.d("EditViewModel", "loadEditSong called with id=$songId")
         if (!hasLoaded) {
+            viewModel.clearSongStates()
             viewModel.loadEditSong(songId)
+            Log.d(
+                "EditViewModel",
+                "song loaded into editor: id=$songId, title=${songName}, artist=${songArtist}"
+            )
         }
     }
     DisposableEffect(navController, songId) {

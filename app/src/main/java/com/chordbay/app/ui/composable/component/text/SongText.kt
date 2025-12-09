@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import com.chordbay.app.data.model.chord.ChordFingerings
 import com.chordbay.app.data.model.chord.Chords
 import com.chordbay.app.data.model.chord.Chords.A.mapBaseChord
 import com.chordbay.app.data.model.chord.Chords.Companion.transpose
@@ -108,7 +109,7 @@ fun SongText(
             ),
             modifier = modifier.pointerInput(Unit) {
                 detectTapGestures(
-                    onDoubleTap = { offset ->
+                    onPress = { offset ->
                         Log.d("SongText", "onLongPress at offset: $offset")
                         popupOffset = offset
                         val layout = textLayoutResult ?: return@detectTapGestures
@@ -144,9 +145,12 @@ fun SongText(
                                 text = popupChord ?: "",
                             )
                             GuitarChord(
-                                fingering = "2|3|2|0|x|x",
-                                fromFret = 0,
-                                toFret = 4,
+                                fingering = ChordFingerings.getFingeringForChord(
+                                    chordText = popupChord ?: "",
+                                    songFormat = hBFormat
+                                ) ?: "",
+                                scale = 1f,
+                                hbFormat = hBFormat,
                             )
                         }
                     }
