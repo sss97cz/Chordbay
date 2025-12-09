@@ -83,7 +83,20 @@ sealed class Chords(
             val suffix = this.removePrefix(baseChord.value)
             return baseChord.transpose(semitones, hbFormat).mapBaseChord(hbFormat, songFormat) + suffix
         }
+        fun Chords.toOrdinal(hbFormat: HBFormat): Int {
+            val targetList = getBaseChordsList(hbFormat)
+            return targetList.indexOfFirst { it.toCanonical() == this.toCanonical() }
+        }
+        fun String.toCanonicalChordName(songFormat: HBFormat): String {
+            val baseChord = getBaseChordsList(songFormat)
+                .sortedByDescending { it.value.length }
+                .firstOrNull { this.startsWith(it.value) }
+                ?: return this
 
+            val suffix = this.removePrefix(baseChord.value)
+            val canonicalBase = baseChord.toCanonical().value
+            return canonicalBase + suffix
+        }
     }
 
     fun addMoll(
@@ -124,4 +137,163 @@ sealed class MollFormat(val value: String) {
 enum class HBFormat(val value: String) {
     ENG("ENG (Bb/B)"),
     GER("GER (H/B)"),
+}
+
+
+sealed class ChordQuality {
+    object Major : ChordQuality()
+    object Minor : ChordQuality()
+    object Minor7 : ChordQuality()
+    object Seven : ChordQuality()
+    object Five : ChordQuality()
+}
+object ChordParser {
+    fun parseCanonicalChord(canonical: String): Pair<Chords, ChordQuality>? {
+        val base = Chords.allBaseChords
+            .sortedByDescending { it.value.length }
+            .firstOrNull { canonical.startsWith(it.value) }
+            ?: return null
+
+        val suffix = canonical.removePrefix(base.value)
+        val quality = when (suffix) {
+            "" -> ChordQuality.Major
+            "mi" -> ChordQuality.Minor
+            "m" -> ChordQuality.Minor
+            "mi7" -> ChordQuality.Minor7
+            "m7" -> ChordQuality.Minor7
+            "7" -> ChordQuality.Seven
+            "5" -> ChordQuality.Five
+            else -> return null
+        }
+        return base to quality
+    }
+}
+object ChordFingerings {
+
+    fun getFingeringForChord(
+        chordText: String,
+        songFormat: HBFormat
+    ): String? = with(Chords) {
+        val canonical = chordText.toCanonicalChordName(songFormat)
+        val parsed = ChordParser.parseCanonicalChord(canonical) ?: return null
+        val (base, quality) = parsed
+        fingeringFor(base, quality)
+    }
+
+    private fun fingeringFor(
+        base: Chords,
+        quality: ChordQuality
+    ): String = when (base) {
+
+        // ---------------------- E ----------------------
+        is Chords.E -> when (quality) {
+            ChordQuality.Major  -> "0|0|1|2|2|0"
+            ChordQuality.Minor  -> "0|0|0|2|2|0"
+            ChordQuality.Minor7 -> "0|3|0|2|2|0"
+            ChordQuality.Seven  -> "0|2|0|1|0|0"
+            ChordQuality.Five   -> "x|x|x|2|2|0"
+        }
+
+        // ---------------------- C ----------------------
+        is Chords.C -> when (quality) {
+            ChordQuality.Major  -> "0|1|0|2|3|x"      // C
+            ChordQuality.Minor  -> "3|4|5|5|3|x"      // Cm (barre A-shape)
+            ChordQuality.Minor7 -> "3|4|3|5|3|x"      // Cm7
+            ChordQuality.Seven  -> "0|1|3|2|3|x"      // C7 open
+            ChordQuality.Five   -> "x|x|5|5|3|x"      // C5
+        }
+
+        // ---------------------- C# / Db ----------------------
+        is Chords.CSharp -> when (quality) {
+            ChordQuality.Major  -> "4|6|6|6|4|x"      // C# (barre)
+            ChordQuality.Minor  -> "4|5|6|6|4|x"      // C#m
+            ChordQuality.Minor7 -> "4|5|4|6|4|x"      // C#m7
+            ChordQuality.Seven  -> "x|2|4|3|4|x"      // C#7 (E-shape)
+            ChordQuality.Five   -> "x|x|6|6|4|x"      // C#5
+        }
+
+        // ---------------------- D ----------------------
+        is Chords.D -> when (quality) {
+            ChordQuality.Major  -> "2|3|2|0|x|x"
+            ChordQuality.Minor  -> "1|3|2|0|x|x"
+            ChordQuality.Minor7 -> "1|1|2|0|x|x"
+            ChordQuality.Seven  -> "2|1|2|0|x|x"
+            ChordQuality.Five   -> "x|x|7|7|5|x"
+        }
+
+        // ---------------------- D# / Eb ----------------------
+        is Chords.DSharp -> when (quality) {
+            ChordQuality.Major  -> "3|4|3|1|x|x"
+            ChordQuality.Minor  -> "2|4|3|1|x|x"
+            ChordQuality.Minor7 -> "2|2|3|1|x|x"
+            ChordQuality.Seven  -> "3|2|3|1|x|x"
+            ChordQuality.Five   -> "x|x|8|8|6|x"
+        }
+
+        // ---------------------- F ----------------------
+        is Chords.F -> when (quality) {
+            ChordQuality.Major  -> "1|1|2|3|3|1"      // Full barre
+            ChordQuality.Minor  -> "1|1|1|3|3|1"      // Fm
+            ChordQuality.Minor7 -> "1|1|1|1|3|1"      // Fm7
+            ChordQuality.Seven  -> "1|1|2|1|3|1"      // F7
+            ChordQuality.Five   -> "x|x|x|3|3|1"      // F5
+        }
+
+        // ---------------------- F# / Gb ----------------------
+        is Chords.Fsharp -> when (quality) {
+            ChordQuality.Major  -> "2|2|3|4|4|2"
+            ChordQuality.Minor  -> "2|2|2|4|4|2"
+            ChordQuality.Minor7 -> "2|2|2|2|4|2"
+            ChordQuality.Seven  -> "2|2|3|2|4|2"
+            ChordQuality.Five   -> "x|x|x|4|4|2"
+        }
+
+        // ---------------------- G ----------------------
+        is Chords.G -> when (quality) {
+            ChordQuality.Major  -> "3|3|0|0|2|3"
+            ChordQuality.Minor  -> "3|3|3|5|5|3"      // Gm (barre)
+            ChordQuality.Minor7 -> "3|3|3|3|5|3"      // Gm7
+            ChordQuality.Seven  -> "1|0|0|0|2|3"      // G7
+            ChordQuality.Five   -> "x|x|x|5|5|3"
+        }
+
+        // ---------------------- G# / Ab ----------------------
+        is Chords.GSharp -> when (quality) {
+            ChordQuality.Major  -> "4|4|5|6|6|4"
+            ChordQuality.Minor  -> "4|4|4|6|6|4"
+            ChordQuality.Minor7 -> "4|4|4|4|6|4"
+            ChordQuality.Seven  -> "4|4|5|4|6|4"
+            ChordQuality.Five   -> "x|x|x|6|6|4"
+        }
+
+        // ---------------------- A ----------------------
+        is Chords.A -> when (quality) {
+            ChordQuality.Major  -> "0|2|2|2|0|x"
+            ChordQuality.Minor  -> "0|1|2|2|0|x"
+            ChordQuality.Minor7 -> "0|1|0|2|0|x"
+            ChordQuality.Seven  -> "0|2|0|2|0|x"
+            ChordQuality.Five   -> "x|x|2|2|0|x"
+        }
+
+        // ---------------------- B ----------------------
+        is Chords.B -> when (quality) {
+            ChordQuality.Major  -> "1|3|3|3|1|x"
+            ChordQuality.Minor  -> "1|2|3|3|1|x"
+            ChordQuality.Minor7 -> "1|2|1|3|1|x"
+            ChordQuality.Seven  -> "3|0|3|2|3|x"
+            ChordQuality.Five   -> "x|x|3|3|1|x"
+        }
+
+        // ---------------------- H (a.k.a. B in German) ----------------------
+        is Chords.H -> when (quality) {
+            ChordQuality.Major  -> "2|4|4|4|2|x"      // same as B
+            ChordQuality.Minor  -> "2|3|4|4|2|x"
+            ChordQuality.Minor7 -> "2|3|2|4|2|x"
+            ChordQuality.Seven  -> "2|4|2|4|2|x"
+            ChordQuality.Five   -> "x|x|4|4|2|x"
+        }
+
+        is Chords.Bb -> error("Use canonical form B")
+        is Chords.BEng -> error("Use canonical form H")
+    }
 }

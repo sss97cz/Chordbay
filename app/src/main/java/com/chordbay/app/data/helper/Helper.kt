@@ -16,10 +16,22 @@ fun pluralText(msg: String, count: Int): String {
 }
 
 fun calculatePercentage(range: IntRange, value: Float): Int {
-    val percentage = ((value) / (range.last - range.first)) * 100
-    return percentage.roundToInt()
-}
+    val min = range.first.toFloat()
+    val max = range.last.toFloat()
+    val mid = (min + max) / 2f
 
+    val clamped = value.coerceIn(min, max)
+
+    // 0.5 at min, 1.0 at mid, 1.5 at max
+    val normalized = if (clamped <= mid) {
+        // map [min, mid] -> [0.5, 1.0]
+        0.5f + (clamped - min) / (mid - min) * 0.5f
+    } else {
+        // map [mid, max] -> [1.0, 1.5]
+        1.0f + (clamped - mid) / (max - mid) * 0.5f
+    }
+    return (normalized * 100f).roundToInt()
+}
 fun findKey(song: String, hbFormat: HBFormat, songHBFormat: HBFormat): String? {
     val openBracketIndices = song.indices.filter { song[it] == '[' }
     if (openBracketIndices.isEmpty()) {
