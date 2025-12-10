@@ -223,10 +223,10 @@ object ChordFingerings {
 
         // ---------------------- D# / Eb ----------------------
         is Chords.DSharp -> when (quality) {
-            ChordQuality.Major  -> "3|4|3|1|x|x"
-            ChordQuality.Minor  -> "2|4|3|1|x|x"
-            ChordQuality.Minor7 -> "2|2|3|1|x|x"
-            ChordQuality.Seven  -> "3|2|3|1|x|x"
+            ChordQuality.Major  -> "6|8|8|8|6|x"
+            ChordQuality.Minor  -> "6|7|8|8|6|x"
+            ChordQuality.Minor7 -> "6|7|4|8|6|x"
+            ChordQuality.Seven  -> "6|8|4|8|6|x"
             ChordQuality.Five   -> "x|x|8|8|6|x"
         }
 
@@ -280,7 +280,7 @@ object ChordFingerings {
             ChordQuality.Major  -> "1|3|3|3|1|x"
             ChordQuality.Minor  -> "1|2|3|3|1|x"
             ChordQuality.Minor7 -> "1|2|1|3|1|x"
-            ChordQuality.Seven  -> "3|0|3|2|3|x"
+            ChordQuality.Seven  -> "1|3|1|3|1|x"
             ChordQuality.Five   -> "x|x|3|3|1|x"
         }
 
@@ -289,7 +289,7 @@ object ChordFingerings {
             ChordQuality.Major  -> "2|4|4|4|2|x"      // same as B
             ChordQuality.Minor  -> "2|3|4|4|2|x"
             ChordQuality.Minor7 -> "2|3|2|4|2|x"
-            ChordQuality.Seven  -> "2|4|2|4|2|x"
+            ChordQuality.Seven  -> "3|0|3|2|3|x"
             ChordQuality.Five   -> "x|x|4|4|2|x"
         }
 

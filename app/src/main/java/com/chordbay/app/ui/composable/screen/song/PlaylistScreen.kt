@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
@@ -87,7 +88,6 @@ fun PlaylistScreen(
                 SheetValue.PartiallyExpanded -> {
                     if (selectedSongsList.value.isNotEmpty()) 64.dp else 24.dp
                 }
-
                 else -> 24.dp
             }
         }
@@ -118,7 +118,7 @@ fun PlaylistScreen(
             topBar = {
                 MyTopAppBar(
                     title = playlist.name,
-                    subtitle = if (songsFromPlaylist.value.size != 0) {
+                    subtitle = if (songsFromPlaylist.value.isNotEmpty()) {
                         pluralText(
                             "${songsFromPlaylist.value.size} song",
                             songsFromPlaylist.value.size
@@ -146,6 +146,12 @@ fun PlaylistScreen(
                             ) {
                                 DropdownMenuItem(
                                     text = { Text("Rename Playlist") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = null
+                                        )
+                                    },
                                     onClick = {
                                         isRenameDialogVisible.value = true
                                         isMenuExpanded.value = false
@@ -153,6 +159,12 @@ fun PlaylistScreen(
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Delete Playlist") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = null
+                                        )
+                                    },
                                     onClick = {
                                         isMenuExpanded.value = false
                                         mainViewModel.deletePlaylist(playlistId)

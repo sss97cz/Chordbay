@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,6 +92,9 @@ fun SongText(
             hbFormatSong = hbFormatSong,
         )
     }
+    LaunchedEffect(annotated){
+        Log.d("SongText", "AnnotatedString: $annotated")
+    }
 
     var popupChord by remember { mutableStateOf<String?>(null) }
     var popupOffset by remember { mutableStateOf(Offset.Zero) }
@@ -100,16 +104,10 @@ fun SongText(
 
     Box(modifier = modifier) {
         Text(
-            text = text.highlightChords(
-                semitones = semitones,
-                chordsColor = chordsColor,
-                fontSize = fontSize,
-                hBFormat = hBFormat,
-                hbFormatSong = hbFormatSong,
-            ),
-            modifier = modifier.pointerInput(Unit) {
+            text = annotated,
+            modifier = modifier.pointerInput(annotated) {
                 detectTapGestures(
-                    onPress = { offset ->
+                    onTap = { offset ->
                         Log.d("SongText", "onLongPress at offset: $offset")
                         popupOffset = offset
                         val layout = textLayoutResult ?: return@detectTapGestures
