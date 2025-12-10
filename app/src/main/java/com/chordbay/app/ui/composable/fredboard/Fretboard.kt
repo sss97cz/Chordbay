@@ -49,7 +49,7 @@ fun GuitarChord(
         throw IllegalArgumentException("Fret range out of bounds")
     }
     // Helper to parse string to markers (implementation from snippet)
-    val markers = fingering.fingering.map {
+    val markers = fingering.fingering(hbFormat).map {
         if (it is FretboardMarker.FrettedNote) it.copy(hbFormat = hbFormat) else it
     }
     val from = if (fromFret < 0) {
@@ -355,7 +355,7 @@ sealed class FretboardMarker {
         val stringNumber: Int,
         @IntRange(from = 0)
         val fretNumber: Int,
-        val hbFormat: HBFormat = HBFormat.ENG,
+        val hbFormat: HBFormat,
         val tuning: (stringNumber: Int) -> Chords = standardTuningSixString(hbFormat),
         val pitch: Chords? = run {
             if (fretNumber < 0) {
@@ -398,13 +398,13 @@ fun List<FretboardMarker>.findFrettedNoteOrNull(stringNumber: Int, fretNumber: I
         it is FretboardMarker.FrettedNote && it.stringNumber == stringNumber && it.fretNumber == fretNumber
     } as? FretboardMarker.FrettedNote
 
-val String.fingering: List<FretboardMarker>
-    get() {
+fun String.fingering(hbFormat: HBFormat): List<FretboardMarker> {
         val markers: List<FretboardMarker?> = split("|").mapIndexed { index, value ->
             when {
                 value == "x" -> FretboardMarker.MutedString(index + 1)
                 value.toIntOrNull() != null -> FretboardMarker.FrettedNote(
                     index + 1, value.toInt(),
+                    hbFormat = hbFormat
                 )
                 value == "" -> null
                 else -> throw IllegalArgumentException("Invalid fingering format $value")
