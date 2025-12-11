@@ -1,6 +1,5 @@
 package com.chordbay.app.ui.composable.screen.user
 
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

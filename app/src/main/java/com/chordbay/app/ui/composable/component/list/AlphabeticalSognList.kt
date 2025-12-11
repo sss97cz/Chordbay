@@ -62,14 +62,25 @@ fun AlphabeticalSongList(
     }
 
     val grouped = remember(songs, sortBy) {
-        val map = linkedMapOf<Char, MutableList<Song>>()
-        songs.forEach { song ->
-            val letter = initialCharOf(letterSource(song))
-            map.getOrPut(letter) { mutableListOf() }.add(song)
+        if (sortBy == SortBy.SONG_NAME) {
+            val map = linkedMapOf<Char, MutableList<Song>>()
+            songs.forEach { song ->
+                val letter = initialCharOf(letterSource(song))
+                map.getOrPut(letter) { mutableListOf() }.add(song)
+            }
+            map.toList()
+                .sortedBy { (k, _) -> if (k == '#') '{' else k }
+                .toMap(LinkedHashMap())
+        } else {
+            val map = linkedMapOf<String, MutableList<Song>>()
+            songs.forEach { song ->
+                val artist = letterSource(song).ifBlank { "Unknown Artist" }
+                map.getOrPut(artist) { mutableListOf() }.add(song)
+            }
+            map.toList()
+                .sortedBy { (k, _) -> if (k == "#") "{" else k }
+                .toMap(LinkedHashMap())
         }
-        map.toList()
-            .sortedBy { (k, _) -> if (k == '#') '{' else k }
-            .toMap(LinkedHashMap())
     }
 
     Box(Modifier.fillMaxSize()) {

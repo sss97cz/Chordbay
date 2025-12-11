@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -42,7 +41,6 @@ fun MyTopAppBar(
         title = {
             Column() {
                 var isOverflowing by remember { mutableStateOf(false) }
-                val context = LocalContext.current
 
                 if (isOverflowing) {
                     TooltipBox(

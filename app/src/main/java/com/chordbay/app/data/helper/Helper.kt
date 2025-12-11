@@ -1,15 +1,12 @@
 package com.chordbay.app.data.helper
 
-import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.ContentResolver
 import android.content.Intent
-import android.net.Uri
 import com.chordbay.app.data.model.chord.Chords
 import com.chordbay.app.data.model.chord.HBFormat
 import kotlin.math.roundToInt
 import androidx.core.net.toUri
-import java.net.URLEncoder
 
 fun pluralText(msg: String, count: Int): String {
     return if (count in 0..1) msg else msg + "s"

@@ -23,8 +23,8 @@ import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
 
-private val KOFI_URL = "https://ko-fi.com/chordbaysongbook"
-private val GITHUB_URL = "https://github.com/sss97cz/Chordbay"
+private const val KOFI_URL = "https://ko-fi.com/chordbaysongbook"
+private const val GITHUB_URL = "https://github.com/sss97cz/Chordbay"
 @Composable
 fun AboutScreen(
     navController: NavController

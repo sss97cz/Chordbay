@@ -69,13 +69,3 @@ fun SearchQuery(
     }
 }
 
-@Preview
-@Composable
-fun SearchQueryPreview() {
-    SearchQuery(
-        modifier = Modifier,
-        query = "Hello World ",
-        onClearClick = {},
-        onClick = {}
-    )
-}

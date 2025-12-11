@@ -23,23 +23,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.chordbay.app.data.model.util.ColorMode
 import com.chordbay.app.data.model.chord.HBFormat
 import com.chordbay.app.data.model.settings.Settings
-import com.chordbay.app.data.model.util.SortBy
+import com.chordbay.app.data.model.util.ColorMode
 import com.chordbay.app.data.model.util.ThemeMode
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
-import com.chordbay.app.ui.composable.screen.song.PlaylistScreen
 import com.chordbay.app.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,12 +43,8 @@ fun SettingsScreen(
     navController: NavController
 ) {
     val canNavigateBack = navController.previousBackStackEntry != null
-//    val fontSize = mainViewModel.songTextFontSize.collectAsState().value
-    var isSortMenuExpanded by remember { mutableStateOf(false) }
-    var defaultSortOption by remember { mutableStateOf(SortBy.SONG_NAME) }
-    var isFontSizeMenuExpanded by remember { mutableStateOf(false) }
     val hbFormat = mainViewModel.hbFormat.collectAsState()
-
+    val colorScheme = mainViewModel.colorMode.collectAsState()
     val themeMode = mainViewModel.themeMode.collectAsState().value
 
 
@@ -80,50 +70,6 @@ fun SettingsScreen(
             for (setting in Settings.all) {
                 if (!setting.displayInSettings) continue
                 when (setting) {
-//                    is Settings.SortBySetting -> {
-//                        SettingsRow(
-//                            Modifier.fillMaxWidth(),
-//                            settingName = setting.title,
-//                        ) {
-//                            Box(
-//                                Modifier
-//                                    .clip(CircleShape)
-//                                    .background(MaterialTheme.colorScheme.secondaryContainer)
-//                            ) {
-//                                Row(
-//                                    Modifier.clickable(
-//                                        onClick = {
-//                                            isSortMenuExpanded = true
-//                                        }),
-//                                    horizontalArrangement = Arrangement.SpaceBetween,
-//                                    verticalAlignment = Alignment.CenterVertically
-//                                ) {
-//                                    Text(
-//                                        text = defaultSortOption.displayName,
-//                                        Modifier.padding(start = 18.dp)
-//                                    )
-//                                    IconButton(onClick = { isSortMenuExpanded = true }) {
-//                                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-//                                    }
-//                                    DropdownMenu(
-//                                        expanded = isSortMenuExpanded,
-//                                        onDismissRequest = { isSortMenuExpanded = false }
-//                                    ) {
-//                                        for (sortOption in SortBy.entries) {
-//                                            DropdownMenuItem(
-//                                                text = { Text(sortOption.displayName) },
-//                                                onClick = {
-//                                                    defaultSortOption = sortOption
-//                                                    isSortMenuExpanded = false
-//                                                }
-//                                            )
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-
                     is Settings.ThemeSetting -> {
                         SettingsRow(settingName = setting.title) {
                             ThemeMode.entries.forEach { mode ->
@@ -139,64 +85,12 @@ fun SettingsScreen(
                             }
                         }
                     }
-
-//                    is Settings.FontSize -> {
-//                        SettingsRow(
-//                            settingName = setting.title
-//                        ) {
-//                            Box(contentAlignment = Alignment.BottomEnd) {
-//                                Row(
-//                                    Modifier
-//                                        .clip(CircleShape)
-//                                        .background(MaterialTheme.colorScheme.secondaryContainer)
-//                                        .clickable { isFontSizeMenuExpanded = true }
-//                                        .padding(horizontal = 8.dp, vertical = 4.dp),
-//                                    verticalAlignment = Alignment.CenterVertically
-//                                ) {
-//                                    Text(
-//                                        text = fontSize.toString(),
-//                                        modifier = Modifier.padding(start = 8.dp)
-//                                    )
-//                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-//                                }
-//
-//                                DropdownMenu(
-//                                    modifier = Modifier
-//                                        .size(40.dp, 300.dp)
-//                                        .align(Alignment.BottomEnd),
-//                                    expanded = isFontSizeMenuExpanded,
-//                                    onDismissRequest = { isFontSizeMenuExpanded = false }
-//                                ) {
-//                                    HorizontalDivider()
-//                                    (10..30 step 2).forEach { sizeOption ->
-//                                        DropdownMenuItem(
-//                                            text = {
-//                                                Box(
-//                                                    modifier = Modifier.fillMaxWidth(),
-//                                                    contentAlignment = Alignment.Center
-//                                                ) {
-//                                                    Text(
-//                                                        sizeOption.toString(),
-//                                                    )
-//                                                }
-//                                            },
-//                                            onClick = {
-//                                                mainViewModel.setSongTextFontSize(sizeOption)
-//                                                isFontSizeMenuExpanded = false
-//                                            }
-//                                        )
-//                                        HorizontalDivider()
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
                     is Settings.ColorModeSetting -> {
                         SettingsRow(
                             settingName = setting.title
                         ) {
                             ColorSchemePicker(
-                                selectedColorMode = mainViewModel.colorMode.collectAsState().value,
+                                selectedColorMode = colorScheme.value,
                                 onColorModeSelected = { selectedMode ->
                                     mainViewModel.saveColorMode(selectedMode)
                                 }

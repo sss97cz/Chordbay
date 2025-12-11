@@ -1,78 +1,7 @@
 package com.chordbay.app.ui.composable.component.list
-//
-//
-//import androidx.compose.foundation.layout.Row
-//import androidx.compose.foundation.layout.size
-//import androidx.compose.foundation.lazy.LazyColumn
-//import androidx.compose.foundation.lazy.itemsIndexed
-//import androidx.compose.material.icons.Icons
-//import androidx.compose.material.icons.filled.Delete
-//import androidx.compose.material.icons.filled.KeyboardArrowDown
-//import androidx.compose.material.icons.filled.KeyboardArrowUp
-//import androidx.compose.material3.Icon
-//import androidx.compose.material3.IconButton
-//import androidx.compose.runtime.Composable
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.unit.dp
-//import com.chordbay.app.data.model.Song
-//import com.chordbay.app.ui.composable.component.listitem.SongItem
-//
-//@Composable
-//fun PlaylistList(
-//    songs: List<Song>,
-//    onMove: (fromIndex: Int, toIndex: Int) -> Unit,
-//    onDelete: (index: Int) -> Unit,
-//    onSongClick: (song: Song) -> Unit = {},
-//    onSongLongClick: (song: Song) -> Unit = {}
-//) {
-//    LazyColumn {
-//        itemsIndexed(songs) { index, song ->
-//            SongItem(
-//                songTitle = song.title,
-//                songArtist = song.artist,
-//                isSelected = false,
-//                onSongClick = { onSongClick(song) },
-//                onLongClick = { onSongLongClick(song) },
-//                trailingContent = {
-//                    Row {
-//                        IconButton(
-//                            onClick = { if (index > 0) onMove(index, index - 1) },
-//                            enabled = index > 0
-//                        ) {
-//                            Icon(
-//                                imageVector = Icons.Filled.KeyboardArrowUp,
-//                                contentDescription = "Move up",
-//                                modifier = Modifier.size(20.dp)
-//                            )
-//                        }
-//                        IconButton(
-//                            onClick = { if (index < songs.size - 1) onMove(index, index + 1) },
-//                            enabled = index < songs.size - 1
-//                        ) {
-//                            Icon(
-//                                imageVector = Icons.Filled.KeyboardArrowDown,
-//                                contentDescription = "Move down",
-//                                modifier = Modifier.size(20.dp)
-//                            )
-//                        }
-//                        IconButton(onClick = { onDelete(index) }) {
-//                            Icon(
-//                                imageVector = Icons.Filled.Delete,
-//                                contentDescription = "Delete",
-//                                modifier = Modifier.size(20.dp)
-//                            )
-//                        }
-//                    }
-//                }
-//            )
-//        }
-//    }
-//}
-//
-//
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -82,19 +11,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.DragHandle
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -112,12 +36,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.pm.ShortcutInfoCompat
 import com.chordbay.app.data.model.Song
-import com.chordbay.app.data.model.chord.Chords
 import com.chordbay.app.ui.composable.component.listitem.SongItem
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState

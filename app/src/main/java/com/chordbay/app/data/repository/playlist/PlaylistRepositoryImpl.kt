@@ -3,7 +3,6 @@ package com.chordbay.app.data.repository.playlist
 import com.chordbay.app.data.database.playlist.PlaylistDao
 import com.chordbay.app.data.database.playlist.PlaylistEntity
 import com.chordbay.app.data.database.playlist.PlaylistSongCrossRef
-import com.chordbay.app.data.database.playlist.PlaylistWithSongs
 import com.chordbay.app.data.mappers.toSong
 import com.chordbay.app.data.model.Song
 import kotlinx.coroutines.Dispatchers

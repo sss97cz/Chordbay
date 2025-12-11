@@ -1,6 +1,5 @@
 package com.chordbay.app.ui.composable.component.listitem
 
-
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.chordbay.app.data.helper.pluralText

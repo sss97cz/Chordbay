@@ -1,6 +1,5 @@
 package com.chordbay.app.data.model.chord
 
-import android.util.Log
 import com.chordbay.app.data.model.chord.Chords.A.add5
 import com.chordbay.app.data.model.chord.Chords.A.add7
 import com.chordbay.app.data.model.chord.Chords.A.addMoll

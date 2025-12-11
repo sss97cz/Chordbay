@@ -66,7 +66,7 @@ fun BottomSheetContent(
             Text(
                 modifier = Modifier.padding(
                     horizontal = 20.dp, vertical = 16.dp
-                ),
+                ).widthIn(max = 280.dp),
                 text = headerText,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 2,

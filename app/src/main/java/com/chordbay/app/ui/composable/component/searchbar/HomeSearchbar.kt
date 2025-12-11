@@ -21,7 +21,6 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,16 +88,4 @@ fun HomeSearchbar(
             )
         }
     }
-}
-@Composable
-@Preview(showBackground = true)
-fun HomeSearchbarPreview() {
-    HomeSearchbar(
-        searchBarExpanded = true,
-        searchQuery = "Hello World",
-        onQueryChange = {},
-        onSearch = {},
-        onSearchClick = {},
-        onClearClick = {},
-    )
 }
