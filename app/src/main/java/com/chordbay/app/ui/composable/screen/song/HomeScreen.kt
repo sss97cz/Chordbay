@@ -408,6 +408,7 @@ fun HomeScreen(
                                                 mainViewModel.selectSong(song)
                                             }
                                         } else {
+                                            remoteSongsViewModel.clearSaveSuccess()
                                             navController.navigate(
                                                 Paths.SongPath.createRoute(
                                                     song.localId.toString()

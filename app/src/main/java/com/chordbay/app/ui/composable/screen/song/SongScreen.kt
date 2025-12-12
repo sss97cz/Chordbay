@@ -1,6 +1,5 @@
 package com.chordbay.app.ui.composable.screen.song
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -86,6 +85,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -113,7 +113,6 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 
-@SuppressLint("UseKtx")
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun SongScreen(
@@ -151,9 +150,7 @@ fun SongScreen(
     var showAutoscrollFab by rememberSaveable { mutableStateOf(false) }
     val isAutoscrollMenuVisible = rememberSaveable { mutableStateOf(false) }
 
-    // pixels per second; 0 = off
     var autoScrollSpeed by rememberSaveable { mutableFloatStateOf(15f) }
-// or use Boolean + constant speed if you prefer
     var isAutoScrollEnabled by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -212,12 +209,12 @@ fun SongScreen(
 
         val frameMs = 16L
         while (isAutoScrollEnabled && autoScrollSpeed > 0f && isActive) {
-            val deltaPx = autoScrollSpeed * (frameMs / 1000f) // fractional px per frame
+            val deltaPx = autoScrollSpeed * (frameMs / 1000f)
             val remaining = (scrollState.maxValue - scrollState.value).toFloat()
-            val toScroll = deltaPx.coerceAtMost(remaining) // don't overshoot
+            val toScroll = deltaPx.coerceAtMost(remaining)
 
             if (toScroll <= 0f) break
-            scrollState.scrollBy(toScroll) // preserves fractional movement
+            scrollState.scrollBy(toScroll)
 
             if (scrollState.value >= scrollState.maxValue) break
             delay(frameMs)
@@ -256,6 +253,7 @@ fun SongScreen(
                                 launchSingleTop = true
                             }
                         } else {
+                            remoteSongsViewModel.clearSaveSuccess()
                             navController.navigateUp()
                         }
                     }
@@ -378,8 +376,8 @@ fun SongScreen(
                                         )
                                     },
                                     onClick = {
-                                        isDropdownMenuExpanded.value = false // Close menu
-                                        showPlayExternalDialog = true        // Open dialog
+                                        isDropdownMenuExpanded.value = false
+                                        showPlayExternalDialog = true
                                     }
                                 )
                             }
@@ -432,7 +430,6 @@ fun SongScreen(
                         .pointerInput(fromPlaylistId, song?.localId) {
                             detectDragGestures { change, dragAmount ->
                                 if (fromPlaylistId != null && song != null && song.localId != null) {
-                                    // consume the pointer changes so other detectors don't also act on them
                                     change.consume()
                                     val threshold = 50f
                                     if (dragAmount.x > threshold) {
@@ -869,7 +866,7 @@ fun PlayOnExternalAppDialog(
 @Composable
 fun PlayOptionRow(
     text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     onClick: () -> Unit
 ) {
     Row(
