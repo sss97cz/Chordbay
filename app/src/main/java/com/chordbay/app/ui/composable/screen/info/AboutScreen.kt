@@ -1,12 +1,14 @@
 package com.chordbay.app.ui.composable.screen.info
 
 import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -17,10 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
+import com.chordbay.app.R
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
 
 private const val KOFI_URL = "https://ko-fi.com/chordbaysongbook"
@@ -66,6 +70,13 @@ fun AboutScreen(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Image(
+                        painter = painterResource(R.drawable.kofi_symbol), contentDescription = "Ko-fi Logo",
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .align(Alignment.CenterVertically)
+                            .size(32.dp)
+                    )
                     Text(
                         text = "Support the app",
                         modifier = Modifier.align(Alignment.CenterVertically)
@@ -92,12 +103,22 @@ fun AboutScreen(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Image(
+                        painter = painterResource(R.drawable.github_mark), contentDescription = "GitHub Logo",
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .align(Alignment.CenterVertically)
+                            .size(32.dp)
+                    )
                     Text(
                         text = "GitHub",
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .align(Alignment.CenterVertically)
                     )
                 }
             }
         }
     }
 }
+

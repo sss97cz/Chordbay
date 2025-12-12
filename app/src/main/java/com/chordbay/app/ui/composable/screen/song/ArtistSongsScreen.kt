@@ -37,44 +37,11 @@ fun ArtistSongsScreen(
     val songs =  remoteSongsViewModel.artistSongs.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val saveSuccess = remoteSongsViewModel.saveSuccess.collectAsState()
 
     LaunchedEffect(Unit) {
         remoteSongsViewModel.getSongsByArtist(artistName)
     }
-
-//    val scaffoldState = rememberBottomSheetScaffoldState(
-//        bottomSheetState = rememberStandardBottomSheetState(
-//            initialValue = SheetValue.Hidden,
-//            skipHiddenState = false
-//        )
-//    )
-//    val sheetPeekHeight by remember(
-//        selectedRemoteSongsList.isNotEmpty(),
-//    ) {
-//        derivedStateOf {
-//            if (selectedRemoteSongsList.isNotEmpty()) {
-//                BottomSheetDefaults.SheetPeekHeight
-//            } else {
-//                0.dp
-//            }
-//        }
-//    }
-//    val targetPadding by remember(scaffoldState.bottomSheetState.currentValue) {
-//        derivedStateOf {
-//            when (scaffoldState.bottomSheetState.currentValue) {
-//                SheetValue.Expanded -> 190.dp
-//                SheetValue.PartiallyExpanded -> {
-//                    if (selectedRemoteSongsList.isNotEmpty()) 26.dp else 0.dp
-//                }
-//                else -> 0.dp
-//            }
-//        }
-//    }
-//    val dynamicBottomPadding by animateDpAsState(
-//        targetValue = targetPadding,
-//        animationSpec = tween(durationMillis = 60)
-//    )
-
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
@@ -90,23 +57,6 @@ fun ArtistSongsScreen(
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack
             )
         },
-//        sheetContent = {
-//            BottomSheetContentRemote(
-//                selectedRemoteSongs = selectedRemoteSongsList,
-//                onSaveClick = {
-//                    scope.launch {
-//                        remoteSongsViewModel.saveSelectedRemoteSongsToDatabase()
-//                        scaffoldState.bottomSheetState.hide()
-//                        remoteSongsViewModel.clearSelectedRemoteSongs()
-//                    }
-//                    Toast.makeText(
-//                        navController.context,
-//                        "${pluralText("song", selectedRemoteSongsList.count())} saved to database",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//            )
-//        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -114,29 +64,6 @@ fun ArtistSongsScreen(
                 .padding(4.dp)
                 .fillMaxSize()
         ) {
-//            LazyColumn(
-//                modifier = Modifier.fillMaxSize(),
-//                verticalArrangement = Arrangement.spacedBy(16.dp),
-////                contentPadding = PaddingValues(
-////                    bottom = dynamicBottomPadding
-////                )
-//            ) {
-//                items(songs) { song ->
-//                    RemoteSongItem(
-//                        songTitle = song.title,
-//                        songArtist = song.artist,
-//                        isSynced = song.markSynced,
-//                        onSongClick = {
-//                            navController.navigate(
-//                                Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
-//                            )
-//                        },
-//                        onLongClick = {},
-//                        onDownloadClick = {}
-//                    )
-//                }
-//            }
-//        }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -147,6 +74,7 @@ fun ArtistSongsScreen(
                         songArtist = song.artist,
                         isSynced = song.markSynced,
                         onSongClick = {
+                            remoteSongsViewModel.clearSaveSuccess()
                             navController.navigate(
                                 Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
                             )
@@ -161,6 +89,9 @@ fun ArtistSongsScreen(
                                 snackbarHostState.showSnackbar(
                                     message = "\"${song.title}\" downloaded"
                                 )
+                                if (saveSuccess.value == true) {
+                                    remoteSongsViewModel.clearSaveSuccess()
+                                }
                             }
                         }
                     )

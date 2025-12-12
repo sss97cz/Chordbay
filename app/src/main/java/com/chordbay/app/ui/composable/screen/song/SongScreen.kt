@@ -307,6 +307,18 @@ fun SongScreen(
                                 },
                                 onClick = { showSlider = true },
                             )
+                            DropdownMenuItem(
+                                text = { Text("Show Autoscroll") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.PlayForWork,
+                                        contentDescription = "Autoscroll"
+                                    )
+                                },
+                                onClick = {
+                                    showAutoscrollFab = !showAutoscrollFab
+                                },
+                            )
                             if (!isRemote) {
                                 DropdownMenuItem(
                                     text = { Text("Edit Song") },
@@ -356,21 +368,9 @@ fun SongScreen(
                                     }
                                 )
                             }
-                            DropdownMenuItem(
-                                text = { Text("Show Autoscroll") },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Default.PlayForWork,
-                                        contentDescription = "Autoscroll"
-                                    )
-                                },
-                                onClick = {
-                                    showAutoscrollFab = !showAutoscrollFab
-                                },
-                            )
                             if (song != null) {
                                 DropdownMenuItem(
-                                    text = { Text("Play on...") },
+                                    text = { Text("Play on") },
                                     leadingIcon = {
                                         Icon(
                                             Icons.AutoMirrored.Filled.OpenInNew,

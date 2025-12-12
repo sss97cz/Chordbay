@@ -148,19 +148,6 @@ fun LoginScreen(
             ) {
                 Spacer(Modifier.height(12.dp))
 
-                // Header
-//                Box(
-//                    modifier = Modifier
-//                        .size(72.dp)
-//                        .clip(CircleShape)
-//                        .background(MaterialTheme.colorScheme.primaryContainer),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text(
-//                        "🔐",
-//                        style = MaterialTheme.typography.headlineMedium
-//                    )
-//                }
                 Text(
                     text = "Welcome back",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
@@ -308,7 +295,6 @@ fun LoginScreen(
                                 Text("Create account")
                             }
                         }
-
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()

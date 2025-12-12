@@ -603,6 +603,7 @@ fun GridResultList(
                 songArtist = song.artist,
                 isSynced = song.markSynced,
                 onSongClick = {
+                    remoteSongsViewModel.clearSaveSuccess()
                     navController.navigate(
                         Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
                     )
@@ -650,6 +651,7 @@ fun NormalResultList(
                     songCount = artist.songCount,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
+                        remoteSongsViewModel.clearSaveSuccess()
                         navController.navigate(
                             Paths.ArtistSongsPath.createRoute(artist.name)
                         )
@@ -684,6 +686,7 @@ fun NormalResultList(
                     songArtist = song.artist,
                     isSynced = song.markSynced,
                     onSongClick = {
+                        remoteSongsViewModel.clearSaveSuccess()
                         navController.navigate(
                             Paths.RemoteSongPath.createRoute(song.remoteId ?: "")
                         )

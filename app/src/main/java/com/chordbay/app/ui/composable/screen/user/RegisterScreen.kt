@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
 import com.chordbay.app.ui.composable.navigation.Paths
 import com.chordbay.app.ui.viewmodel.AuthViewModel
@@ -140,16 +141,6 @@ fun RegisterScreen(
                 verticalArrangement = Arrangement.spacedBy(30.dp, Alignment.Top)
             ) {
                 Spacer(Modifier.height(12.dp))
-
-//                Box(
-//                    modifier = Modifier
-//                        .size(72.dp)
-//                        .clip(CircleShape)
-//                        .background(MaterialTheme.colorScheme.primaryContainer),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text("📝", style = MaterialTheme.typography.headlineMedium)
-//                }
                 Text(
                     text = "Join us",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
@@ -306,19 +297,6 @@ fun RegisterScreen(
                             TextButton(onClick = { navController.navigateUp() }) {
                                 Text("Already have an account? Sign in")
                             }
-                            TextButton(onClick = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        "No help for you..."
-                                    )
-                                    delay(200)
-                                    snackbarHostState.showSnackbar(
-                                        message = "Just kidding! You can contact support at support@chordbay.eu"
-                                    )
-                                }
-                            }) {
-                                Text("Help")
-                            }
                         }
 
                         Row(
@@ -330,7 +308,14 @@ fun RegisterScreen(
                             HorizontalDivider(Modifier.weight(1f))
                         }
                         TextButton(
-                            onClick = { navController.popBackStack() },
+                            onClick = {
+                                navController.navigate(Paths.HomePath.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            },
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         ) {
                             Text("Continue as guest")

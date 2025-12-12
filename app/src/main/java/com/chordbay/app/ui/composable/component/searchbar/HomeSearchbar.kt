@@ -65,7 +65,10 @@ fun HomeSearchbar(
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
                                 IconButton(onClick = onClearClick) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = "Clear search"
+                                    )
                                 }
                             } else {
                                 if (trailingContent != null) {

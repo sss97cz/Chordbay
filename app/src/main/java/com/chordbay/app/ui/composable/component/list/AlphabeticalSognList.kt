@@ -78,7 +78,7 @@ fun AlphabeticalSongList(
                 map.getOrPut(artist) { mutableListOf() }.add(song)
             }
             map.toList()
-                .sortedBy { (k, _) -> if (k == "#") "{" else k }
+                .sortedBy { (k, _) -> k.first().uppercaseChar().let { if (it == '#') '{' else it } }
                 .toMap(LinkedHashMap())
         }
     }
@@ -124,7 +124,6 @@ fun AlphabeticalSongList(
                                         "Maybe try searching in Browse tab to find new songs to download."
                                     }
                                 }
-
                                 true -> "You can add songs in the Library tab."
                             },
                             style = MaterialTheme.typography.bodySmall,
