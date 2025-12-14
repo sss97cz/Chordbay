@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +60,7 @@ fun SongText(
             hbFormatSong = hbFormatSong,
         )
     }
-    LaunchedEffect(annotated){
+    LaunchedEffect(annotated) {
         Log.d("SongText", "AnnotatedString: $annotated")
     }
 
@@ -79,11 +80,11 @@ fun SongText(
                         val index = layout.getOffsetForPosition(offset)
                         val position = annotated.getStringAnnotations(
                             tag = CHORD_TAG,
-                            start = if (index - 1 >= 0 ) index - 1 else index,
+                            start = if (index - 1 >= 0) index - 1 else index,
                             end = index + 1
                         ).firstOrNull()
                         popupChord = position?.item
-                        Log.d("SongText", "Found chord at index $index: ${popupChord ?: "none"}" )
+                        Log.d("SongText", "Found chord at index $index: ${popupChord ?: "none"}")
                     }
                 )
             },
@@ -101,8 +102,14 @@ fun SongText(
                 offset = IntOffset(popupOffset.x.toInt(), popupOffset.y.toInt()),
                 onDismissRequest = { popupChord = null }
             ) {
-                Surface {
-                    Box(modifier = Modifier.padding(8.dp)) {
+                Surface(
+                    shadowElevation = 8.dp,
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = popupChord ?: "",

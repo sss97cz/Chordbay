@@ -53,6 +53,7 @@ fun AlphabeticalSongList(
     bottomPadding: Dp,
     searchQuery: String = "",
     isPlaylist: Boolean = false,
+    isAlphabeticalSort: Boolean = true,
 ) {
     val listState = rememberLazyListState()
 
@@ -61,28 +62,41 @@ fun AlphabeticalSongList(
         SortBy.SONG_NAME -> { s -> s.title }
     }
 
-    val grouped = remember(songs, sortBy) {
+    val grouped = remember(songs, sortBy, isAlphabeticalSort) {
         if (sortBy == SortBy.SONG_NAME) {
             val map = linkedMapOf<Char, MutableList<Song>>()
             songs.forEach { song ->
                 val letter = initialCharOf(letterSource(song))
                 map.getOrPut(letter) { mutableListOf() }.add(song)
             }
-            map.toList()
+            val sortedPairs = map.toList()
                 .sortedBy { (k, _) -> if (k == '#') '{' else k }
-                .toMap(LinkedHashMap())
+
+            val adjustedPairs = if (isAlphabeticalSort) {
+                sortedPairs.map { (k, v) -> k to v.toList() }
+            } else {
+                sortedPairs.asReversed().map { (k, v) -> k to v.asReversed() }
+            }
+
+            adjustedPairs.toMap(LinkedHashMap())
         } else {
             val map = linkedMapOf<String, MutableList<Song>>()
             songs.forEach { song ->
                 val artist = letterSource(song).ifBlank { "Unknown Artist" }
                 map.getOrPut(artist) { mutableListOf() }.add(song)
             }
-            map.toList()
+            val sortedPairs = map.toList()
                 .sortedBy { (k, _) -> k.first().uppercaseChar().let { if (it == '#') '{' else it } }
-                .toMap(LinkedHashMap())
+
+            val adjustedPairs = if (isAlphabeticalSort) {
+                sortedPairs.map { (k, v) -> k to v.toList() }
+            } else {
+                sortedPairs.asReversed().map { (k, v) -> k to v.asReversed() }
+            }
+
+            adjustedPairs.toMap(LinkedHashMap())
         }
     }
-
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,

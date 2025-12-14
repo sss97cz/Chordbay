@@ -154,7 +154,7 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Sign in to access all app features.",
+                    text = "Sign in to share your songs and sync your library across devices.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center

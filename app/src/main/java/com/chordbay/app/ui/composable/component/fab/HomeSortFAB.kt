@@ -3,7 +3,10 @@ package com.chordbay.app.ui.composable.component.fab
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
@@ -30,6 +33,8 @@ fun HomeSortFAB(
     onMenuToggle: () -> Unit,
     sortBy: SortBy,
     onSortSelected: (SortBy) -> Unit,
+    onAlphabeticalSortClick: () -> Unit,
+    alphabeticalSort: Boolean,
 ) {
     val fabItems = SortBy.entries
     FloatingActionButtonMenu(
@@ -53,6 +58,12 @@ fun HomeSortFAB(
             }
         }
     ) {
+        FloatingActionButtonMenuItem(
+            onClick = onAlphabeticalSortClick,
+            text = { Text( text = "Sort", color = if (alphabeticalSort) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) },
+            icon = { Icon(Icons.Default.SortByAlpha, contentDescription = "Sort", tint = if (alphabeticalSort) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) },
+            containerColor = if (alphabeticalSort) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+        )
         fabItems.forEach { item ->
             FloatingActionButtonMenuItem(
                 onClick = {
@@ -75,5 +86,6 @@ fun HomeSortFAB(
                 containerColor = if (item == sortBy) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
             )
         }
+
     }
 }

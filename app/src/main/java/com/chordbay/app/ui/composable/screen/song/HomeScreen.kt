@@ -99,7 +99,7 @@ fun HomeScreen(
     val postSuccess = mainViewModel.postSuccess.collectAsState()
     val deleteSuccess = mainViewModel.deleteSuccess.collectAsState()
     val isDoneDeletingSongs = mainViewModel.isDoneDeletingSongs.collectAsState()
-
+    var isAlphabeticalSort by rememberSaveable { mutableStateOf(true)}
     val email = authViewModel.userEmail.collectAsState()
 
 
@@ -423,7 +423,8 @@ fun HomeScreen(
                                         }
                                     },
                                     selectedSongs = selectedSongsList,
-                                    searchQuery = searchQuery
+                                    searchQuery = searchQuery,
+                                    isAlphabeticalSort = isAlphabeticalSort,
                                 )
                             }
 //-------------------------------- REMOTE SONGS-----------------------------------------------------
@@ -453,7 +454,11 @@ fun HomeScreen(
                             sortBy = sortOption,
                             onSortSelected = { selected ->
                                 mainViewModel.setSortOption(selected)
-                            }
+                            },
+                            onAlphabeticalSortClick = {
+                                isAlphabeticalSort = !isAlphabeticalSort
+                            },
+                            alphabeticalSort = isAlphabeticalSort,
                         )
                     }
                 }
