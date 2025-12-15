@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.chordbay.app.data.database.playlist.PlaylistEntity
+import com.chordbay.app.data.datastore.FirstLaunchDatastore
 import com.chordbay.app.data.datastore.SettingsDataStore
 import com.chordbay.app.data.datastore.UserDataStore
 import com.chordbay.app.data.helper.TxtSongIO
@@ -46,6 +47,7 @@ class MainViewModel(
     private val userDataStore: UserDataStore,
     private val playlistRepository: PlaylistRepository,
     private val authRepository: AuthRepository,
+    private val firstLaunchDataStore: FirstLaunchDatastore
 ) : ViewModel() {
 
     init {
@@ -126,6 +128,18 @@ class MainViewModel(
     fun saveHBFormat(format: HBFormat) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.HBFormatSetting, format)
+        }
+    }
+
+    val isFirstLaunch: StateFlow<Boolean> = firstLaunchDataStore.isFirstLaunch()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+    fun setNotFirstLaunch() {
+        viewModelScope.launch {
+            firstLaunchDataStore.setFirstLaunch()
         }
     }
 

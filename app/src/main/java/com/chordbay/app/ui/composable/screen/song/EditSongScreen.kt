@@ -272,6 +272,7 @@ fun EditSongScreen(
                     showDialog = showEmptySongDialog.value,
                     onDismissRequest = { showEmptySongDialog.value = false },
                     onConfirm = {
+                        viewModel.saveEditedSong(songId)
                         showEmptySongDialog.value = false
                         navController.navigateUp()
                         viewModel.clearSongStates()

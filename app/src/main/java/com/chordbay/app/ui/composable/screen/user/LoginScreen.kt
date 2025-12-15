@@ -1,5 +1,6 @@
 package com.chordbay.app.ui.composable.screen.user
 
+import android.util.Log
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -83,13 +84,11 @@ fun LoginScreen(
     LaunchedEffect(isLoading.value) {
         if (!isLoading.value) {
             if (isLoggedIn.value) {
-
                 navController.navigate(Paths.HomePath.route) {
                     popUpTo(Paths.LoginPath.route) {
                         inclusive = true
                     }
                 }
-                mainViewModel.fetchMyRemoteSongs()
             } else if (errorMessage.value != null) {
                 scope.launch {
                     snackbarHostState.showSnackbar(errorMessage.value!!)

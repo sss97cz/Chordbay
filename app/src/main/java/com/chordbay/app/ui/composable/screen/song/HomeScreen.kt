@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.DrawerValue
@@ -34,6 +36,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -58,6 +61,7 @@ import com.chordbay.app.data.model.util.MainTabs
 import com.chordbay.app.ui.composable.component.alertdialog.AddSongToPlaylistDialog
 import com.chordbay.app.ui.composable.component.alertdialog.CreatePlaylistDialog
 import com.chordbay.app.ui.composable.component.alertdialog.DeleteOptionDialog
+import com.chordbay.app.ui.composable.component.alertdialog.FirstLaunchDialog
 import com.chordbay.app.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.chordbay.app.ui.composable.component.fab.HomeSortFAB
 import com.chordbay.app.ui.composable.component.list.AlphabeticalSongList
@@ -99,9 +103,9 @@ fun HomeScreen(
     val postSuccess = mainViewModel.postSuccess.collectAsState()
     val deleteSuccess = mainViewModel.deleteSuccess.collectAsState()
     val isDoneDeletingSongs = mainViewModel.isDoneDeletingSongs.collectAsState()
-    var isAlphabeticalSort by rememberSaveable { mutableStateOf(true)}
+    var isAlphabeticalSort by rememberSaveable { mutableStateOf(true) }
     val email = authViewModel.userEmail.collectAsState()
-
+    val isFirstLaunch = mainViewModel.isFirstLaunch.collectAsState()
 
     var searchBarExpanded by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -529,6 +533,13 @@ fun HomeScreen(
                                 mainViewModel.clearSelectedSongs()
                             }
                         }
+                    )
+                }
+                if (isFirstLaunch.value) {
+                    FirstLaunchDialog(
+                        onDismiss = {
+                            mainViewModel.setNotFirstLaunch()
+                        },
                     )
                 }
             }

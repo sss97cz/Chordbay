@@ -2,6 +2,7 @@ package com.chordbay.app.di
 
 import com.chordbay.app.data.database.AppDatabase
 import com.chordbay.app.data.datastore.CredentialManager
+import com.chordbay.app.data.datastore.FirstLaunchDatastore
 import com.chordbay.app.data.datastore.SettingsDataStore
 import com.chordbay.app.data.datastore.UserDataStore
 import com.chordbay.app.data.remote.RetrofitInstance
@@ -27,6 +28,7 @@ val appModule = module {
     single<SongRepository> { SongRepositoryImpl(get()) }
     viewModel {
         MainViewModel(
+            get(),
             get(),
             get(),
             get(),
@@ -63,7 +65,6 @@ val appModule = module {
     single {
         get<AppDatabase>().playlistDao()
     }
-
     single {
         RetrofitInstance.api
     }
@@ -78,6 +79,8 @@ val appModule = module {
     single { UserDataStore(androidContext()) }
 
     single { CredentialManager(androidContext()) }
+
+    single { FirstLaunchDatastore(androidContext()) }
 
     single<AuthRepository> {
         AuthRepositoryImpl(get(), get())
