@@ -141,18 +141,18 @@ fun MyDrawerContent(
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
                 NavigationDrawerItem(
-                    label = { Text("Legal") },
-                    selected = false,
-                    icon = { Icon(Icons.Default.Description, null) },
-                    onClick = onLegalClick,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                NavigationDrawerItem(
                     label = { Text("About & Support") },
                     selected = false,
                     icon = { Icon(Icons.Default.Info, null) },
                     onClick = onAboutClick,
                     modifier = Modifier.padding(horizontal = 8.dp),
+                )
+                NavigationDrawerItem(
+                    label = { Text("Legal") },
+                    selected = false,
+                    icon = { Icon(Icons.Default.Description, null) },
+                    onClick = onLegalClick,
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
         }

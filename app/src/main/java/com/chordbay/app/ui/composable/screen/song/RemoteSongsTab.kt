@@ -38,7 +38,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,12 +50,15 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -108,7 +113,6 @@ fun RemoteSongsTab(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Avoid spamming refresh on rotate when query is blank
     LaunchedEffect(query) {
         if (query.isBlank() && artists.isEmpty()) {
             remoteSongsViewModel.refreshArtists()
@@ -116,7 +120,6 @@ fun RemoteSongsTab(
     }
     Column(Modifier.fillMaxSize()) {
         if (!isLandscape) {
-            // Portrait header
             PortraitSearchBarHeader(
                 remoteSongsViewModel = remoteSongsViewModel,
                 query = query,
@@ -129,7 +132,6 @@ fun RemoteSongsTab(
                 artistFirstLetters = artistFirstLetters
             )
         } else {
-            // Landscape header: two columns – search on the left, filters on the right
             LandscapeSearchBarHeader(
                 remoteSongsViewModel = remoteSongsViewModel,
                 query = query,
@@ -160,27 +162,58 @@ fun RemoteSongsTab(
                 modifier = Modifier.padding(16.dp)
             )
         }
-        Box(Modifier.weight(1f)) {
-            if (isLandscape) {
-                GridResultList(
-                    query = query,
-                    searchOption = searchOption,
-                    artists = artists,
-                    songs = songs,
-                    listPadding = listPadding,
-                    navController = navController,
-                    remoteSongsViewModel = remoteSongsViewModel
-                )
-            } else {
-                NormalResultList(
-                    query = query,
-                    searchOption = searchOption,
-                    artists = artists,
-                    songs = songs,
-                    listPadding = listPadding,
-                    navController = navController,
-                    remoteSongsViewModel = remoteSongsViewModel
-                )
+        var isRefreshing by remember { mutableStateOf(false) }
+        var lastRefreshTime by remember { mutableLongStateOf(0L) }
+
+        PullToRefreshBox(
+            modifier = Modifier.weight(1f),
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                val now = System.currentTimeMillis()
+                if (now - lastRefreshTime < 300L) return@PullToRefreshBox
+                lastRefreshTime = now
+                isRefreshing = true
+                when (remoteSongsViewModel.searchOption.value) {
+                    ResultMode.ARTISTS -> {
+                        remoteSongsViewModel.refreshArtists()
+                    }
+                    ResultMode.SONGS -> {
+                        val q = remoteSongsViewModel.query.value
+                        if (q.isBlank()) {
+                            if (remoteSongsViewModel.showMostViewed.value) {
+                                remoteSongsViewModel.onShowMostViewedClick()
+                                remoteSongsViewModel.onShowMostViewedClick()
+                            }
+                        } else {
+                            remoteSongsViewModel.search()
+                        }
+                    }
+                }
+                isRefreshing = false
+            }
+        ) {
+            Box() {
+                if (isLandscape) {
+                    GridResultList(
+                        query = query,
+                        searchOption = searchOption,
+                        artists = artists,
+                        songs = songs,
+                        listPadding = listPadding,
+                        navController = navController,
+                        remoteSongsViewModel = remoteSongsViewModel
+                    )
+                } else {
+                    NormalResultList(
+                        query = query,
+                        searchOption = searchOption,
+                        artists = artists,
+                        songs = songs,
+                        listPadding = listPadding,
+                        navController = navController,
+                        remoteSongsViewModel = remoteSongsViewModel
+                    )
+                }
             }
         }
     }
@@ -354,6 +387,7 @@ fun PortraitSearchBarHeader(
     HorizontalDivider(Modifier.padding(top = 4.dp))
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LandscapeSearchBarHeader(
     remoteSongsViewModel: RemoteSongsViewModel,
@@ -497,7 +531,10 @@ fun LandscapeSearchBarHeader(
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
-                        modifier = Modifier.widthIn(min = 72.dp)
+                        modifier = Modifier.widthIn(min = 72.dp),
+                        colors = FilterChipDefaults.filterChipColors().copy(
+
+                        )
                     )
                 }
                 AssistChip(
@@ -518,9 +555,8 @@ fun LandscapeSearchBarHeader(
                                         SortByArtist.MOST_SONGS -> "Sort: Songs"
                                     }
                                 },
-                                style = MaterialTheme.typography.labelSmall,
                                 textAlign = TextAlign.Center,
-//                            modifier = Modifier.padding(horizontal = 4.dp)
+                                style = MaterialTheme.typography.labelSmallEmphasized,
                             )
                         }
                     },
@@ -614,7 +650,6 @@ fun GridResultList(
                 },
             )
         }
-//            }
     }
 }
 
@@ -696,7 +731,6 @@ fun NormalResultList(
                         remoteSongsViewModel.saveSong(song)
                     },
                 )
-//                }
             }
         }
     }

@@ -267,7 +267,7 @@ private fun MutedMarker(scale: Float) {
             style = MaterialTheme.typography.labelSmall,
             fontSize = (BASE_FRETMARKER_SIZE * scale).sp,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.error
         )
     }
 }

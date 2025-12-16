@@ -322,9 +322,16 @@ fun HomeScreen(
                     },
                     onSyncClick = {
                         showOptionsMenu = false
-                        scope.launch {
-                            Log.d("HomeScreen", "Syncing songs...")
-                            mainViewModel.fetchMyRemoteSongs()
+                        if (selectedTab.value == MainTabs.REMOTE_SONGS) {
+                            scope.launch {
+                                Log.d("HomeScreen", "Syncing remote songs...")
+                                remoteSongsViewModel.search()
+                            }
+                        } else {
+                            scope.launch {
+                                Log.d("HomeScreen", "Syncing songs...")
+                                mainViewModel.fetchMyRemoteSongs()
+                            }
                         }
                     },
                     onImportTxtClick = {
