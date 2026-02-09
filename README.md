@@ -2,6 +2,8 @@
 
 Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack Compose for musicians who want a simple, flexible way to organize, view, and play songs with chords and lyrics. The main focus is to have free offline-first personal songbook.
 
+[![Get it on Google Play](https://img.shields.io/badge/Get%20it%20on-Google%20Play-34A853?style=for-the-badge&logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.chordbay.app&pcampaignid=web_share)
+
 > **Tech stack:** Kotlin · Jetpack Compose · Room · Android  
 > **Key features:** Offline songbook · Chord transposition · Playlists · Sharing & sync
 
