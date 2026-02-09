@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -84,7 +85,7 @@ fun PlaylistBottomSheetContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ActionIcon(
-                icon = Icons.Default.Remove,
+                icon = Icons.Default.Delete,
                 label = "Remove from Playlist",
                 onClick = onDeleteClick
             )

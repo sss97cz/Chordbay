@@ -50,6 +50,12 @@ class MainActivity : ComponentActivity() {
                 (maybe fix for later. not really my problem that the user has written the chords in incorrect format)
              - User unable to resend verification email after closing VerifyEmailScreen.
                 (need to implement prompt to verify email again if backend detects non verified email)
+             - Song editor bug when deleting a long text.
+         Features:
+             - save and display if song is shared as private or public
+             - some kind of favorite song
+             - user groups with shared songs or playlists
+
          */
         setContent {
             ChordsTheme(

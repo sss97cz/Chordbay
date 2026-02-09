@@ -9,3 +9,4 @@ val Context.dataStoreSettings: DataStore<Preferences> by preferencesDataStore(na
 val Context.dataStoreAuth: DataStore<Preferences> by preferencesDataStore(name = "auth_credentials")
 val Context.userCredentials: DataStore<Preferences> by preferencesDataStore(name = "user_credentials")
 val Context.firstLaunchDataStore: DataStore<Preferences> by preferencesDataStore(name = "first_launch")
+val Context.notificationDataStore: DataStore<Preferences> by preferencesDataStore(name = "notifications")

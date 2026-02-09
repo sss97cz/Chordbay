@@ -1,5 +1,6 @@
 package com.chordbay.app.ui.composable.screen.song
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -59,8 +61,11 @@ fun PlaylistScreen(
     val songsFromPlaylist = mainViewModel.playlistSongs.collectAsState()
     val playlistState = mainViewModel.getPlaylistById(playlistId).collectAsState()
     val selectedSongsList = rememberSaveable { mutableStateOf<List<Song>>(emptyList()) }
+    var showDeletePlaylistDialog by rememberSaveable { mutableStateOf(false)}
+
     val playlist = playlistState.value
     LaunchedEffect(Unit) {
+        Log.d("PlaylistScreen", "Fetching songs for playlist with ID: $playlistId")
         mainViewModel.getSongsInPlaylist(playlistId)
     }
 
@@ -114,7 +119,7 @@ fun PlaylistScreen(
                     subtitle = if (songsFromPlaylist.value.isNotEmpty()) {
                         pluralText(
                             "${songsFromPlaylist.value.size} song",
-                            songsFromPlaylist.value.size
+                           songsFromPlaylist.value.size
                         )
                     } else {
                         "No songs"
@@ -159,9 +164,7 @@ fun PlaylistScreen(
                                         )
                                     },
                                     onClick = {
-                                        isMenuExpanded.value = false
-                                        mainViewModel.deletePlaylist(playlistId)
-                                        navController.popBackStack()
+                                        showDeletePlaylistDialog = true
                                     }
                                 )
                             }
@@ -182,6 +185,7 @@ fun PlaylistScreen(
                         val songsToDelete = selectedSongsList.value
                         songsToDelete.forEach { song ->
                             if (song.localId != null) {
+                                Log.d("PlaylistScreen", "Removing song with localId: ${song.localId} from playlist $playlistId")
                                 mainViewModel.removeSongFromPlaylist(
                                     playlistId,
                                     song.localId
@@ -263,6 +267,15 @@ fun PlaylistScreen(
                 mainViewModel.renamePlaylist(playlistId, newName)
             }
         )
+        DeletePlaylistDialog(
+            isVisible = showDeletePlaylistDialog,
+            playlistName = playlist.name,
+            onDismissRequest = { showDeletePlaylistDialog = false },
+            onDeleteClick = {
+                mainViewModel.deletePlaylist(playlistId)
+                navController.popBackStack()
+            }
+        )
     }
 }
 
@@ -309,3 +322,40 @@ fun RenamePlaylistDialog(
         )
     }
 }
+
+
+@Composable
+fun DeletePlaylistDialog(
+    isVisible: Boolean,
+    playlistName: String,
+    onDismissRequest: () -> Unit,
+    onDeleteClick: () -> Unit = {},
+) {
+    if (isVisible) {
+        AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = { Text("Delete Playlist") },
+            text = {
+                Text("Are you sure you want to delete the playlist: \"$playlistName\"?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteClick()
+                        onDismissRequest()
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismissRequest
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Output
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -115,8 +116,8 @@ fun BottomSheetContent(
             )
             if (count > 0) {
                 ActionIcon(
-                    icon = Icons.Default.Share,
-                    label = "Share",
+                    icon = Icons.Default.Output,
+                    label = "Upload",
                     onClick = onPostClick
                 )
             }

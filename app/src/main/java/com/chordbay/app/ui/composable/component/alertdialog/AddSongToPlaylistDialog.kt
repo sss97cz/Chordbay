@@ -4,19 +4,24 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import com.chordbay.app.data.model.PlaylistInfo
 
@@ -24,6 +29,7 @@ import com.chordbay.app.data.model.PlaylistInfo
 fun AddSongToPlaylistDialog(
     onDismiss: () -> Unit,
     onConfirm: (playlistId: Int) -> Unit,
+    onCreatePlaylist: () -> Unit,
     playlists: List<PlaylistInfo>,
 ) {
     AlertDialog(
@@ -31,7 +37,19 @@ fun AddSongToPlaylistDialog(
         title = { Text(text = "Add to Playlist") },
         text = {
             if (playlists.isEmpty()) {
-                Text(text = "No playlists available. Please create a playlist first.")
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(text = "No playlists available. Please create a playlist first.")
+                    TextButton(
+                        onClick = onCreatePlaylist
+                    ){
+                        Text("Create Playlist")
+                    }
+                }
             } else {
                 LazyColumn(
                     modifier = Modifier

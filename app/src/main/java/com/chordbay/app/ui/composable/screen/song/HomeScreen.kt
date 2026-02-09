@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -64,6 +66,7 @@ import com.chordbay.app.ui.composable.component.alertdialog.DeleteOptionDialog
 import com.chordbay.app.ui.composable.component.alertdialog.FirstLaunchDialog
 import com.chordbay.app.ui.composable.component.alertdialog.PrivacyBulkDialog
 import com.chordbay.app.ui.composable.component.fab.HomeSortFAB
+import com.chordbay.app.ui.composable.component.fab.RemoteFAB
 import com.chordbay.app.ui.composable.component.list.AlphabeticalSongList
 import com.chordbay.app.ui.composable.component.menu.BottomSheetContent
 import com.chordbay.app.ui.composable.component.navdrawer.MyDrawerContent
@@ -106,6 +109,11 @@ fun HomeScreen(
     var isAlphabeticalSort by rememberSaveable { mutableStateOf(true) }
     val email = authViewModel.userEmail.collectAsState()
     val isFirstLaunch = mainViewModel.isFirstLaunch.collectAsState()
+    val resultMode by remoteSongsViewModel.searchOption.collectAsState()
+    val songSort by remoteSongsViewModel.sortSongs.collectAsState()
+    val artistSort by remoteSongsViewModel.sortArtists.collectAsState()
+
+    val notification by mainViewModel.unseenNotifications.collectAsState()
 
     var searchBarExpanded by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -173,7 +181,9 @@ fun HomeScreen(
     }
 
 
-
+    LaunchedEffect(Unit){
+        mainViewModel.getNotifications()
+    }
 
     LaunchedEffect(searchQuery) {
         mainViewModel.setSearchQuery(searchQuery)
@@ -288,8 +298,8 @@ fun HomeScreen(
                             }
                         )
                     }
-
-                    MainTabs.REMOTE_SONGS -> {}
+                    MainTabs.REMOTE_SONGS -> {
+                    }
                 }
             },
             topBar = {
@@ -369,6 +379,9 @@ fun HomeScreen(
                         Tab(
                             onClick = {
                                 mainViewModel.selectTab(MainTabs.REMOTE_SONGS)
+                                scope.launch {
+                                    scaffoldState.bottomSheetState.hide()
+                                }
                             },
                             selected = MainTabs.REMOTE_SONGS.index == selectedTab.value.index,
                             text = {
@@ -448,12 +461,12 @@ fun HomeScreen(
                         }
                     }
                 }
-                if (selectedTab.value == MainTabs.MY_SONGS) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(bottom = dynamicBottomPadding)
-                    ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = dynamicBottomPadding)
+                ) {
+                    if (selectedTab.value == MainTabs.MY_SONGS) {
                         HomeSortFAB(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd),
@@ -471,6 +484,22 @@ fun HomeScreen(
                             },
                             alphabeticalSort = isAlphabeticalSort,
                         )
+                    } else if (selectedTab.value == MainTabs.REMOTE_SONGS) {
+                        RemoteFAB(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd),
+                            isFabMenuExpanded = showFabMenu,
+                            onMenuToggle = { showFabMenu = !showFabMenu },
+                            resultMode = resultMode,
+                            songSort = songSort,
+                            artistSort = artistSort,
+                            onSongItemSelected = { selected ->
+                                remoteSongsViewModel.onSortChanged(resultMode, songSort = selected)
+                            },
+                            onArtistItemSelected = { selected ->
+                                remoteSongsViewModel.onSortChanged(resultMode, artistSort = selected)
+                            }
+                        )
                     }
                 }
                 // ------------------------ Dialogs ------------------------------------------------
@@ -487,6 +516,10 @@ fun HomeScreen(
                     AddSongToPlaylistDialog(
                         onDismiss = { showAddSongToPlaylistDialog = false },
                         playlists = playlists,
+                        onCreatePlaylist = {
+                            showAddSongToPlaylistDialog = false
+                            showAddPlaylistDialog = true
+                        },
                         onConfirm = { playlistId ->
                             for (song in selectedSongsList) {
                                 Log.d(
@@ -547,6 +580,17 @@ fun HomeScreen(
                         onDismiss = {
                             mainViewModel.setNotFirstLaunch()
                         },
+                    )
+                } else if (notification.isNotEmpty()) {
+                    AlertDialog(
+                        onDismissRequest = { mainViewModel.setNotificationSeen(notification[0]) },
+                        title = { Text(notification[0].message) },
+                        text = { Text(notification[0].message) },
+                        confirmButton = {
+                            TextButton(onClick = { mainViewModel.setNotificationSeen(notification[0]) }) {
+                                Text("OK")
+                            }
+                        }
                     )
                 }
             }

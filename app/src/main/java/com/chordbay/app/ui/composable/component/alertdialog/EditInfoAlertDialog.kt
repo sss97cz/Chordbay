@@ -13,7 +13,7 @@ fun EditInfoAlertDialog(
     if (showAlertDialog) {
         AlertDialog(
             onDismissRequest = onDismissRequest,
-            title = { Text(text = "Info") },
+            title = { Text(text = "Chord Transposition") },
             text = {
                 Text(
                     """

@@ -171,12 +171,21 @@ fun SongScreen(
         activeTrackColor = MaterialTheme.colorScheme.primary,
         inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
     )
+    LaunchedEffect(fontSize.value) {
+        Log.d("SongScreen", "Font size from ViewModel changed: ${fontSize.value} ")
+        if (sliderState.floatValue != fontSize.value.toFloat()) {
+            sliderState.floatValue = fontSize.value.toFloat()
+        }
+    }
     LaunchedEffect(mainViewModel) {
         snapshotFlow { sliderState.floatValue }
             .debounce(300) // wait 300ms after last change
             .distinctUntilChanged()
             .collect { value ->
-                mainViewModel.setSongTextFontSize(value.toInt())
+                if (value.toInt() != fontSize.value) {
+                    Log.d("SongScreen", "Setting font size to $value")
+                    mainViewModel.setSongTextFontSize(value.toInt())
+                }
             }
     }
     LaunchedEffect(song) {

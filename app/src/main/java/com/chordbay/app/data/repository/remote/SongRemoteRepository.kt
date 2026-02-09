@@ -2,6 +2,7 @@ package com.chordbay.app.data.repository.remote
 
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.remote.model.ArtistDto
+import com.chordbay.app.data.remote.model.NotificationDto
 import com.chordbay.app.ui.composable.screen.song.FilterField
 
 interface SongRemoteRepository {
@@ -22,4 +23,5 @@ interface SongRemoteRepository {
     ): Result<List<Song>>
 
     suspend fun getSongsByViewedCount(): Result<List<Song>>
+    suspend fun getNotifications(): Result<List<NotificationDto>>
 }

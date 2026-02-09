@@ -177,20 +177,20 @@ class RemoteSongsViewModel(
         if (query.value.isNotBlank()) search()
     }
 
-    fun onSortChanged(sortOption: ResultMode) {
+    fun onSortChanged(sortOption: ResultMode, songSort: SortBy? = null, artistSort: SortByArtist? = null) {
         when (sortOption) {
             ResultMode.SONGS -> {
-                if (sortSongs.value == SortBy.SONG_NAME) {
-                    sortSongs.value = SortBy.ARTIST_NAME
-                } else {
-                    sortSongs.value = SortBy.SONG_NAME
+                if (songSort != null) {
+                    if (sortSongs.value != songSort) {
+                        sortSongs.value = songSort
+                    }
                 }
             }
             ResultMode.ARTISTS -> {
-                if (sortArtists.value == SortByArtist.ALPHABETICAL) {
-                    sortArtists.value = SortByArtist.MOST_SONGS
-                } else {
-                    sortArtists.value = SortByArtist.ALPHABETICAL
+                if (artistSort != null) {
+                    if (sortArtists.value != artistSort) {
+                        sortArtists.value = artistSort
+                    }
                 }
             }
         }
@@ -245,7 +245,6 @@ class RemoteSongsViewModel(
 
     fun saveSong(song: Song) {
         viewModelScope.launch {
-            // Insert into local DB; the localRemoteIds flow will update and mark the item as synced
             if (song.remoteId != null) {
                 val localIds = localRemoteIds.value
                 if (localIds.contains(song.remoteId)) {
@@ -256,10 +255,11 @@ class RemoteSongsViewModel(
                             it
                         }
                     }
+                } else {
+                    _saveSuccess.value = true
+                    songRepository.insertRemoteSong(song)
                 }
-                _saveSuccess.value = true
             }
-            songRepository.insertRemoteSong(song)
         }
     }
 
@@ -295,6 +295,12 @@ class RemoteSongsViewModel(
                         "Error fetching songs for artist $artist: ${exception.message}"
                     )
                 }
+        }
+    }
+
+    fun saveAllSongs(songs: List<Song>) {
+        for (song in songs) {
+            saveSong(song)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.chordbay.app.ui.composable.component.textfield
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -71,7 +72,6 @@ fun SongEditor(
         color = MaterialTheme.colorScheme.surface
     ) {
         Column(Modifier.fillMaxSize()) {
-            // Attach the bringIntoViewRequester to the scrollable container.
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -89,8 +89,8 @@ fun SongEditor(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
                     ) {
-                        // request focus from a coroutine
                         scope.launch {
+                            Log.d("SongEditor", "requesting focus")
                             focusRequester.requestFocus()
                         }
                     }
@@ -114,8 +114,9 @@ fun SongEditor(
                         .fillMaxWidth()
                         .padding(16.dp)
                         .heightIn(min = 200.dp)
-                        .focusRequester(focusRequester)
+                        //.focusRequester(focusRequester)
                         .onFocusChanged {
+                            Log.d("SongEditor", "Focus changed: ${it.isFocused}")
                             isFocused = it.isFocused
                         },
                     onTextLayout = { layoutResult ->
@@ -128,9 +129,10 @@ fun SongEditor(
                             caret.right,
                             caret.bottom + extra
                         )
-                        scope.launch {
-                            bringIntoViewRequester.bringIntoView(inflated)
-                        }
+//                        scope.launch {
+//                            Log.d("SongEditor", "Bringing into view: $inflated")
+//                            bringIntoViewRequester.bringIntoView(inflated)
+//                        }
                     }
                 ) { inner ->
                     if (value.text.isEmpty()) {

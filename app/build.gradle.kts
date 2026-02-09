@@ -14,8 +14,8 @@ android {
         applicationId = "com.chordbay.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.0.9"
+        versionCode = 12
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -94,6 +94,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc13")
 
     implementation("sh.calvin.reorderable:reorderable:3.0.0")
 }

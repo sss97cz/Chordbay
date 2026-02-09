@@ -1,6 +1,9 @@
 package com.chordbay.app.ui.viewmodel
 
 import android.util.Log
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.setTextAndSelectAll
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 
@@ -33,7 +36,7 @@ class EditViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = HBFormat.ENG
+            initialValue = HBFormat.GER
         )
     private val _hbFormat: MutableStateFlow<HBFormat> = MutableStateFlow(
         savedHbFormat.value
@@ -56,10 +59,13 @@ class EditViewModel(
         _songContent.value = content
     }
 
+    val songState = TextFieldState("")
+
     fun clearSongStates() {
         _songName.value = null
         _songArtist.value = ""
         _songContent.value = TextFieldValue("")
+        songState.setTextAndSelectAll("")
         _remoteId.value = null
         setHasLoadedEdit(false)
         Log.d("SongViewModel", "song states reset")
@@ -83,7 +89,8 @@ class EditViewModel(
                         remoteId = null,
                         title = songName.value ?: "",
                         artist = songArtist.value,
-                        content = songContent.value.text,
+//                        content = songContent.value.text,
+                        content = songState.text.toString(),
                         hBFormat = hbFormat.value
                     )
                 )
@@ -94,7 +101,8 @@ class EditViewModel(
                         remoteId = _remoteId.value,
                         title = songName.value ?: "",
                         artist = songArtist.value,
-                        content = songContent.value.text,
+//                        content = songContent.value.text,
+                        content = songState.text.toString(),
                         hBFormat = hbFormat.value
                     ).also { Log.d("SongViewModel", "$it") }
                 )
@@ -107,6 +115,7 @@ class EditViewModel(
             if (songId != "new") {
                 val song = songRepository.getSongById(songId.toInt()).first()
                 if (song != null) {
+                    songState.edit { insert(0, song.content) }
                     _songName.value = song.title
                     _songArtist.value = song.artist
                     _songContent.value = TextFieldValue(song.content)

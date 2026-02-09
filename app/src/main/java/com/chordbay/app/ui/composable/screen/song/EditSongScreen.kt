@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -35,10 +37,13 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +54,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.navigation.NavController
@@ -58,6 +65,9 @@ import com.chordbay.app.ui.composable.component.textfield.SongEditor
 import com.chordbay.app.ui.composable.component.textfield.SongTextField
 import com.chordbay.app.ui.composable.component.topappbar.MyTopAppBar
 import com.chordbay.app.ui.viewmodel.EditViewModel
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -75,11 +85,13 @@ fun EditSongScreen(
     val showInfoAlertDialog = rememberSaveable { mutableStateOf(false) }
     val showMetadataDialog = rememberSaveable { mutableStateOf(false) }
     val showEmptySongDialog = rememberSaveable { mutableStateOf(false) }
+    val state = viewModel.songState
 
     // Load song only once per songId
     LaunchedEffect(songId) {
         Log.d("EditViewModel", "loadEditSong called with id=$songId")
         if (!hasLoaded) {
+            val t = TextFieldValue("hello world")
             viewModel.clearSongStates()
             viewModel.loadEditSong(songId)
             Log.d(
@@ -95,9 +107,9 @@ fun EditSongScreen(
             val destSongId = args?.getString("songId")
 
             // Only clear when we really navigated away from this edit screen for this songId
-            val stillOnSameEditRoute =
+            val onSameRoute =
                 route == "editSong/$songId" || route == templatedRoute || destSongId == songId
-            if (!stillOnSameEditRoute) {
+            if (!onSameRoute) {
                 viewModel.clearSongStates()
             }
         }
@@ -120,7 +132,8 @@ fun EditSongScreen(
                         navController.navigateUp()
                         viewModel.clearSongStates()
                     }
-                } else null, actions = {
+                } else null,
+                actions = {
                     IconButton(onClick = {
                         showInfoAlertDialog.value = true
                     }) {
@@ -149,7 +162,6 @@ fun EditSongScreen(
         }
     ) { innerPadding ->
         if (isLandscape) {
-            // inside your @Composable where you have `innerPadding`:
             val layoutDirection = LocalLayoutDirection.current
             val navPadding = WindowInsets.navigationBars.asPaddingValues()
 
@@ -183,43 +195,54 @@ fun EditSongScreen(
                     .imePadding(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Card(
+//                Card(
+//                    modifier = Modifier
+//                        .weight(1f),
+//                    colors = CardDefaults.cardColors().copy(
+//                        containerColor = MaterialTheme.colorScheme.surface,
+//                        contentColor = MaterialTheme.colorScheme.onSurface,
+//                    ),
+//                    elevation = CardDefaults.cardElevation(4.dp),
+//                    border = CardDefaults.outlinedCardBorder(true)
+//                ) {
+                Column(
                     modifier = Modifier
-                        .weight(1f),
-                    colors = CardDefaults.cardColors().copy(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                    ),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    border = CardDefaults.outlinedCardBorder(true)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .verticalScroll(rememberScrollState())
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        SongTextField(
-                            value = songName ?: "",
-                            onValueChange = { viewModel.setSongName(it) },
-                            singleLine = true,
-                            label = "Song Title"
-                        )
-                        SongTextField(
-                            value = songArtist,
-                            onValueChange = { viewModel.setSongArtist(it) },
-                            singleLine = true,
-                            label = "Artist"
-                        )
-                    }
+                    SongTextField(
+                        value = songName ?: "",
+                        onValueChange = { viewModel.setSongName(it) },
+                        singleLine = true,
+                        label = "Song Title"
+                    )
+                    SongTextField(
+                        value = songArtist,
+                        onValueChange = { viewModel.setSongArtist(it) },
+                        singleLine = true,
+                        label = "Artist"
+                    )
                 }
-                SongEditor(
+//                }
+//                SongEditor(
+//                    modifier = Modifier
+//                        .weight(2f)
+//                        .fillMaxWidth(),
+//                    value = songContent,
+//                    onValueChange = { viewModel.setSongContent(it) },
+//                )
+                OutlinedTextField(
+                    state = state,
                     modifier = Modifier
                         .weight(2f)
+                        .fillMaxHeight()
                         .fillMaxWidth(),
-                    value = songContent,
-                    onValueChange = { viewModel.setSongContent(it) },
+                    contentPadding = PaddingValues(vertical = 2.dp, horizontal = 8.dp),
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
                 )
             }
         } else {
@@ -249,37 +272,65 @@ fun EditSongScreen(
                         label = "Artist"
                     )
                 }
-                SongEditor(
+
+                OutlinedTextField(
+                    state = state,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
                         .weight(1f),
-                    value = songContent,
-                    onValueChange = { viewModel.setSongContent(it) },
-                )
-
-                EditInfoAlertDialog(
-                    showAlertDialog = showInfoAlertDialog.value,
-                    onDismissRequest = { showInfoAlertDialog.value = false }
-                )
-                MetadataDialog(
-                    showDialog = showMetadataDialog.value,
-                    onDismissRequest = { showMetadataDialog.value = false },
-                    currentHBFormat = currentHBFormat,
-                    onHBFormatChange = { viewModel.setHbFormat(it) }
-                )
-                EmptySongDialog(
-                    showDialog = showEmptySongDialog.value,
-                    onDismissRequest = { showEmptySongDialog.value = false },
-                    onConfirm = {
-                        viewModel.saveEditedSong(songId)
-                        showEmptySongDialog.value = false
-                        navController.navigateUp()
-                        viewModel.clearSongStates()
+                    contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp),
+                    textStyle = LocalTextStyle.current.copy(
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    placeholder = {
+                        Text(text = "Enter song lyrics and chords here...")
                     }
                 )
+//                SongEditor(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(top = 8.dp)
+//                        .weight(1f),
+//                    value = songContent,
+//                    onValueChange = { viewModel.setSongContent(it) },
+//                )
+//                val editorState: RichTextState = rememberRichTextState()
+//                LaunchedEffect(Unit){
+//                    editorState.setText(songContent.text)
+//                }
+//                LaunchedEffect(editorState){
+//                    viewModel.setSongContent(TextFieldValue(editorState.annotatedString.text))
+//                }
+//                RichTextEditor(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(top = 8.dp)
+//                        .weight(1f),
+//                    state = editorState
+//                )
             }
         }
+        EditInfoAlertDialog(
+            showAlertDialog = showInfoAlertDialog.value,
+            onDismissRequest = { showInfoAlertDialog.value = false }
+        )
+        MetadataDialog(
+            showDialog = showMetadataDialog.value,
+            onDismissRequest = { showMetadataDialog.value = false },
+            currentHBFormat = currentHBFormat,
+            onHBFormatChange = { viewModel.setHbFormat(it) }
+        )
+        EmptySongDialog(
+            showDialog = showEmptySongDialog.value,
+            onDismissRequest = { showEmptySongDialog.value = false },
+            onConfirm = {
+                viewModel.saveEditedSong(songId)
+                showEmptySongDialog.value = false
+                navController.navigateUp()
+                viewModel.clearSongStates()
+            }
+        )
     }
 }
 
@@ -320,7 +371,7 @@ private fun MetadataDialog(
             dismissButton = {
                 IconButton(
                     onClick = onDismissRequest
-                ){
+                ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Cancel"
@@ -339,7 +390,7 @@ private fun HBFormatSelection(
     HorizontalDivider()
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp)
-    ){
+    ) {
         Text(text = "Chord Format:")
         Row(
             horizontalArrangement = Arrangement.SpaceAround,

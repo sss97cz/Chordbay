@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,6 +42,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -177,6 +180,7 @@ fun RemoteSongsTab(
                     ResultMode.ARTISTS -> {
                         remoteSongsViewModel.refreshArtists()
                     }
+
                     ResultMode.SONGS -> {
                         val q = remoteSongsViewModel.query.value
                         if (q.isBlank()) {
@@ -220,6 +224,7 @@ fun RemoteSongsTab(
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PortraitSearchBarHeader(
     remoteSongsViewModel: RemoteSongsViewModel,
@@ -246,61 +251,23 @@ fun PortraitSearchBarHeader(
             remoteSongsViewModel.onQueryChanged("")
             remoteSongsViewModel.refreshArtists()
         },
-    )
-    val isSongsSelected = searchOption.value == ResultMode.SONGS
-    val selectedLetter = remoteSongsViewModel.artistFirstLetterFilterChipSelected.collectAsState()
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                    shape = MaterialTheme.shapes.medium
-                )
-                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-        ) {
-            Text(
-                text = "Filter options:",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                modifier = Modifier.padding(bottom = 2.dp, start = 2.dp)
-            )
-
-            ChipRow(
-                onFilterSongClick = { remoteSongsViewModel.onFieldChanged(it) },
-                onFilterArtistClick = { remoteSongsViewModel.onArtistFirstLetterFilterChange(it) },
-                field = field,
-                isSongsSelected = isSongsSelected,
-                selectedLetter = selectedLetter,
-                artistFirstLetters = artistFirstLetters
-            )
-        }
-        val sortByArtist = remoteSongsViewModel.sortArtists.collectAsState()
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.End
-        ) {
-            SingleChoiceSegmentedButtonRow {
+        trailingContent = {
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.padding(end = 0.dp).offset(x = 2.dp),
+            ) {
                 ResultMode.entries.forEachIndexed { index, result ->
                     SegmentedButton(
                         modifier = Modifier
-                            .size(75.dp, 36.dp)
+                            .size(60.dp, 52.dp)
                             .align(Alignment.Top),
                         shape = SegmentedButtonDefaults.itemShape(
                             index = index,
                             count = ResultMode.entries.size,
+                            baseShape = if (index == 1) {
+                                MaterialTheme.shapes.extraLargeIncreased
+                            } else {
+                                MaterialTheme.shapes.large
+                            }
                         ),
                         colors = SegmentedButtonDefaults.colors().copy(
                             inactiveBorderColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -331,12 +298,105 @@ fun PortraitSearchBarHeader(
                     )
                 }
             }
+        }
+    )
+    val isSongsSelected = searchOption.value == ResultMode.SONGS
+    val selectedLetter =
+        remoteSongsViewModel.artistFirstLetterFilterChipSelected.collectAsState()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+//            .height(80.dp)
+            .padding(horizontal = 8.dp, vertical = 0.dp),
+        verticalAlignment = Alignment.CenterVertically,
+  //      horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+//        Column(
+//            modifier = Modifier
+//                .fillMaxHeight()
+//                .border(
+//                    width = 1.dp,
+//                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+//                    shape = MaterialTheme.shapes.medium
+//                )
+//                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+//        ) {
+//            Text(
+//                text = "Filter options:",
+//                style = MaterialTheme.typography.labelMedium.copy(
+//                    fontWeight = FontWeight.SemiBold,
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                ),
+//                modifier = Modifier.padding(bottom = 2.dp, start = 2.dp)
+//            )
+//
+            ChipRow(
+                modifier = Modifier.weight(1f),
+                onFilterSongClick = { remoteSongsViewModel.onFieldChanged(it) },
+                onFilterArtistClick = {
+                    remoteSongsViewModel.onArtistFirstLetterFilterChange(
+                        it
+                    )
+                },
+                field = field,
+                isSongsSelected = isSongsSelected,
+                selectedLetter = selectedLetter,
+                artistFirstLetters = artistFirstLetters
+            )
+//        }
+        val sortByArtist = remoteSongsViewModel.sortArtists.collectAsState()
+//        Column(
+//            modifier = Modifier.fillMaxHeight(),
+//            verticalArrangement = Arrangement.SpaceBetween,
+//            horizontalAlignment = Alignment.End
+//        ) {
+//            SingleChoiceSegmentedButtonRow {
+//                ResultMode.entries.forEachIndexed { index, result ->
+//                    SegmentedButton(
+//                        modifier = Modifier
+//                            .size(75.dp, 36.dp)
+//                            .align(Alignment.Top),
+//                        shape = SegmentedButtonDefaults.itemShape(
+//                            index = index,
+//                            count = ResultMode.entries.size,
+//                        ),
+//                        colors = SegmentedButtonDefaults.colors().copy(
+//                            inactiveBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+//                            activeBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+//                        ),
+//                        onClick = {
+//                            remoteSongsViewModel.onSearchOptionChange(result)
+//                        },
+//                        selected = searchOption.value == result,
+//                        label = {
+//                            when (result) {
+//                                ResultMode.ARTISTS -> Icon(
+//                                    Artist,
+//                                    contentDescription = null,
+//                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+//                                    modifier = Modifier.fillMaxHeight()
+//                                )
+//
+//                                ResultMode.SONGS -> Icon(
+//                                    Icons.Default.MusicNote,
+//                                    contentDescription = null,
+//                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+//                                    modifier = Modifier.fillMaxHeight()
+//
+//                                )
+//                            }
+//                        }
+//                    )
+//                }
+//            }
+        if (isSongsSelected) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+//                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (isSongsSelected) {
-                    val showMostViewed = remoteSongsViewModel.showMostViewed.collectAsState()
+                    val showMostViewed =
+                        remoteSongsViewModel.showMostViewed.collectAsState()
                     FilterChip(
                         selected = showMostViewed.value,
                         onClick = {
@@ -353,38 +413,38 @@ fun PortraitSearchBarHeader(
                             .widthIn(min = 72.dp)
                     )
                 }
-                AssistChip(
-                    onClick = {
-                        remoteSongsViewModel.onSortChanged(searchOption.value)
-                    },
-                    label = {
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            Text(
-                                text = if (searchOption.value == ResultMode.SONGS) {
-                                    when (sort) {
-                                        SortBy.SONG_NAME -> "Sort: Title"
-                                        SortBy.ARTIST_NAME -> "Sort: Artist"
-                                    }
-                                } else {
-                                    when (sortByArtist.value) {
-                                        SortByArtist.ALPHABETICAL -> "Sort: A-Z"
-                                        SortByArtist.MOST_SONGS -> "Sort: Songs"
-                                    }
-                                },
-                                style = MaterialTheme.typography.labelSmall,
-                                textAlign = TextAlign.Center,
-//                            modifier = Modifier.padding(horizontal = 4.dp)
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .height(32.dp)
-                        .width(95.dp)
-                )
+//                AssistChip(
+//                    onClick = {
+//                        remoteSongsViewModel.onSortChanged(searchOption.value)
+//                    },
+//                    label = {
+//                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+//                            Text(
+//                                text = if (searchOption.value == ResultMode.SONGS) {
+//                                    when (sort) {
+//                                        SortBy.SONG_NAME -> "Sort: Title"
+//                                        SortBy.ARTIST_NAME -> "Sort: Artist"
+//                                    }
+//                                } else {
+//                                    when (sortByArtist.value) {
+//                                        SortByArtist.ALPHABETICAL -> "Sort: A-Z"
+//                                        SortByArtist.MOST_SONGS -> "Sort: Songs"
+//                                    }
+//                                },
+//                                style = MaterialTheme.typography.labelSmall,
+//                                textAlign = TextAlign.Center,
+////                            modifier = Modifier.padding(horizontal = 4.dp)
+//                            )
+//                        }
+//                    },
+//                    modifier = Modifier
+//                        .height(32.dp)
+//                        .width(95.dp)
+//                )
             }
         }
-    }
-    HorizontalDivider(Modifier.padding(top = 4.dp))
+//    }
+    HorizontalDivider(Modifier.padding(top = 2.dp))
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -401,12 +461,13 @@ fun LandscapeSearchBarHeader(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.Top
+            .fillMaxWidth().padding(end = 4.dp, start = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         HomeSearchbar(
             modifier = Modifier
-                .weight(1f),
+                .weight(3f),
             placeholder = searchbarText,
             searchBarExpanded = true,
             searchQuery = query,
@@ -418,100 +479,78 @@ fun LandscapeSearchBarHeader(
                 remoteSongsViewModel.refreshArtists()
             },
             trailingContent = {
-                Box {
-                    IconButton(
-                        onClick = {
-                            onMenuExpandedChange()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menu",
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = isMenuExpanded,
-                        onDismissRequest = {
-                        }
-                    ) {
-                        for (option in ResultMode.entries) {
-                            val selected = option == searchOption.value
-                            val backgroundColor =
-                                if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                                else Color.Transparent
-                            val contentColor =
-                                if (selected) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.onSurfaceVariant
-
-                            DropdownMenuItem(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        backgroundColor,
-                                        shape = RoundedCornerShape(8.dp)
-                                    ),
-                                text = {
-                                    when (option) {
-                                        ResultMode.SONGS -> {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Icon(
-                                                    imageVector = Icons.Default.MusicNote,
-                                                    contentDescription = null,
-                                                    tint = contentColor,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                                Spacer(Modifier.width(8.dp))
-                                                Text(
-                                                    text = "Search Songs",
-                                                    color = contentColor
-                                                )
-                                            }
-                                        }
-
-                                        ResultMode.ARTISTS -> {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Icon(
-                                                    imageVector = Artist,
-                                                    contentDescription = null,
-                                                    tint = contentColor,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                                Spacer(Modifier.width(8.dp))
-                                                Text(
-                                                    text = "Search Artists",
-                                                    color = contentColor
-                                                )
-                                            }
-                                        }
-                                    }
-                                },
-                                onClick = {
-                                    remoteSongsViewModel.onSearchOptionChange(option)
-                                    onMenuExpandedChange()
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.padding(end = 0.dp).offset(x = 2.dp),
+                ) {
+                    ResultMode.entries.forEachIndexed { index, result ->
+                        SegmentedButton(
+                            modifier = Modifier
+                                .size(60.dp, 52.dp)
+                                .align(Alignment.Top),
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = ResultMode.entries.size,
+                                baseShape = if (index == 1) {
+                                    MaterialTheme.shapes.extraLargeIncreased
+                                } else {
+                                    MaterialTheme.shapes.large
                                 }
-                            )
-                        }
+                            ),
+                            colors = SegmentedButtonDefaults.colors().copy(
+                                inactiveBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                                activeBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+                            ),
+                            onClick = {
+                                remoteSongsViewModel.onSearchOptionChange(result)
+                            },
+                            selected = searchOption.value == result,
+                            label = {
+                                when (result) {
+                                    ResultMode.ARTISTS -> Icon(
+                                        Artist,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.fillMaxHeight()
+                                    )
+
+                                    ResultMode.SONGS -> Icon(
+                                        Icons.Default.MusicNote,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.fillMaxHeight()
+
+                                    )
+                                }
+                            }
+                        )
                     }
                 }
             }
         )
-        Column(
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(horizontal = 4.dp),
-        ) {
-            Text(
-                text = "Filter options:",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
+//        Column(
+//            modifier = Modifier
+//                .weight(1f)
+//                .wrapContentWidth()
+//                .padding(horizontal = 4.dp),
+//        ) {
+//            Text(
+//                text = "Filter options:",
+//                style = MaterialTheme.typography.bodySmall,
+//                modifier = Modifier.padding(top = 8.dp),
+//            )
             FlowRow(
+                modifier = Modifier
+                    .weight(2f).padding(start = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 ChipRow(
                     onFilterSongClick = { remoteSongsViewModel.onFieldChanged(it) },
-                    onFilterArtistClick = { remoteSongsViewModel.onArtistFirstLetterFilterChange(it) },
+                    onFilterArtistClick = {
+                        remoteSongsViewModel.onArtistFirstLetterFilterChange(
+                            it
+                        )
+                    },
                     field = field,
                     isSongsSelected = searchOption.value == ResultMode.SONGS,
                     selectedLetter = remoteSongsViewModel.artistFirstLetterFilterChipSelected.collectAsState(),
@@ -520,6 +559,7 @@ fun LandscapeSearchBarHeader(
                 val showMostViewed = remoteSongsViewModel.showMostViewed.collectAsState()
                 val sortByArtist = remoteSongsViewModel.sortArtists.collectAsState()
                 if (searchOption.value == ResultMode.SONGS) {
+                    Spacer(Modifier.weight(1f))
                     FilterChip(
                         selected = showMostViewed.value,
                         onClick = {
@@ -531,40 +571,40 @@ fun LandscapeSearchBarHeader(
                                 style = MaterialTheme.typography.labelSmall
                             )
                         },
-                        modifier = Modifier.widthIn(min = 72.dp),
+                        modifier = Modifier.widthIn(min = 72.dp).padding(end = 4.dp),
                         colors = FilterChipDefaults.filterChipColors().copy(
 
                         )
                     )
                 }
-                AssistChip(
-                    onClick = {
-                        remoteSongsViewModel.onSortChanged(searchOption.value)
-                    },
-                    label = {
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            Text(
-                                text = if (searchOption.value == ResultMode.SONGS) {
-                                    when (sort) {
-                                        SortBy.SONG_NAME -> "Sort: Title"
-                                        SortBy.ARTIST_NAME -> "Sort: Artist"
-                                    }
-                                } else {
-                                    when (sortByArtist.value) {
-                                        SortByArtist.ALPHABETICAL -> "Sort: A-Z"
-                                        SortByArtist.MOST_SONGS -> "Sort: Songs"
-                                    }
-                                },
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.labelSmallEmphasized,
-                            )
-                        }
-                    },
-                    modifier = Modifier.width(95.dp)
-                )
+//                AssistChip(
+//                    onClick = {
+//                        remoteSongsViewModel.onSortChanged(searchOption.value)
+//                    },
+//                    label = {
+//                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+//                            Text(
+//                                text = if (searchOption.value == ResultMode.SONGS) {
+//                                    when (sort) {
+//                                        SortBy.SONG_NAME -> "Sort: Title"
+//                                        SortBy.ARTIST_NAME -> "Sort: Artist"
+//                                    }
+//                                } else {
+//                                    when (sortByArtist.value) {
+//                                        SortByArtist.ALPHABETICAL -> "Sort: A-Z"
+//                                        SortByArtist.MOST_SONGS -> "Sort: Songs"
+//                                    }
+//                                },
+//                                textAlign = TextAlign.Center,
+//                                style = MaterialTheme.typography.labelSmallEmphasized,
+//                            )
+//                        }
+//                    },
+//                    modifier = Modifier.width(95.dp)
+//                )
             }
         }
-    }
+//    }
 }
 
 @Composable
@@ -737,7 +777,12 @@ fun NormalResultList(
 }
 
 @Composable
-fun ResultHeader(mode: ResultMode, count: Int, query: String?, modifier: Modifier = Modifier) {
+fun ResultHeader(
+    mode: ResultMode,
+    count: Int,
+    query: String?,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -746,7 +791,11 @@ fun ResultHeader(mode: ResultMode, count: Int, query: String?, modifier: Modifie
     ) {
         Crossfade(targetState = mode) { m ->
             val icon = if (m == ResultMode.ARTISTS) Artist else Icons.Default.MusicNote
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
         Spacer(Modifier.width(12.dp))
@@ -849,6 +898,7 @@ fun NothingFoundPrompt(
 
 @Composable
 fun ChipRow(
+    modifier: Modifier = Modifier,
     onFilterSongClick: (FilterField) -> Unit,
     onFilterArtistClick: (Char?) -> Unit,
     field: FilterField,
@@ -858,9 +908,10 @@ fun ChipRow(
 ) {
 
     LazyRow(
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.widthIn(min = 200.dp, max = 224.dp)
+        modifier = modifier.widthIn(min = 200.dp, max = 350.dp),
+        //contentPadding = PaddingValues(horizontal = 8.dp),
     ) {
         if (isSongsSelected) {
             for (selected in FilterField.entries) {
@@ -877,12 +928,24 @@ fun ChipRow(
                 FilterChip(
                     selected = selectedLetter.value == it,
                     onClick = {
-                        Log.d("RemoteSongsTab", "Artist first letter filter chip clicked: $it")
+                        Log.d(
+                            "RemoteSongsTab",
+                            "Artist first letter filter chip clicked: $it"
+                        )
                         onFilterArtistClick(
                             if (selectedLetter.value == it) null else it
                         )
                     },
-                    label = { Text(it.toString()) }
+                    label = {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.size(20.dp)
+                        ){
+                            Text(
+                                text = it.toString(),
+                            )
+                        }
+                    }
                 )
             }
         }
@@ -890,8 +953,8 @@ fun ChipRow(
 }
 
 enum class FilterField(val title: String) { TITLE("Title"), ARTIST("Artist"), BOTH("Both") }
-enum class ResultMode { SONGS, ARTISTS }
+enum class ResultMode(val displayName: String) { SONGS("Search Songs"), ARTISTS("Search Artists") }
 
 enum class SortByArtist(val title: String) {
-    ALPHABETICAL("A-Z"), MOST_SONGS("Most Songs")
+    ALPHABETICAL("Name"), MOST_SONGS("Most Songs")
 }

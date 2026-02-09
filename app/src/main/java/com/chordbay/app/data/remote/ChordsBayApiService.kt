@@ -1,6 +1,7 @@
 package com.chordbay.app.data.remote
 
 import com.chordbay.app.data.remote.model.ArtistDto
+import com.chordbay.app.data.remote.model.NotificationDto
 import com.chordbay.app.data.remote.model.SongDto
 import retrofit2.Response
 import retrofit2.http.Body
@@ -69,4 +70,8 @@ interface ChordsBayApiService {
     suspend fun getSongsByViewedCount(
         @Query("limit") limit: Int = 25
     ): Response<List<SongDto>>
+
+    @GET("/api/notifications")
+    suspend fun getNotifications(
+    ): Response<List<NotificationDto>>
 }

@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.chordbay.app.R
 import com.chordbay.app.data.database.playlist.PlaylistEntity
@@ -176,7 +177,8 @@ private fun DrawerHeader() {
         Text(
             "Chordbay",
             modifier = Modifier.padding(start = 12.dp),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }

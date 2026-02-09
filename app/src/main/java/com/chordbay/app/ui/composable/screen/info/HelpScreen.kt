@@ -71,10 +71,10 @@ fun HelpScreen(
                 """.trimIndent()
             )
             ExpandableInfoItem(
-                title = "How to share songs?",
+                title = "How to upload songs?",
                 content = """
                     To share your songs with other users of Chordbay, first you need to create an account and log in.
-                    Once logged in, select the songs you want to share and click the "Share" icon in the menu.
+                    Once logged in, select the songs you want to share and click the "Upload" icon in the menu.
                     Your songs will be uploaded to our servers and made available to other users. 
                     You can also upload the songs as private, so only you can access them from any device when logged in.
                     When sharing songs, please make sure the chords are properly formatted with brackets to ensure a better experience for you and other users.
@@ -82,8 +82,8 @@ fun HelpScreen(
                 """.trimIndent()
             )
             ExpandableInfoItem(
-                title = "Can I share copyrighted songs?",
-                content = "No, sharing copyrighted songs is not allowed and is strictly against TOS! Please make sure to only share songs that you have the rights to share. Violating this rule will result in your account being suspended."
+                title = "Can I upload copyrighted songs?",
+                content = "No, uploading copyrighted songs as public is not allowed and is strictly against TOS! Please make sure to only share songs that you have the rights to share. Violating this rule will result in your account being suspended."
             )
             ExpandableInfoItem(
                 title = "How to create an account?",

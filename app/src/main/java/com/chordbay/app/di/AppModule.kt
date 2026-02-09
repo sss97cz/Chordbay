@@ -3,8 +3,10 @@ package com.chordbay.app.di
 import com.chordbay.app.data.database.AppDatabase
 import com.chordbay.app.data.datastore.CredentialManager
 import com.chordbay.app.data.datastore.FirstLaunchDatastore
+import com.chordbay.app.data.datastore.NotificationDataStore
 import com.chordbay.app.data.datastore.SettingsDataStore
 import com.chordbay.app.data.datastore.UserDataStore
+import com.chordbay.app.data.helper.AppVersion
 import com.chordbay.app.data.remote.RetrofitInstance
 import com.chordbay.app.data.repository.auth.AuthRepository
 import com.chordbay.app.data.repository.auth.AuthRepositoryImpl
@@ -28,6 +30,8 @@ val appModule = module {
     single<SongRepository> { SongRepositoryImpl(get()) }
     viewModel {
         MainViewModel(
+            get(),
+            get(),
             get(),
             get(),
             get(),
@@ -78,6 +82,8 @@ val appModule = module {
 
     single { UserDataStore(androidContext()) }
 
+    single { NotificationDataStore(androidContext()) }
+
     single { CredentialManager(androidContext()) }
 
     single { FirstLaunchDatastore(androidContext()) }
@@ -88,5 +94,8 @@ val appModule = module {
 
     single<PlaylistRepository> {
         PlaylistRepositoryImpl(get())
+    }
+    single<AppVersion> {
+        AppVersion(androidContext())
     }
 }

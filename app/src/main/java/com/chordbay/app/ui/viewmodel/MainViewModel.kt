@@ -1,5 +1,6 @@
 package com.chordbay.app.ui.viewmodel
 
+import android.app.Notification
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -8,8 +9,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.chordbay.app.data.database.playlist.PlaylistEntity
 import com.chordbay.app.data.datastore.FirstLaunchDatastore
+import com.chordbay.app.data.datastore.NotificationDataStore
 import com.chordbay.app.data.datastore.SettingsDataStore
 import com.chordbay.app.data.datastore.UserDataStore
+import com.chordbay.app.data.helper.AppVersion
 import com.chordbay.app.data.helper.TxtSongIO
 import com.chordbay.app.data.helper.getFileName
 import com.chordbay.app.data.model.PlaylistInfo
@@ -22,11 +25,14 @@ import com.chordbay.app.data.model.settings.Settings
 import com.chordbay.app.data.model.util.SortBy
 import com.chordbay.app.data.model.util.ThemeMode
 import com.chordbay.app.data.model.util.toError
+import com.chordbay.app.data.remote.model.NotificationDto
 import com.chordbay.app.data.repository.auth.AuthRepository
 import com.chordbay.app.data.repository.playlist.PlaylistRepository
 import com.chordbay.app.data.repository.remote.SongRemoteRepository
 import com.chordbay.app.data.repository.song.SongRepository
+import com.google.gson.internal.GsonBuildConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,7 +53,9 @@ class MainViewModel(
     private val userDataStore: UserDataStore,
     private val playlistRepository: PlaylistRepository,
     private val authRepository: AuthRepository,
-    private val firstLaunchDataStore: FirstLaunchDatastore
+    private val firstLaunchDataStore: FirstLaunchDatastore,
+    private val notificationDataStore: NotificationDataStore,
+    private val appVersion: AppVersion
 ) : ViewModel() {
 
     init {
@@ -106,6 +114,7 @@ class MainViewModel(
             settingsDataStore.setSetting(Settings.ThemeSetting, themeMode)
         }
     }
+
     // color mode
     val colorMode: StateFlow<ColorMode> = settingsDataStore.getSetting(Settings.ColorModeSetting)
         .stateIn(
@@ -113,11 +122,13 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = Settings.ColorModeSetting.defaultValue
         )
+
     fun saveColorMode(colorMode: ColorMode) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.ColorModeSetting, colorMode)
         }
     }
+
     // HB Format
     val hbFormat: StateFlow<HBFormat> = settingsDataStore.getSetting(Settings.HBFormatSetting)
         .stateIn(
@@ -125,6 +136,7 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = Settings.HBFormatSetting.defaultValue
         )
+
     fun saveHBFormat(format: HBFormat) {
         viewModelScope.launch {
             settingsDataStore.setSetting(Settings.HBFormatSetting, format)
@@ -137,6 +149,7 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = false
         )
+
     fun setNotFirstLaunch() {
         viewModelScope.launch {
             firstLaunchDataStore.setFirstLaunch()
@@ -184,7 +197,10 @@ class MainViewModel(
         searchQuery,
         myRemoteSongsIds
     ) { songs, sortOption, searchQuery, myRemoteSongsIds ->
-        Log.d("MainViewModel", "Combining songs with sortOption: $sortOption, searchQuery: '$searchQuery', myRemoteSongsIds size: ${myRemoteSongsIds.size}")
+        Log.d(
+            "MainViewModel",
+            "Combining songs with sortOption: $sortOption, searchQuery: '$searchQuery', myRemoteSongsIds size: ${myRemoteSongsIds.size}"
+        )
         val markedSongs = songs.map { s ->
             val isSynced = s.remoteId != null && myRemoteSongsIds.contains(s.remoteId)
             s.copy(markSynced = isSynced)
@@ -214,6 +230,7 @@ class MainViewModel(
             songRepository.deleteSong(song)
         }
     }
+
     fun insertSong(song: Song) {
         viewModelScope.launch {
             songRepository.insertSong(song)
@@ -230,6 +247,7 @@ class MainViewModel(
     fun clearDoneDeletingSongs() {
         isDoneDeletingSongs.value = null
     }
+
     fun deleteSongWithOptions(songs: List<Song>, deleteAction: Map<Int, Pair<Boolean, Boolean>>) {
         viewModelScope.launch {
             for (song in songs) {
@@ -244,7 +262,7 @@ class MainViewModel(
                     }
                 }
             }
-            if (deleteAction.entries.any { it.value.second}){
+            if (deleteAction.entries.any { it.value.second }) {
                 isDoneDeletingSongs.value = true
             }
         }
@@ -303,6 +321,7 @@ class MainViewModel(
     fun clearPostSuccess() {
         _postSuccess.value = null
     }
+
     fun postSong(song: Song) {
         val song = song.copy(
             title = song.title.ifBlank { "Untitled" }.trim(),
@@ -411,7 +430,8 @@ class MainViewModel(
                             _postSuccess.value = true
                             _myRemoteSongsIds.value += it
                         }.onFailure { exception ->
-                            _error.value = "Failed to post song: ${exception.message?.toError()?.message}"
+                            _error.value =
+                                "Failed to post song: ${exception.message?.toError()?.message}"
                         }
                     }
                 }
@@ -446,11 +466,13 @@ class MainViewModel(
                             val retry = songRemoteRepository.getMySongs(newToken)
                             retry.onSuccess { remoteSongs ->
                                 syncToLocalDb(remoteSongs)
-                                _myRemoteSongsIds.value = remoteSongs.mapNotNull { it.remoteId }.toSet()
+                                _myRemoteSongsIds.value =
+                                    remoteSongs.mapNotNull { it.remoteId }.toSet()
                                 return@launch // done
                             }.onFailure { e ->
                                 _myRemoteSongsIds.value = emptySet()
-                                _error.value = "Failed after refresh: ${e.message?.toError()?.message}"
+                                _error.value =
+                                    "Failed after refresh: ${e.message?.toError()?.message}"
                                 return@launch
                             }
                         }
@@ -503,6 +525,7 @@ class MainViewModel(
     fun clearDeleteSuccess() {
         deleteSuccess.value = null
     }
+
     fun deleteRemoteSong(song: Song) {
         viewModelScope.launch {
             val token = authRepository.getAccessToken()
@@ -548,8 +571,13 @@ class MainViewModel(
             }
         }
     }
+
     //------------------------------- Txt import/export -----------------------------------------------
-    fun importTxtSongsFromUris(uris: List<@JvmSuppressWildcards Uri>, context: Context, hbFormat: HBFormat) {
+    fun importTxtSongsFromUris(
+        uris: List<@JvmSuppressWildcards Uri>,
+        context: Context,
+        hbFormat: HBFormat
+    ) {
         viewModelScope.launch {
             if (uris.isNotEmpty()) {
                 uris.forEach { uri ->
@@ -565,7 +593,10 @@ class MainViewModel(
                                 userHBFormat = hbFormat
                             )
                             insertSong(song)
-                            Log.d("HomeScreen", "Imported TXT as song: ${song.title} by ${song.artist}")
+                            Log.d(
+                                "HomeScreen",
+                                "Imported TXT as song: ${song.title} by ${song.artist}"
+                            )
                         }
                     } catch (e: Exception) {
                         Log.e("HomeScreen", "Failed to import $uri", e)
@@ -574,6 +605,7 @@ class MainViewModel(
             }
         }
     }
+
     fun exportSongAsTxt(uri: Uri?, song: Song?, context: Context) {
         if (uri != null && song != null) {
             val content = TxtSongIO.songToTxtContent(song)
@@ -591,24 +623,26 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
     //playlist with songs count
     @OptIn(ExperimentalCoroutinesApi::class)
     val playlists: StateFlow<List<PlaylistInfo>> = _playlists
-    .flatMapLatest { playlists ->
-        if (playlists.isEmpty()) {
-            flowOf(emptyList())
-        } else {
-            val infoFlows = playlists.map { playlist ->
-                playlistRepository.getSongsInPlaylist(playlist.id)
-                    .map { songs -> PlaylistInfo(playlist = playlist, songCount = songs.size) }
+        .flatMapLatest { playlists ->
+            if (playlists.isEmpty()) {
+                flowOf(emptyList())
+            } else {
+                val infoFlows = playlists.map { playlist ->
+                    playlistRepository.getSongsInPlaylist(playlist.id)
+                        .map { songs -> PlaylistInfo(playlist = playlist, songCount = songs.size) }
+                }
+                combine(infoFlows) { array -> array.toList() }
             }
-            combine(infoFlows) { array -> array.toList() }
-        }
-    }.stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5000),
-    initialValue = emptyList()
-    )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     fun createPlaylist(name: String) {
         viewModelScope.launch {
             playlistRepository.makePlaylist(name)
@@ -633,9 +667,11 @@ class MainViewModel(
 
     private val _playlistSongs = MutableStateFlow<List<Song>>(emptyList())
     val playlistSongs: StateFlow<List<Song>> = _playlistSongs.asStateFlow()
+    private var playlistJob: Job? = null
 
     fun getSongsInPlaylist(playlistId: Int) {
-        viewModelScope.launch {
+        playlistJob?.cancel()
+        playlistJob = viewModelScope.launch {
             playlistRepository.getSongsInPlaylist(playlistId).collect { list ->
                 _playlistSongs.value = list
             }
@@ -672,6 +708,7 @@ class MainViewModel(
             playlistRepository.savePlaylistOrder(playlistId, orderedSongIds)
         }
     }
+
     fun removeSongFromPlaylist(playlistId: Int, songId: Int) {
         viewModelScope.launch {
             playlistRepository.removeSongFromPlaylistAndReorder(playlistId, songId)
@@ -693,11 +730,13 @@ class MainViewModel(
         val index = songsInPlaylist.indexOfFirst { it.localId == songId }
         return index > 0
     }
+
     fun isNotLastSongInPlaylist(playlistId: Int, songId: Int): Boolean {
         val songsInPlaylist = _playlistSongs.value
         val index = songsInPlaylist.indexOfFirst { it.localId == songId }
         return index >= 0 && index < songsInPlaylist.size - 1
     }
+
     fun navigateInsidePlaylist(
         navController: NavController,
         playlistId: Int,
@@ -712,13 +751,63 @@ class MainViewModel(
             navController.navigate("songFromPlaylist/${newSong.localId}/$playlistId")
         }
     }
+
     fun positionInPlaylist(playlistId: Int, songId: Int): Int? {
         val songsInPlaylist = _playlistSongs.value
         val index = songsInPlaylist.indexOfFirst { it.localId == songId }
         return if (index >= 0) index + 1 else null
     }
+
     fun playlistSize(playlistId: Int): Int {
         return _playlistSongs.value.size
     }
 
+    private val _seenNotifications = MutableStateFlow<Set<String>>(emptySet())
+
+    private val _unseenNotifications = MutableStateFlow<List<NotificationDto>>(emptyList())
+    val unseenNotifications: StateFlow<List<NotificationDto>> = _unseenNotifications.asStateFlow()
+
+    private suspend fun loadSeenNotifications(): Set<String> {
+        return notificationDataStore.getSeenNotificationIds().first()
+    }
+
+    fun getNotifications() {
+        viewModelScope.launch {
+            val seenIds = loadSeenNotifications()
+            _seenNotifications.value = seenIds
+            val result = songRemoteRepository.getNotifications()
+            if (result.isSuccess) {
+                val appVersion = appVersion.versionCode
+                Log.d("MainViewModel", "Fetched notifications: ${result.getOrNull()}")
+                Log.d("MainViewModel", "Seen notification IDs: $seenIds")
+                Log.d("MainViewModel", "App version code: $appVersion")
+                val notifications = result.getOrNull().orEmpty()
+                val seenIds = _seenNotifications.value
+                _unseenNotifications.value = notifications
+                    .filterNot { seenIds.contains(it.id) }
+                    .filter { appVersion in it.minVersion..it.maxVersion }
+                Log.d("MainViewModel", "Unseen notifications after filtering: ${_unseenNotifications.value}")
+
+            } else {
+                Log.e("MainViewModel", "Failed to fetch notifications: ${result.exceptionOrNull()?.message}")
+            }
+        }
+    }
+
+    fun setNotificationSeen(notification: NotificationDto) {
+        viewModelScope.launch {
+            notificationDataStore.markNotificationAsSeen(notification.id)
+            _seenNotifications.value += notification.id
+                _unseenNotifications.value = _unseenNotifications.value.filterNot { it.id == notification.id }
+        }
+    }
+
 }
+
+
+
+
+
+
+
+

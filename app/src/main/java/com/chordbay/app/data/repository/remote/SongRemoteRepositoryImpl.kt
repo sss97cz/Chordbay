@@ -6,6 +6,7 @@ import com.chordbay.app.data.mappers.toSong
 import com.chordbay.app.data.model.Song
 import com.chordbay.app.data.remote.ChordsBayApiService
 import com.chordbay.app.data.remote.model.ArtistDto
+import com.chordbay.app.data.remote.model.NotificationDto
 import com.chordbay.app.ui.composable.screen.song.FilterField
 import java.io.IOException
 
@@ -209,4 +210,21 @@ class SongRemoteRepositoryImpl(
             Result.failure(e)
         }
     }
+
+    override suspend fun getNotifications(): Result<List<NotificationDto>> =
+        try {
+            val response = apiService.getNotifications()
+            if (response.isSuccessful) {
+                val notifications = response.body()
+                if (notifications != null) {
+                    Result.success(notifications)
+                } else {
+                    Result.failure(IOException("Empty response body"))
+                }
+            } else {
+                Result.failure(IOException("Failed to fetch notifications, code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 }
