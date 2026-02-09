@@ -95,7 +95,7 @@ cd Chordbay
 
 ---
 
-## 🛠 Command-line uploader
+## Command-line uploader
 
 A small helper script (uploader.sh) can upload plain `.txt` song files to the backend. This section documents usage and examples.
 
