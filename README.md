@@ -2,6 +2,8 @@
 
 Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack Compose for musicians who want a simple, flexible way to organize, view, and play songs with chords and lyrics. The main focus is to have free offline-first personal songbook.
 
+[![Get it on Google Play](https://img.shields.io/badge/Get%20it%20on-Google%20Play-34A853?style=for-the-badge&logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.chordbay.app&pcampaignid=web_share)
+
 > **Tech stack:** Kotlin · Jetpack Compose · Room · Android  
 > **Key features:** Offline songbook · Chord transposition · Playlists · Sharing & sync
 
@@ -13,8 +15,8 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
 
 
 
-## ✨ Features
-### 🎵 Song management
+## Features
+### Song management
 
 - Local song library
 - Song editor
@@ -24,13 +26,13 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
   - Artist
 - Fast song browsing and search
 
-### 📚 Offline‑first songbook
+### Offline‑first songbook
 
 - All songs are stored locally using **Room** (SQLite)
 - Works completely offline by default
 - Your library is always available – no network required
 
-### 👤 User accounts & sharing
+### User accounts & sharing
 
 - Optional user accounts for sync and backup
 - Spring Boot backend written in Kotlin
@@ -38,14 +40,14 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
   - **Private** – only visible to you, used for personal sync across your devices
   - **Public** – share songs with other Chordbay users
 
-### 📂 Import & export
+### Import & export
 
 - Import songs from plain **.txt** files
 - Export songs to text for:
   - Backups
   - Editing on desktop
 
-### 🎛 Chord tools
+### Chord tools
 
 - **Chord transposition**:
   - Quickly transpose a song to any key
@@ -53,7 +55,7 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
 - Highlighting chords in songs
 - Support for English (Bb/B) and German (B,H) chord format
 
-### 🎧 Playlists & sets
+### Playlists & sets
 
 - Build **playlists** / setlists from your songs
 - Useful for:
@@ -61,20 +63,9 @@ Chordbay is an open‑source songbook mobile app built with Kotlin and Jetpack C
   - Rehearsal sets
   - Practice sessions
 
-### 🧱 Built with modern Android
-
-- **Kotlin** throughout
-- **Jetpack Compose** for UI:
-  - Declarative UI
-  - Theming and dark mode friendly
-- **Room** for persistence and structured querying
-- **Koin** for managing dependencies
-- **MVVM** for better code management
-- Follows modern Android app architecture best practices
-
 ---
 
-## 🚀 Getting started (development)
+## Getting started (development)
 
 > This section assumes you are familiar with Android development and Android Studio.
 
@@ -104,7 +95,7 @@ cd Chordbay
 
 ---
 
-## 🛠 Command-line uploader
+## Command-line uploader
 
 A small helper script (uploader.sh) can upload plain `.txt` song files to the backend. This section documents usage and examples.
 
@@ -167,10 +158,9 @@ Notes and tips
 - 
 ---
 
-## 💡 Roadmap ideas
+## Roadmap ideas
 
 Some possible future improvements:
-- Publishing the app on Google Play (in process, if you want to help with testing you can contact me at dev@chordbay.eu)
 - Move the project to KMP (Kotlin Multiplatform) for desktop and browser.
 - Improve the chord detection algorithm.
 
@@ -178,13 +168,13 @@ If you have suggestions or want to help with any of these, contributions are wel
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, bug reports, and feature requests are welcome.
 
 ---
 
-## 💖 Support
+## Support
 
 If you find Chordbay useful, you can support development on Ko-fi:
 
@@ -192,7 +182,7 @@ If you find Chordbay useful, you can support development on Ko-fi:
 
 -Money from Ko-fi will be used to cover server hosting costs.
 
-## 📝 License
+## License
 
 This project is open source. See the [LICENSE](./LICENSE) file for details.
 
